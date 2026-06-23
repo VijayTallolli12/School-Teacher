@@ -1,104 +1,185 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Alert,
+  Linking,
+} from 'react-native';
 import { ScreenContainer, AppHeader } from '../components';
+import { ProfileCard } from '../components/ProfileCard';
+import { InfoRow } from '../components/InfoRow';
+import { SettingsSection } from '../components/SettingsSection';
+import { SettingsItem } from '../components/SettingsItem';
+import { ChangePasswordModal } from '../components/ChangePasswordModal';
 import { useAuthStore } from '../store/authStore';
+import { useSettingsStore } from '../store/settingsStore';
+import { theme } from '../theme';
+
+const APP_VERSION = '1.0.0';
 
 export const ProfileScreen: React.FC = () => {
   const { user, logout, isLoading } = useAuthStore();
+  const {
+    theme: currentTheme,
+    pushNotifications,
+    emailNotifications,
+    smsNotifications,
+    loadPreferences,
+    setTheme,
+    setPushNotifications,
+    setEmailNotifications,
+    setSmsNotifications,
+  } = useSettingsStore();
+  const [showChangePassword, setShowChangePassword] = useState(false);
 
-  const handleLogout = () => {
+  useEffect(() => {
+    loadPreferences();
+  }, [loadPreferences]);
+
+  const handleLogout = useCallback(() => {
     Alert.alert(
       'Logout',
       'Are you sure you want to logout?',
       [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
+        { text: 'Cancel', style: 'cancel' },
         {
           text: 'Logout',
           style: 'destructive',
           onPress: async () => {
             try {
               await logout();
-            } catch (error) {
+            } catch {
               Alert.alert('Error', 'Failed to logout');
             }
           },
         },
       ]
     );
-  };
+  }, [logout]);
+
+  const handlePrivacyPolicy = useCallback(() => {
+    Linking.openURL('https://school.example.com/privacy').catch(() => {
+      Alert.alert('Error', 'Could not open link');
+    });
+  }, []);
+
+  const handleTerms = useCallback(() => {
+    Linking.openURL('https://school.example.com/terms').catch(() => {
+      Alert.alert('Error', 'Could not open link');
+    });
+  }, []);
+
+  const assignments = user?.classTeacherAssignments ?? [];
 
   return (
-    <ScreenContainer>
+    <ScreenContainer scrollable>
       <AppHeader title="Profile" />
-      <View style={styles.container}>
-        <View style={styles.profileCard}>
-          <Text style={styles.label}>Name</Text>
-          <Text style={styles.value}>{user?.name || 'N/A'}</Text>
 
-          <Text style={styles.label}>Email</Text>
-          <Text style={styles.value}>{user?.email || 'N/A'}</Text>
+      <View style={styles.content}>
+        {/* Profile Section */}
+        <SettingsSection title="Profile Information">
+          <ProfileCard
+            name={user?.name ?? 'N/A'}
+            email={user?.email ?? 'N/A'}
+            employeeId={user?.employeeId}
+          />
+          <View style={styles.infoRowsContainer}>
+            <InfoRow label="Phone" value={user?.phone ?? '—'} />
+            <InfoRow label="Department" value={user?.department ?? '—'} />
+            <InfoRow label="Designation" value={user?.designation ?? '—'} />
+            <InfoRow label="Employee ID" value={user?.employeeId ?? '—'} />
+            <InfoRow label="School ID" value={user?.schoolId ?? '—'} />
+          </View>
+        </SettingsSection>
 
-          <Text style={styles.label}>Role</Text>
-          <Text style={styles.value}>{user?.role || 'N/A'}</Text>
+        {/* Class Teacher Assignments */}
+        {assignments.length > 0 && (
+          <SettingsSection title="Class Teacher Assignments">
+            {assignments.map((assignment, index) => (
+              <InfoRow
+                key={index}
+                label={assignment.className}
+                value={`${assignment.section} - ${assignment.subject}`}
+              />
+            ))}
+          </SettingsSection>
+        )}
 
-          <Text style={styles.label}>School ID</Text>
-          <Text style={styles.value}>{user?.schoolId || 'N/A'}</Text>
-        </View>
+        {/* Settings Section */}
+        <SettingsSection title="Preferences">
+          <SettingsItem
+            label="Dark Theme"
+            toggle={currentTheme === 'dark'}
+            onToggle={(enabled) => setTheme(enabled ? 'dark' : 'light')}
+            showArrow={false}
+          />
+          <SettingsItem
+            label="Push Notifications"
+            toggle={pushNotifications}
+            onToggle={setPushNotifications}
+            showArrow={false}
+          />
+          <SettingsItem
+            label="Email Notifications"
+            toggle={emailNotifications}
+            onToggle={setEmailNotifications}
+            showArrow={false}
+          />
+          <SettingsItem
+            label="SMS Notifications"
+            toggle={smsNotifications}
+            onToggle={setSmsNotifications}
+            showArrow={false}
+          />
+        </SettingsSection>
 
-        <TouchableOpacity
-          style={[styles.logoutButton, isLoading && styles.buttonDisabled]}
-          onPress={handleLogout}
-          disabled={isLoading}
-        >
-          <Text style={styles.logoutButtonText}>
-            {isLoading ? 'Logging out...' : 'Logout'}
-          </Text>
-        </TouchableOpacity>
+        {/* About Section */}
+        <SettingsSection title="About">
+          <SettingsItem label="App Version" value={APP_VERSION} onPress={() => {}} />
+          <SettingsItem label="Privacy Policy" onPress={handlePrivacyPolicy} />
+          <SettingsItem label="Terms of Service" onPress={handleTerms} />
+        </SettingsSection>
+
+        {/* Security Section */}
+        <SettingsSection title="Security">
+          <SettingsItem
+            label="Change Password"
+            onPress={() => setShowChangePassword(true)}
+          />
+          <SettingsItem
+            label="Logout"
+            onPress={handleLogout}
+            destructive
+            showArrow={false}
+          />
+        </SettingsSection>
+
+        {isLoading && (
+          <Text style={styles.loggingOut}>Logging out...</Text>
+        )}
       </View>
+
+      <ChangePasswordModal
+        visible={showChangePassword}
+        onClose={() => setShowChangePassword(false)}
+      />
     </ScreenContainer>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 24,
+  content: {
+    padding: theme.spacing.md,
+    paddingBottom: theme.spacing.xxl,
   },
-  profileCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 24,
-    marginBottom: 24,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
+  infoRowsContainer: {
+    paddingHorizontal: theme.spacing.md,
   },
-  label: {
-    fontSize: 14,
-    color: '#6B7280',
-    marginBottom: 4,
-    marginTop: 16,
-  },
-  value: {
-    fontSize: 16,
-    color: '#111827',
-    fontWeight: '500',
-  },
-  logoutButton: {
-    backgroundColor: '#EF4444',
-    paddingHorizontal: 32,
-    paddingVertical: 14,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  buttonDisabled: {
-    backgroundColor: '#9CA3AF',
-  },
-  logoutButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
+  loggingOut: {
+    textAlign: 'center',
+    color: theme.colors.textLight,
+    fontSize: theme.typography.fontSize.sm,
+    marginTop: theme.spacing.sm,
   },
 });

@@ -1,5 +1,5 @@
 import apiClient from '../utils/axios';
-import { User } from '../types';
+import { ChangePasswordPayload, UpdateProfilePayload, User } from '../types';
 
 export interface LoginRequest {
   email: string;
@@ -27,6 +27,19 @@ export const authApi = {
 
   async getProfile(): Promise<ProfileResponse> {
     const response = await apiClient.get<ProfileResponse>('/api/v1/teacher/profile');
+    return response.data;
+  },
+
+  async updateProfile(payload: UpdateProfilePayload): Promise<ProfileResponse> {
+    const response = await apiClient.put<ProfileResponse>('/api/v1/teacher/profile', payload);
+    return response.data;
+  },
+
+  async changePassword(payload: ChangePasswordPayload): Promise<{ success: boolean; message?: string }> {
+    const response = await apiClient.post<{ success: boolean; message?: string }>(
+      '/api/v1/teacher/change-password',
+      payload
+    );
     return response.data;
   },
 };

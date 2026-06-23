@@ -1,9 +1,22 @@
+import { NavigatorScreenParams } from '@react-navigation/native';
+
+export interface TeacherClassAssignment {
+  className: string;
+  section: string;
+  subject: string;
+}
+
 export interface User {
   id: string;
   name: string;
   email: string;
   role: 'teacher';
   schoolId: string;
+  phone?: string;
+  employeeId?: string;
+  department?: string;
+  designation?: string;
+  classTeacherAssignments?: TeacherClassAssignment[];
 }
 
 export interface Student {
@@ -83,18 +96,26 @@ export type AuthStackParamList = {
 };
 
 export type AppStackParamList = {
-  MainTabs: undefined;
+  MainTabs: NavigatorScreenParams<MainTabParamList>;
   Exams: undefined;
   HomeworkCreate: { homeworkId?: string; initialData?: HomeworkPayload } | undefined;
   HomeworkDetail: { homeworkId: string };
+  PeriodDetail: { period: PeriodItem };
+  Leave: undefined;
+  LeaveApply: { leaveType?: string } | undefined;
+  LeaveDetail: { leaveId: string };
+  Students: undefined;
+  StudentDetail: { studentId: string };
 };
 
 export type MainTabParamList = {
   Dashboard: undefined;
+  Students: undefined;
   Attendance: undefined;
   Homework: undefined;
   Notifications: undefined;
   Profile: undefined;
+  Timetable: undefined;
 };
 
 export type NotificationType =
@@ -146,6 +167,20 @@ export interface NotificationMutationResponse {
   success: boolean;
   message?: string;
   data?: NotificationItem;
+}
+
+export interface ChangePasswordPayload {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
+export interface UpdateProfilePayload {
+  name?: string;
+  email?: string;
+  phone?: string;
+  department?: string;
+  designation?: string;
 }
 
 export interface RegisterDevicePayload {
@@ -200,6 +235,212 @@ export interface AttendanceStudent {
   rollNumber: string;
   class: string;
   section: string;
+}
+
+export type StudentStatus = 'active' | 'inactive' | 'transferred';
+
+export interface StudentItem {
+  id: string;
+  name: string;
+  admissionNo: string;
+  photo?: string;
+  className: string;
+  section: string;
+  status: StudentStatus;
+}
+
+export interface ParentInfo {
+  fatherName: string;
+  motherName: string;
+  fatherPhone: string;
+  motherPhone: string;
+  fatherEmail?: string;
+  motherEmail?: string;
+  address: string;
+}
+
+export interface AttendanceSummaryData {
+  totalDays: number;
+  present: number;
+  absent: number;
+  late: number;
+  percentage: number;
+}
+
+export interface TransportInfo {
+  route: string;
+  stop: string;
+  pickupTime: string;
+  dropTime: string;
+  driverName?: string;
+  driverPhone?: string;
+}
+
+export interface FeeStatusInfo {
+  totalFee: number;
+  paid: number;
+  due: number;
+  dueDate: string;
+  status: 'paid' | 'partial' | 'overdue' | 'pending';
+}
+
+export interface HomeworkSummaryItem {
+  id: string;
+  title: string;
+  subject: string;
+  dueDate: string;
+  status: string;
+}
+
+export interface StudentDetail {
+  id: string;
+  name: string;
+  admissionNo: string;
+  photo?: string;
+  className: string;
+  section: string;
+  rollNumber: string;
+  gender: string;
+  dateOfBirth: string;
+  bloodGroup?: string;
+  status: StudentStatus;
+  parentInfo: ParentInfo;
+  attendance: AttendanceSummaryData;
+  transport?: TransportInfo;
+  feeStatus?: FeeStatusInfo;
+  recentHomework: HomeworkSummaryItem[];
+}
+
+export interface StudentListResponse {
+  data: StudentItem[];
+  meta?: {
+    total: number;
+    page: number;
+    perPage: number;
+    totalPages: number;
+  };
+}
+
+export interface StudentDetailResponse {
+  data: StudentDetail;
+}
+
+export interface StudentAttendanceResponse {
+  data: AttendanceSummaryData;
+}
+
+export interface PeriodItem {
+  id: string;
+  periodNumber: number;
+  startTime: string;
+  endTime: string;
+  subject: string;
+  className: string;
+  section: string;
+  room: string;
+  teacher: string;
+  studentCount: number;
+}
+
+export type PeriodStatus = 'current' | 'upcoming' | 'completed';
+
+export interface TimetableDay {
+  day: string;
+  date: string;
+  periods: PeriodItem[];
+}
+
+export interface TodayTimetableResponse {
+  data: {
+    day: TimetableDay;
+    currentPeriod: PeriodItem | null;
+    nextPeriod: PeriodItem | null;
+  };
+}
+
+export interface WeeklyTimetableResponse {
+  data: TimetableDay[];
+}
+
+export interface PeriodDetailResponse {
+  data: PeriodItem;
+}
+
+export type LeaveStatus = 'pending' | 'approved' | 'rejected' | 'cancelled';
+
+export interface LeaveType {
+  id: string;
+  name: string;
+  description: string;
+  defaultDays: number;
+  maxConsecutiveDays: number;
+}
+
+export interface LeaveBalance {
+  leaveTypeId: string;
+  leaveTypeName: string;
+  total: number;
+  used: number;
+  remaining: number;
+}
+
+export interface LeaveItem {
+  id: string;
+  leaveType: string;
+  leaveTypeId: string;
+  fromDate: string;
+  toDate: string;
+  days: number;
+  reason: string;
+  status: LeaveStatus;
+  appliedDate: string;
+  approver?: string;
+  remarks?: string;
+  approvalDate?: string;
+  attachment?: string;
+  timeline?: LeaveTimelineEntry[];
+}
+
+export interface LeaveTimelineEntry {
+  status: LeaveStatus;
+  date: string;
+  remark?: string;
+  updatedBy?: string;
+}
+
+export interface LeavePayload {
+  leaveTypeId: string;
+  fromDate: string;
+  toDate: string;
+  reason: string;
+  attachment?: string;
+}
+
+export interface LeaveListResponse {
+  data: LeaveItem[];
+}
+
+export interface LeaveBalanceResponse {
+  data: LeaveBalance[];
+}
+
+export interface LeaveTypesResponse {
+  data: LeaveType[];
+}
+
+export interface LeaveDetailResponse {
+  data: LeaveItem;
+}
+
+export interface ApplyLeaveResponse {
+  success: boolean;
+  message?: string;
+  data?: LeaveItem;
+}
+
+export interface CancelLeaveResponse {
+  success: boolean;
+  message?: string;
 }
 
 export interface AttendanceRecord {

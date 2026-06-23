@@ -1,6 +1,13 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { DashboardScreen, AttendanceScreen, HomeworkScreen, ProfileScreen } from '../screens';
+import {
+  DashboardScreen,
+  AttendanceScreen,
+  HomeworkScreen,
+  ProfileScreen,
+  TimetableScreen,
+  StudentsScreen,
+} from '../screens';
 import { MainTabParamList } from '../types';
 import { NotificationsNavigator } from './NotificationsNavigator';
 import { useUnreadCount } from '../hooks/useNotifications';
@@ -22,6 +29,16 @@ export const MainTabs: React.FC = () => {
         name="Dashboard" 
         component={DashboardScreen}
         options={{ tabBarLabel: 'Dashboard' }}
+      />
+      <Tab.Screen
+        name="Students"
+        component={StudentsScreen}
+        options={{ tabBarLabel: 'Students' }}
+      />
+      <Tab.Screen 
+        name="Timetable" 
+        component={TimetableScreen}
+        options={{ tabBarLabel: 'Timetable' }}
       />
       <Tab.Screen 
         name="Attendance" 
