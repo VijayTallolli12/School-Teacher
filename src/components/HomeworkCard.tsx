@@ -2,6 +2,8 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { theme } from '../theme';
 import { HomeworkItem } from '../types';
+import { getHomeworkStatusLabel, getHomeworkStatusColor } from '../utils/homework';
+import { HomeworkStatusBadge } from './HomeworkStatusBadge';
 
 interface HomeworkCardProps {
   homework: HomeworkItem;
@@ -9,25 +11,13 @@ interface HomeworkCardProps {
 }
 
 export const HomeworkCard: React.FC<HomeworkCardProps> = ({ homework, onPress }) => {
-  const getStatusColor = () => {
-    switch (homework.status) {
-      case 'pending':
-        return theme.colors.warning;
-      case 'submitted':
-        return theme.colors.success;
-      case 'overdue':
-        return theme.colors.error;
-      default:
-        return theme.colors.textSecondary;
-    }
-  };
+  const statusLabel = getHomeworkStatusLabel(homework);
+  const statusColor = getHomeworkStatusColor(statusLabel);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
-
-  const statusColor = getStatusColor();
 
   return (
     <TouchableOpacity style={styles.container} onPress={onPress}>
@@ -35,11 +25,7 @@ export const HomeworkCard: React.FC<HomeworkCardProps> = ({ homework, onPress })
         <Text style={styles.title} numberOfLines={1}>
           {homework.title}
         </Text>
-        <View style={[styles.statusBadge, { backgroundColor: `${statusColor}20` }]}>
-          <Text style={[styles.statusText, { color: statusColor }]}>
-            {homework.status.charAt(0).toUpperCase() + homework.status.slice(1)}
-          </Text>
-        </View>
+        <HomeworkStatusBadge label={statusLabel} color={statusColor} />
       </View>
       
       <View style={styles.details}>
@@ -53,9 +39,13 @@ export const HomeworkCard: React.FC<HomeworkCardProps> = ({ homework, onPress })
         </View>
         <View style={styles.detailItem}>
           <Text style={styles.detailLabel}>Due:</Text>
-          <Text style={[styles.detailValue, { color: statusColor }]}>
+          <Text style={[styles.detailValue, { color: statusColor }]}> 
             {formatDate(homework.dueDate)}
           </Text>
+        </View>
+        <View style={styles.detailItem}>
+          <Text style={styles.detailLabel}>Created:</Text>
+          <Text style={styles.detailValue}>{formatDate(homework.createdAt)}</Text>
         </View>
       </View>
     </TouchableOpacity>
@@ -83,15 +73,6 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     marginRight: theme.spacing.sm,
   },
-  statusBadge: {
-    paddingHorizontal: theme.spacing.sm,
-    paddingVertical: theme.spacing.xs,
-    borderRadius: theme.radius.sm,
-  },
-  statusText: {
-    fontSize: theme.typography.fontSize.xs,
-    fontWeight: theme.typography.fontWeight.bold,
-  },
   details: {
     gap: theme.spacing.xs,
   },
@@ -102,7 +83,8 @@ const styles = StyleSheet.create({
   detailLabel: {
     fontSize: theme.typography.fontSize.sm,
     color: theme.colors.textSecondary,
-    width: 60,
+    width: 70,
+    fontWeight: theme.typography.fontWeight.medium,
   },
   detailValue: {
     fontSize: theme.typography.fontSize.sm,

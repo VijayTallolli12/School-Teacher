@@ -1,10 +1,11 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { ScreenContainer } from '../components';
-import { HomeworkHeader } from '../components';
+import { HomeworkHeader, HomeworkStatusBadge } from '../components';
 import { useHomeworkById } from '../hooks/useHomework';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { theme } from '../theme';
+import { getHomeworkStatusLabel, getHomeworkStatusColor } from '../utils/homework';
 
 type HomeworkDetailRouteProp = RouteProp<{ HomeworkDetail: { homeworkId: string } }, 'HomeworkDetail'>;
 
@@ -28,18 +29,8 @@ export const HomeworkDetailScreen: React.FC = () => {
     });
   };
 
-  const getStatusColor = () => {
-    switch (homework?.status) {
-      case 'pending':
-        return theme.colors.warning;
-      case 'submitted':
-        return theme.colors.success;
-      case 'overdue':
-        return theme.colors.error;
-      default:
-        return theme.colors.textSecondary;
-    }
-  };
+  const statusLabel = homework ? getHomeworkStatusLabel(homework) : 'Upcoming';
+  const statusColor = getHomeworkStatusColor(statusLabel);
 
   if (error) {
     return (
@@ -68,24 +59,19 @@ export const HomeworkDetailScreen: React.FC = () => {
     );
   }
 
-  const statusColor = getStatusColor();
-
   return (
     <ScreenContainer>
       <HomeworkHeader title="Homework Details" />
       <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
         <View style={styles.card}>
           <View style={styles.header}>
-            <Text style={styles.title}>{homework.title}</Text>
-            <View style={[styles.statusBadge, { backgroundColor: `${statusColor}20` }]}>
-              <Text style={[styles.statusText, { color: statusColor }]}>
-                {homework.status.charAt(0).toUpperCase() + homework.status.slice(1)}
-              </Text>
+            <View style={styles.titleBlock}>
+              <Text style={styles.title}>{homework.title}</Text>
+              <HomeworkStatusBadge label={statusLabel} color={statusColor} />
             </View>
-          </View>
-
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Description</Text>
+            <TouchableOpacity style={styles.editButton} onPress={() => (navigation as any).navigate('HomeworkCreate', { homeworkId })}>
+              <Text style={styles.editButtonText}>Edit</Text>
+            </TouchableOpacity>
             <Text style={styles.description}>{homework.description}</Text>
           </View>
 
@@ -176,12 +162,27 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     marginBottom: theme.spacing.lg,
   },
-  title: {
+  titleBlock: {
     flex: 1,
+    marginRight: theme.spacing.md,
+  },
+  title: {
     fontSize: theme.typography.fontSize.xxl,
     fontWeight: theme.typography.fontWeight.bold,
     color: theme.colors.text,
-    marginRight: theme.spacing.md,
+    marginBottom: theme.spacing.sm,
+  },
+  editButton: {
+    backgroundColor: theme.colors.primary,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+    borderRadius: theme.radius.md,
+    alignSelf: 'flex-start',
+  },
+  editButtonText: {
+    color: theme.colors.background,
+    fontSize: theme.typography.fontSize.sm,
+    fontWeight: theme.typography.fontWeight.bold,
   },
   statusBadge: {
     paddingHorizontal: theme.spacing.md,

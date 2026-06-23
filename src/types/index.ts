@@ -85,7 +85,7 @@ export type AuthStackParamList = {
 export type AppStackParamList = {
   MainTabs: undefined;
   Exams: undefined;
-  HomeworkCreate: undefined;
+  HomeworkCreate: { homeworkId?: string; initialData?: HomeworkPayload } | undefined;
   HomeworkDetail: { homeworkId: string };
 };
 

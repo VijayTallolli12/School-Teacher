@@ -13,3 +13,4 @@ export { HomeworkCard } from './HomeworkCard';
 export { HomeworkForm } from './HomeworkForm';
 export { HomeworkHeader } from './HomeworkHeader';
 export { HomeworkEmptyState } from './HomeworkEmptyState';
+export { HomeworkStatusBadge } from './HomeworkStatusBadge';

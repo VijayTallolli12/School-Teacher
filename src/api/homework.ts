@@ -11,6 +11,11 @@ export const homeworkApi = {
     return response.data;
   },
 
+  async getHomeworkDetail(id: string): Promise<HomeworkResponse> {
+    const response = await apiClient.get<HomeworkResponse>(`/api/v1/teacher/homework/${id}`);
+    return response.data;
+  },
+
   async createHomework(payload: HomeworkPayload): Promise<HomeworkResponse> {
     const response = await apiClient.post<HomeworkResponse>('/api/v1/teacher/homework', payload);
     return response.data;
@@ -22,7 +27,6 @@ export const homeworkApi = {
   },
 
   async getHomeworkById(id: string): Promise<HomeworkResponse> {
-    const response = await apiClient.get<HomeworkResponse>(`/api/v1/teacher/homework/${id}`);
-    return response.data;
+    return this.getHomeworkDetail(id);
   },
 };

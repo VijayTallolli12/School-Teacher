@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity } from 'react-native';
 import { theme } from '../theme';
 import { HomeworkPayload, TeacherClass } from '../types';
@@ -23,6 +23,15 @@ export const HomeworkForm: React.FC<HomeworkFormProps> = ({
   const [section, setSection] = useState(initialData?.section || '');
   const [dueDate, setDueDate] = useState(initialData?.dueDate || '');
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    setTitle(initialData?.title || '');
+    setDescription(initialData?.description || '');
+    setSubject(initialData?.subject || '');
+    setSelectedClass(initialData?.class || '');
+    setSection(initialData?.section || '');
+    setDueDate(initialData?.dueDate || '');
+  }, [initialData]);
 
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -54,8 +63,10 @@ export const HomeworkForm: React.FC<HomeworkFormProps> = ({
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
-      if (selectedDate < today) {
-        newErrors.dueDate = 'Due date must be in the future';
+      if (Number.isNaN(selectedDate.getTime())) {
+        newErrors.dueDate = 'Please enter a valid date (YYYY-MM-DD)';
+      } else if (selectedDate < today) {
+        newErrors.dueDate = 'Due date cannot be in the past';
       }
     }
 

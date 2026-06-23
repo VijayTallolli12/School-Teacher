@@ -1,5 +1,4 @@
-import { useQuery, UseQueryResult } from '@tanstack/react-query';
-import { useMutation, UseMutationResult } from '@tanstack/react-query';
+import { useQuery, UseQueryResult, useQueryClient, useMutation, UseMutationResult } from '@tanstack/react-query';
 import { homeworkApi } from '../api/homework';
 import { HomeworkItem, HomeworkPayload, HomeworkResponse } from '../types';
 
@@ -14,11 +13,11 @@ export const useHomework = (): UseQueryResult<HomeworkItem[], Error> => {
   });
 };
 
-export const useHomeworkById = (id: string): UseQueryResult<HomeworkItem, Error> => {
+export const useHomeworkDetail = (id: string): UseQueryResult<HomeworkItem, Error> => {
   return useQuery({
     queryKey: ['homework', id],
     queryFn: async () => {
-      const response = await homeworkApi.getHomeworkById(id);
+      const response = await homeworkApi.getHomeworkDetail(id);
       return response.data;
     },
     enabled: !!id,
@@ -26,15 +25,22 @@ export const useHomeworkById = (id: string): UseQueryResult<HomeworkItem, Error>
   });
 };
 
+export const useHomeworkById = useHomeworkDetail;
+
 export const useCreateHomework = (): UseMutationResult<
   HomeworkResponse,
   Error,
   HomeworkPayload
 > => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async (payload: HomeworkPayload) => {
       const response = await homeworkApi.createHomework(payload);
       return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['homework'] });
     },
   });
 };
@@ -44,10 +50,16 @@ export const useUpdateHomework = (): UseMutationResult<
   Error,
   { id: string; payload: HomeworkPayload }
 > => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async ({ id, payload }) => {
       const response = await homeworkApi.updateHomework(id, payload);
       return response;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['homework'] });
+      queryClient.setQueryData(['homework', data.data.id], data.data);
     },
   });
 };
