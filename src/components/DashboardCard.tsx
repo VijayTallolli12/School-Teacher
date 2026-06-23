@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { theme } from '../theme';
 
 interface DashboardCardProps {
@@ -7,6 +7,7 @@ interface DashboardCardProps {
   value: number;
   label: string;
   color?: string;
+  onPress?: () => void;
 }
 
 export const DashboardCard: React.FC<DashboardCardProps> = ({
@@ -14,14 +15,30 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({
   value,
   label,
   color = theme.colors.primary,
+  onPress,
 }) => {
-  return (
-    <View style={[styles.container, { borderLeftColor: color }]}>
+  const content = (
+    <>
       <Text style={[styles.icon, { color }]}>{icon}</Text>
       <Text style={styles.value}>{value}</Text>
       <Text style={styles.label}>{label}</Text>
-    </View>
+    </>
   );
+
+  if (onPress) {
+    return (
+      <TouchableOpacity
+        style={[styles.container, { borderLeftColor: color }]}
+        onPress={onPress}
+        accessibilityRole="button"
+        accessibilityLabel={`${label}: ${value}`}
+      >
+        {content}
+      </TouchableOpacity>
+    );
+  }
+
+  return <View style={[styles.container, { borderLeftColor: color }]}>{content}</View>;
 };
 
 const styles = StyleSheet.create({

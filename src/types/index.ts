@@ -93,7 +93,83 @@ export type MainTabParamList = {
   Dashboard: undefined;
   Attendance: undefined;
   Homework: undefined;
+  Notifications: undefined;
   Profile: undefined;
+};
+
+export type NotificationType =
+  | 'attendance'
+  | 'homework'
+  | 'exam'
+  | 'fee'
+  | 'transport'
+  | 'system'
+  | 'ai_agent';
+
+export type NotificationFilterValue = 'all' | 'unread' | 'read';
+
+export interface NotificationItem {
+  id: string;
+  title: string;
+  message: string;
+  type: NotificationType;
+  createdAt: string;
+  isRead: boolean;
+  readAt?: string | null;
+  data?: Record<string, unknown>;
+}
+
+export interface NotificationResponse {
+  data: {
+    unread_count: number;
+    notifications: Array<{
+      id: string | number;
+      title: string;
+      message: string;
+      type: string;
+      type_label: string;
+      priority: string;
+      is_read: boolean;
+      sent_at: string | null;
+      read_at: string | null;
+    }>;
+  };
+}
+
+export interface UnreadCountResponse {
+  data: {
+    unread_count: number;
+  };
+}
+
+export interface NotificationMutationResponse {
+  success: boolean;
+  message?: string;
+  data?: NotificationItem;
+}
+
+export interface RegisterDevicePayload {
+  device_type: string;
+  platform: 'android' | 'ios';
+  device_token: string;
+}
+
+export interface RegisterDeviceResponse {
+  success: boolean;
+  message?: string;
+  data?: {
+    device: {
+      id: string | number;
+      device_type: string | null;
+      platform: string | null;
+      last_seen_at: string | null;
+    };
+  };
+}
+
+export type NotificationsStackParamList = {
+  NotificationsList: undefined;
+  NotificationDetail: { notification: NotificationItem };
 };
 
 export interface DashboardData {

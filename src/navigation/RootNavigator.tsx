@@ -6,7 +6,7 @@ import { AuthNavigator } from './AuthNavigator';
 import { AppNavigator } from './AppNavigator';
 import { RootStackParamList } from '../types';
 import { useAuthStore } from '../store/authStore';
-import { LoadingScreen } from '../components';
+import { LoadingScreen, NotificationManager } from '../components';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -32,6 +32,7 @@ export const RootNavigator: React.FC = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
+      {isAuthenticated && <NotificationManager />}
       <NavigationContainer>
         <Stack.Navigator
           screenOptions={{

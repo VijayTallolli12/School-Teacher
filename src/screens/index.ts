@@ -1,5 +1,7 @@
 export { LoginScreen } from './LoginScreen';
 export { DashboardScreen } from './DashboardScreen';
+export { NotificationsScreen } from './NotificationsScreen';
+export { NotificationDetailScreen } from './NotificationDetailScreen';
 export { AttendanceScreen } from './AttendanceScreen';
 export { HomeworkScreen } from './HomeworkScreen';
 export { HomeworkCreateScreen } from './HomeworkCreateScreen';

@@ -2,10 +2,14 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { DashboardScreen, AttendanceScreen, HomeworkScreen, ProfileScreen } from '../screens';
 import { MainTabParamList } from '../types';
+import { NotificationsNavigator } from './NotificationsNavigator';
+import { useUnreadCount } from '../hooks/useNotifications';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
 export const MainTabs: React.FC = () => {
+  const { data: unreadCount = 0 } = useUnreadCount();
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -28,6 +32,14 @@ export const MainTabs: React.FC = () => {
         name="Homework" 
         component={HomeworkScreen}
         options={{ tabBarLabel: 'Homework' }}
+      />
+      <Tab.Screen
+        name="Notifications"
+        component={NotificationsNavigator}
+        options={{
+          tabBarLabel: 'Alerts',
+          tabBarBadge: unreadCount > 0 ? (unreadCount > 99 ? '99+' : unreadCount) : undefined,
+        }}
       />
       <Tab.Screen 
         name="Profile" 

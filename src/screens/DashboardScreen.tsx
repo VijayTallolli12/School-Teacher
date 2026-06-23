@@ -2,13 +2,20 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, Alert } from 'react-native';
 import { ScreenContainer, DashboardHeader, DashboardCard, DashboardSection } from '../components';
 import { useDashboard } from '../hooks/useDashboard';
+import { useUnreadCount } from '../hooks/useNotifications';
 import { theme } from '../theme';
+import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import { MainTabParamList } from '../types';
 
-export const DashboardScreen: React.FC = () => {
+type Props = BottomTabScreenProps<MainTabParamList, 'Dashboard'>;
+
+export const DashboardScreen: React.FC<Props> = ({ navigation }) => {
   const { data, isLoading, error, refetch } = useDashboard();
+  const { data: unreadCount = 0, refetch: refetchUnreadCount } = useUnreadCount();
 
   const handleRefresh = () => {
     refetch();
+    refetchUnreadCount();
   };
 
   const handleRetry = () => {
@@ -86,9 +93,10 @@ export const DashboardScreen: React.FC = () => {
         <DashboardSection title="Notifications">
           <DashboardCard
             icon="🔔"
-            value={data.notificationCount}
+            value={unreadCount}
             label="New Notifications"
             color={theme.colors.info}
+            onPress={() => navigation.navigate('Notifications')}
           />
         </DashboardSection>
       </ScrollView>

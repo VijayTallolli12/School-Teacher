@@ -2,3 +2,4 @@ export { RootNavigator } from './RootNavigator';
 export { AuthNavigator } from './AuthNavigator';
 export { AppNavigator } from './AppNavigator';
 export { MainTabs } from './MainTabsNavigator';
+export { NotificationsNavigator } from './NotificationsNavigator';
