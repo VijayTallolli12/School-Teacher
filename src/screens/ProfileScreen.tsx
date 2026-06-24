@@ -72,7 +72,7 @@ export const ProfileScreen: React.FC = () => {
   const assignments = user?.classTeacherAssignments ?? [];
 
   return (
-    <ScreenContainer scrollable>
+    <ScreenContainer scrollable backgroundColor={theme.colors.backgroundSecondary}>
       <AppHeader title="Profile" />
 
       <View style={styles.content}>
@@ -170,7 +170,7 @@ export const ProfileScreen: React.FC = () => {
 const styles = StyleSheet.create({
   content: {
     padding: theme.spacing.md,
-    paddingBottom: theme.spacing.xxl,
+    paddingBottom: theme.spacing.xl,
   },
   infoRowsContainer: {
     paddingHorizontal: theme.spacing.md,
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
   loggingOut: {
     textAlign: 'center',
     color: theme.colors.textLight,
-    fontSize: theme.typography.fontSize.sm,
+    ...theme.typography.hierarchy.caption,
     marginTop: theme.spacing.sm,
   },
 });

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { AppCard } from './AppCard';
+import { MetricCard } from './CardSystem';
 import { theme } from '../theme';
 
 interface AttendanceSummaryProps {
@@ -18,7 +18,7 @@ export const AttendanceSummary: React.FC<AttendanceSummaryProps> = ({
   lateCount,
 }) => {
   return (
-    <AppCard variant="elevated" contentStyle={styles.cardContent}>
+    <MetricCard style={styles.cardWrapper} contentStyle={styles.cardContent}>
       <Text style={styles.title}>Attendance Summary</Text>
       
       <View style={styles.summaryRow}>
@@ -46,13 +46,17 @@ export const AttendanceSummary: React.FC<AttendanceSummaryProps> = ({
           <Text style={[styles.summaryLabel, styles.lateLabel]}>Late</Text>
         </View>
       </View>
-    </AppCard>
+    </MetricCard>
   );
 };
 
 const styles = StyleSheet.create({
+  cardWrapper: {
+    width: '100%',
+  },
   cardContent: {
     padding: theme.spacing.lg,
+    alignItems: 'center',
   },
   title: {
     fontSize: theme.typography.fontSize.lg,
@@ -65,6 +69,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: theme.spacing.md,
+    width: '100%',
   },
   summaryItem: {
     flex: 1,
@@ -73,15 +78,19 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.md,
     backgroundColor: theme.colors.backgroundSecondary,
     marginHorizontal: theme.spacing.xs,
+    minHeight: 112,
+    justifyContent: 'center',
   },
   summaryValue: {
-    fontSize: theme.typography.fontSize.xxxl,
+    fontSize: theme.typography.fontSize.xxl,
     fontWeight: theme.typography.fontWeight.bold,
     color: theme.colors.text,
+    textAlign: 'center',
   },
   summaryLabel: {
     fontSize: theme.typography.fontSize.sm,
     color: theme.colors.textSecondary,
+    textAlign: 'center',
   },
   presentItem: {
     backgroundColor: `${theme.colors.success}20`,

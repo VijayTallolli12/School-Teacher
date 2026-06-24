@@ -9,7 +9,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { AppHeader } from '../components';
+import { ScreenContainer, AppHeader } from '../components';
 import { StudentCard } from '../components/StudentCard';
 import { StudentSearchBar } from '../components/StudentSearchBar';
 import { StudentFilterSheet } from '../components/StudentFilterSheet';
@@ -22,8 +22,7 @@ import { AppStackParamList, StudentItem, StudentStatus } from '../types';
 type NavigationProp = NativeStackNavigationProp<AppStackParamList>;
 
 interface FilterState {
-  class: string;
-  section: string;
+  classSectionId: string;
   status: StudentStatus | '';
 }
 
@@ -32,16 +31,14 @@ export const StudentsScreen: React.FC = () => {
   const [search, setSearch] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<FilterState>({
-    class: '',
-    section: '',
+    classSectionId: '',
     status: '',
   });
 
   const queryParams = useMemo(() => {
     const params: Record<string, string | number> = {};
     if (search.trim()) params.search = search.trim();
-    if (filters.class) params.class = filters.class;
-    if (filters.section) params.section = filters.section;
+    if (filters.classSectionId) params.class_section_id = filters.classSectionId;
     if (filters.status) params.status = filters.status;
     return params;
   }, [search, filters]);
@@ -61,18 +58,21 @@ export const StudentsScreen: React.FC = () => {
     [navigation]
   );
 
-  const handleApplyFilters = useCallback((newFilters: FilterState) => {
-    setFilters(newFilters);
-  }, []);
+  const handleApplyFilters = useCallback(
+    (newFilters: { classSectionId: string; status: StudentStatus | '' }) => {
+      setFilters({ classSectionId: newFilters.classSectionId, status: newFilters.status });
+    },
+    []
+  );
 
   const activeFilterCount = useMemo(
-    () =>
-      [filters.class, filters.section, filters.status].filter(Boolean).length,
+    () => [filters.classSectionId, filters.status].filter(Boolean).length,
     [filters]
   );
 
   return (
-    <View style={styles.screen}>
+    <ScreenContainer scrollable={false}>
+      <View style={styles.screen}>
       <AppHeader title="Students" />
 
       <StudentSearchBar
@@ -89,7 +89,7 @@ export const StudentsScreen: React.FC = () => {
           </Text>
           <Text
             style={styles.clearFiltersText}
-            onPress={() => setFilters({ class: '', section: '', status: '' })}
+            onPress={() => setFilters({ classSectionId: '', status: '' })}
             accessibilityRole="button"
             accessibilityLabel="Clear all filters"
           >
@@ -143,9 +143,11 @@ export const StudentsScreen: React.FC = () => {
         visible={showFilters}
         onClose={() => setShowFilters(false)}
         onApply={handleApplyFilters}
-        initialFilters={filters}
+        initialClassSectionId={filters.classSectionId}
+        initialStatus={filters.status}
       />
-    </View>
+      </View>
+    </ScreenContainer>
   );
 };
 

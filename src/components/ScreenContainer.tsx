@@ -1,42 +1,48 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, ViewStyle } from 'react-native';
-import { theme } from '../theme';
+import { ViewStyle } from 'react-native';
+import { ScreenLayout } from './ScreenLayout';
 
 interface ScreenContainerProps {
   children: React.ReactNode;
   scrollable?: boolean;
   style?: ViewStyle;
+  contentContainerStyle?: ViewStyle;
   backgroundColor?: string;
+  loading?: boolean;
+  loadingMessage?: string;
+  empty?: boolean;
+  emptyContent?: React.ReactNode;
+  keyboardAvoiding?: boolean;
+  bottomInset?: boolean;
 }
 
 export const ScreenContainer: React.FC<ScreenContainerProps> = ({
   children,
   scrollable = true,
   style,
-  backgroundColor = theme.colors.background,
+  contentContainerStyle,
+  backgroundColor,
+  loading = false,
+  loadingMessage,
+  empty = false,
+  emptyContent,
+  keyboardAvoiding = true,
+  bottomInset = true,
 }) => {
-  const containerStyle = [
-    styles.container,
-    { backgroundColor },
-    style,
-  ];
-
-  if (scrollable) {
-    return (
-      <ScrollView style={containerStyle} contentContainerStyle={styles.content}>
-        {children}
-      </ScrollView>
-    );
-  }
-
-  return <View style={containerStyle}>{children}</View>;
+  return (
+    <ScreenLayout
+      scrollable={scrollable}
+      style={style}
+      contentContainerStyle={contentContainerStyle}
+      backgroundColor={backgroundColor}
+      loading={loading}
+      loadingMessage={loadingMessage}
+      empty={empty}
+      emptyContent={emptyContent}
+      keyboardAvoiding={keyboardAvoiding}
+      bottomInset={bottomInset}
+    >
+      {children}
+    </ScreenLayout>
+  );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  content: {
-    flexGrow: 1,
-  },
-});

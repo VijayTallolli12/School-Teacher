@@ -96,10 +96,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         // Verify token is still valid by fetching profile
         try {
           const response = await authApi.getProfile();
+          const savedUser = JSON.parse(profileJson) as User;
           
           set({
             isAuthenticated: true,
-            user: response.user,
+            user: {
+              ...response.user,
+              schoolId: response.user.schoolId || savedUser.schoolId,
+            },
             token: token,
             isLoading: false,
             error: null,

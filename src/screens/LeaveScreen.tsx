@@ -90,7 +90,7 @@ export const LeaveScreen: React.FC = () => {
 
   if (isLoading) {
     return (
-      <ScreenContainer>
+      <ScreenContainer scrollable={false} backgroundColor={theme.colors.backgroundSecondary}>
         <AppHeader title="Leave Management" />
         <SkeletonList count={4} style={styles.skeletonList} />
       </ScreenContainer>
@@ -98,7 +98,7 @@ export const LeaveScreen: React.FC = () => {
   }
 
   return (
-    <View style={styles.screen}>
+    <ScreenContainer scrollable={false} backgroundColor={theme.colors.backgroundSecondary}>
       <AppHeader title="Leave Management" />
       <ScrollView
         style={styles.scrollView}
@@ -192,7 +192,7 @@ export const LeaveScreen: React.FC = () => {
       >
         <Ionicons name="add" size={28} color={theme.colors.background} />
       </TouchableOpacity>
-    </View>
+    </ScreenContainer>
   );
 };
 

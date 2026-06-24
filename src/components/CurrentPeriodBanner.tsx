@@ -31,20 +31,21 @@ export const CurrentPeriodBanner: React.FC<CurrentPeriodBannerProps> = ({
           onPress={onCurrentPress}
           activeOpacity={0.7}
           accessibilityRole="button"
-          accessibilityLabel={`Current period: ${currentPeriod.subject}`}
+          accessibilityLabel={`Current period: ${currentPeriod?.subject ?? 'Unnamed'}`}
         >
           <View style={styles.indicator}>
             <Ionicons name="ellipse" size={12} color={theme.colors.primary} />
             <Text style={styles.indicatorLabel}>NOW</Text>
           </View>
           <View style={styles.info}>
-            <Text style={styles.subject}>{currentPeriod.subject}</Text>
+            <Text style={styles.subject}>
+              {currentPeriod?.subject ?? 'Current Period'}
+            </Text>
             <Text style={styles.detail}>
-              P{currentPeriod.periodNumber} · {currentPeriod.className} ·{' '}
-              {currentPeriod.room}
+              P{currentPeriod?.periodNumber ?? '?'} · {currentPeriod?.className ?? ''}{currentPeriod?.section ? ` · ${currentPeriod.section}` : ''} · {currentPeriod?.room ?? 'Room Not Assigned'}
             </Text>
             <Text style={styles.time}>
-              {currentPeriod.startTime} - {currentPeriod.endTime}
+              {currentPeriod?.startTime ?? '--:--'} - {currentPeriod?.endTime ?? '--:--'}
             </Text>
           </View>
         </TouchableOpacity>
@@ -55,13 +56,14 @@ export const CurrentPeriodBanner: React.FC<CurrentPeriodBannerProps> = ({
             <Text style={styles.indicatorLabel}>NEXT</Text>
           </View>
           <View style={styles.info}>
-            <Text style={styles.nextSubject}>{nextPeriod.subject}</Text>
+            <Text style={styles.nextSubject}>
+              {nextPeriod?.subject ?? 'Next Period'}
+            </Text>
             <Text style={styles.detail}>
-              P{nextPeriod.periodNumber} · {nextPeriod.className} ·{' '}
-              {nextPeriod.room}
+              P{nextPeriod?.periodNumber ?? '?'} · {nextPeriod?.className ?? ''}{nextPeriod?.section ? ` · ${nextPeriod.section}` : ''} · {nextPeriod?.room ?? 'Room Not Assigned'}
             </Text>
             <Text style={styles.time}>
-              Starts at {nextPeriod.startTime}
+              Starts at {nextPeriod?.startTime ?? '--:--'}
             </Text>
           </View>
         </View>

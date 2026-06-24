@@ -25,6 +25,13 @@ export const PeriodCard: React.FC<PeriodCardProps> = ({
   compact = false,
 }) => {
   const colors = statusColors[status];
+  const subject = period?.subject ?? 'Unnamed Period';
+  const periodNumber = period?.periodNumber ?? '?';
+  const startTime = period?.startTime ?? '--:--';
+  const endTime = period?.endTime ?? '--:--';
+  const className = period?.className ?? '';
+  const section = period?.section ?? '';
+  const room = period?.room ?? 'Room Not Assigned';
 
   return (
     <AppCard
@@ -33,23 +40,20 @@ export const PeriodCard: React.FC<PeriodCardProps> = ({
       style={{ backgroundColor: colors.bg }}
     >
       <View style={styles.container}>
-        {/* Timeline indicator */}
         <View style={[styles.timelineDot, { backgroundColor: colors.dot }]} />
 
-        {/* Period number & time */}
         <View style={styles.timeColumn}>
           <Ionicons name="time-outline" size={16} color={theme.colors.textLight} />
-          <Text style={styles.periodNumber}>P{period.periodNumber}</Text>
-          <Text style={styles.timeText}>{period.startTime}</Text>
+          <Text style={styles.periodNumber}>P{periodNumber}</Text>
+          <Text style={styles.timeText}>{startTime}</Text>
           <Text style={styles.timeSeparator}>|</Text>
-          <Text style={styles.timeText}>{period.endTime}</Text>
+          <Text style={styles.timeText}>{endTime}</Text>
         </View>
 
-        {/* Period details */}
         <View style={styles.detailsColumn}>
           <View style={styles.topRow}>
             <Text style={styles.subject} numberOfLines={1}>
-              {period.subject}
+              {subject}
             </Text>
             <View style={[styles.statusBadge, { backgroundColor: colors.dot + '20' }]}>
               <Text style={[styles.statusText, { color: colors.dot }]}>
@@ -60,9 +64,9 @@ export const PeriodCard: React.FC<PeriodCardProps> = ({
           {!compact && (
             <>
               <Text style={styles.detailText}>
-                {period.className} - {period.section}
+                {className}{section ? ` - ${section}` : ''}
               </Text>
-              <Text style={styles.detailText}>Room: {period.room}</Text>
+              <Text style={styles.detailText}>Room: {room}</Text>
             </>
           )}
         </View>

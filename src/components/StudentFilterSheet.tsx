@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -10,23 +10,28 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../theme';
 import { useClasses } from '../hooks/useAttendance';
-import { StudentStatus } from '../types';
+import { StudentStatus, TeacherClass } from '../types';
 import { AppButton } from './AppButton';
-
-interface FilterState {
-  class: string;
-  section: string;
-  status: StudentStatus | '';
-}
 
 interface StudentFilterSheetProps {
   visible: boolean;
   onClose: () => void;
-  onApply: (filters: FilterState) => void;
-  initialFilters?: FilterState;
+  onApply: (filters: { classSectionId: string; status: StudentStatus | '' }) => void;
+  initialClassSectionId?: string;
+  initialStatus?: StudentStatus | '';
 }
 
-const SECTIONS = ['A', 'B', 'C', 'D'];
+function findClassSectionId(className: string, section: string, classes?: TeacherClass[]): string {
+  if (!className || !section || !classes) return '';
+  return classes.find((c) => c.name === className && c.section === section)?.id ?? '';
+}
+
+function decomposeClassSectionId(classSectionId: string, classes?: TeacherClass[]): { className: string; section: string } {
+  if (!classSectionId || !classes) return { className: '', section: '' };
+  const match = classes.find((c) => c.id === classSectionId);
+  return match ? { className: match.name, section: match.section } : { className: '', section: '' };
+}
+
 const STATUSES: { value: StudentStatus | ''; label: string }[] = [
   { value: '', label: 'All' },
   { value: 'active', label: 'Active' },
@@ -38,28 +43,46 @@ export const StudentFilterSheet: React.FC<StudentFilterSheetProps> = ({
   visible,
   onClose,
   onApply,
-  initialFilters,
+  initialClassSectionId,
+  initialStatus,
 }) => {
   const { data: classes } = useClasses();
-  const [filters, setFilters] = useState<FilterState>(
-    initialFilters ?? { class: '', section: '', status: '' }
-  );
+  const [filters, setFilters] = useState<{ class: string; section: string; status: StudentStatus | '' }>({
+    class: '',
+    section: '',
+    status: initialStatus ?? '',
+  });
+
+  useEffect(() => {
+    if (!classes || !initialClassSectionId) return;
+    const decomposed = decomposeClassSectionId(initialClassSectionId, classes);
+    if (decomposed.className) {
+      setFilters({ class: decomposed.className, section: decomposed.section, status: initialStatus ?? '' });
+    }
+  }, [classes, initialClassSectionId, initialStatus]);
 
   const handleApply = () => {
-    onApply(filters);
+    const classSectionId = findClassSectionId(filters.class, filters.section, classes);
+    onApply({ classSectionId, status: filters.status });
     onClose();
   };
 
   const handleReset = () => {
-    const reset = { class: '', section: '', status: '' as const };
-    setFilters(reset);
-    onApply(reset);
+    setFilters({ class: '', section: '', status: '' });
+    onApply({ classSectionId: '', status: '' });
     onClose();
   };
 
   const uniqueClasses = Array.from(
     new Set(classes?.map((c) => c.name) ?? [])
   );
+
+  const availableSections = React.useMemo(() => {
+    if (!filters.class || !classes) return [];
+    return classes
+      .filter((c) => c.name === filters.class)
+      .map((c) => c.section);
+  }, [filters.class, classes]);
 
   return (
     <Modal visible={visible} transparent animationType="slide" accessibilityViewIsModal>
@@ -106,7 +129,7 @@ export const StudentFilterSheet: React.FC<StudentFilterSheetProps> = ({
                     styles.chip,
                     filters.class === cls && styles.chipActive,
                   ]}
-                  onPress={() => setFilters((f) => ({ ...f, class: cls }))}
+                  onPress={() => setFilters((f) => ({ ...f, class: cls, section: '' }))}
                   accessibilityRole="radio"
                   accessibilityState={{ selected: filters.class === cls }}
                   accessibilityLabel={`Class ${cls}`}
@@ -123,51 +146,55 @@ export const StudentFilterSheet: React.FC<StudentFilterSheetProps> = ({
               ))}
             </View>
 
-            {/* Section Filter */}
+            {/* Section Filter — dynamically populated from teacher's assigned sections */}
             <Text style={styles.filterLabel}>Section</Text>
-            <View style={styles.chipRow} accessibilityRole="radiogroup" accessibilityLabel="Select section">
-              <TouchableOpacity
-                style={[
-                  styles.chip,
-                  filters.section === '' && styles.chipActive,
-                ]}
-                onPress={() => setFilters((f) => ({ ...f, section: '' }))}
-                accessibilityRole="radio"
-                accessibilityState={{ selected: filters.section === '' }}
-                accessibilityLabel="All sections"
-              >
-                <Text
-                  style={[
-                    styles.chipText,
-                    filters.section === '' && styles.chipTextActive,
-                  ]}
-                >
-                  All
-                </Text>
-              </TouchableOpacity>
-              {SECTIONS.map((sec) => (
+            {!filters.class ? (
+              <Text style={styles.noSelectionText}>Select a class to filter by section</Text>
+            ) : (
+              <View style={styles.chipRow} accessibilityRole="radiogroup" accessibilityLabel="Select section">
                 <TouchableOpacity
-                  key={sec}
                   style={[
                     styles.chip,
-                    filters.section === sec && styles.chipActive,
+                    filters.section === '' && styles.chipActive,
                   ]}
-                  onPress={() => setFilters((f) => ({ ...f, section: sec }))}
+                  onPress={() => setFilters((f) => ({ ...f, section: '' }))}
                   accessibilityRole="radio"
-                  accessibilityState={{ selected: filters.section === sec }}
-                  accessibilityLabel={`Section ${sec}`}
+                  accessibilityState={{ selected: filters.section === '' }}
+                  accessibilityLabel="All sections"
                 >
                   <Text
                     style={[
                       styles.chipText,
-                      filters.section === sec && styles.chipTextActive,
+                      filters.section === '' && styles.chipTextActive,
                     ]}
                   >
-                    {sec}
+                    All
                   </Text>
                 </TouchableOpacity>
-              ))}
-            </View>
+                {availableSections.map((sec) => (
+                  <TouchableOpacity
+                    key={sec}
+                    style={[
+                      styles.chip,
+                      filters.section === sec && styles.chipActive,
+                    ]}
+                    onPress={() => setFilters((f) => ({ ...f, section: sec }))}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected: filters.section === sec }}
+                    accessibilityLabel={`Section ${sec}`}
+                  >
+                    <Text
+                      style={[
+                        styles.chipText,
+                        filters.section === sec && styles.chipTextActive,
+                      ]}
+                    >
+                      {sec}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
 
             {/* Status Filter */}
             <Text style={styles.filterLabel}>Status</Text>
@@ -281,6 +308,11 @@ const styles = StyleSheet.create({
   chipTextActive: {
     color: theme.colors.primary,
     fontWeight: theme.typography.weight.bold,
+  },
+  noSelectionText: {
+    ...theme.typography.hierarchy.caption,
+    color: theme.colors.textLight,
+    marginBottom: theme.spacing.sm,
   },
   footer: {
     flexDirection: 'row',

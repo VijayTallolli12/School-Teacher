@@ -70,8 +70,8 @@ const styles = StyleSheet.create({
   },
   title: {
     flex: 1,
-    fontSize: theme.typography.fontSize.md,
-    fontWeight: theme.typography.fontWeight.bold,
+    ...theme.typography.hierarchy.body,
+    fontWeight: theme.typography.weight.bold,
     color: theme.colors.text,
     marginRight: theme.spacing.sm,
   },
@@ -87,15 +87,15 @@ const styles = StyleSheet.create({
     width: 16,
   },
   detailLabel: {
-    fontSize: theme.typography.fontSize.sm,
+    ...theme.typography.hierarchy.caption,
     color: theme.colors.textSecondary,
     width: 65,
-    fontWeight: theme.typography.fontWeight.medium,
+    fontWeight: theme.typography.weight.medium,
   },
   detailValue: {
-    fontSize: theme.typography.fontSize.sm,
+    ...theme.typography.hierarchy.caption,
     color: theme.colors.text,
-    fontWeight: theme.typography.fontWeight.medium,
+    fontWeight: theme.typography.weight.medium,
     flex: 1,
   },
 });

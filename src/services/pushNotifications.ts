@@ -5,7 +5,7 @@ import { APP_CONSTANTS } from '../config/constants';
 
 export const NOTIFICATION_CHANNEL_ID = APP_CONSTANTS.NOTIFICATION_CHANNEL_ID;
 
-if (Platform.OS !== 'web') {
+if (!__DEV__ && Platform.OS !== 'web') {
   Notifications.setNotificationHandler({
     handleNotification: async () => ({
       shouldPlaySound: true,
@@ -17,7 +17,7 @@ if (Platform.OS !== 'web') {
 }
 
 export const registerForPushNotifications = async (): Promise<string | null> => {
-  if (Platform.OS === 'web') {
+  if (__DEV__ || Platform.OS === 'web') {
     return null;
   }
 

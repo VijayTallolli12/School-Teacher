@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { AppCard } from './AppCard';
 import { theme } from '../theme';
 
 interface DashboardCardProps {
@@ -19,46 +18,49 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({
   color = theme.colors.primary,
   onPress,
 }) => {
-  const content = (
-    <>
-      <Ionicons name={icon} size={32} color={color} style={styles.icon} />
-      <Text style={styles.value}>{value}</Text>
-      <Text style={styles.label}>{label}</Text>
-    </>
-  );
-
   return (
-    <AppCard
-      variant="stat"
-      accentColor={color}
-      onPress={onPress}
-      style={styles.card}
-      contentStyle={styles.cardContent}
-    >
-      {content}
-    </AppCard>
+    <View style={styles.card}>
+      <View style={[styles.iconContainer, { backgroundColor: color + '15' }]}>
+        <Ionicons name={icon} size={22} color={color} />
+      </View>
+      <View style={styles.textContainer}>
+        <Text style={styles.value}>{value}</Text>
+        <Text style={styles.label}>{label}</Text>
+      </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   card: {
-    flex: 1,
-    marginHorizontal: theme.spacing.xs,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius.md,
+    padding: theme.spacing.md,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    gap: theme.spacing.md,
   },
-  cardContent: {
+  iconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  icon: {
-    marginBottom: theme.spacing.sm,
+  textContainer: {
+    flex: 1,
   },
   value: {
-    fontSize: theme.typography.fontSize.xxxl,
-    fontWeight: theme.typography.fontWeight.bold,
+    ...theme.typography.hierarchy.title,
+    fontWeight: theme.typography.weight.bold,
     color: theme.colors.text,
-    marginBottom: theme.spacing.xs,
+    lineHeight: 28,
   },
   label: {
-    fontSize: theme.typography.fontSize.sm,
+    ...theme.typography.hierarchy.caption,
     color: theme.colors.textSecondary,
+    marginTop: 1,
   },
 });

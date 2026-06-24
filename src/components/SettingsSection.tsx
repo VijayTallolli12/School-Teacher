@@ -18,7 +18,7 @@ export const SettingsSection: React.FC<SettingsSectionProps> = ({ title, childre
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: theme.spacing.lg,
+    marginBottom: theme.spacing.md,
   },
   title: {
     fontSize: theme.typography.fontSize.xs,
@@ -30,8 +30,8 @@ const styles = StyleSheet.create({
     marginLeft: theme.spacing.xs,
   },
   content: {
-    backgroundColor: theme.colors.background,
-    borderRadius: theme.radius.md,
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius.lg,
     borderWidth: 1,
     borderColor: theme.colors.border,
     overflow: 'hidden',

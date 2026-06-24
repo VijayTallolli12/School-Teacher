@@ -92,7 +92,7 @@ export const AppCard: React.FC<AppCardProps> = ({
 
 const styles = StyleSheet.create({
   base: {
-    borderRadius: theme.radius.md,
+    borderRadius: theme.radius.lg,
     overflow: 'hidden',
   },
   content: {

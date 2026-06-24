@@ -7,7 +7,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { AppButton, AppCard, ScreenContainer, AppHeader } from '../components';
+import { AppButton, AppCard, ScreenContainer, AppHeader, EmptyState } from '../components';
 import { theme } from '../theme';
 import { AppStackParamList } from '../types';
 
@@ -17,57 +17,78 @@ type NavigationProp = NativeStackNavigationProp<AppStackParamList>;
 export const PeriodDetailScreen: React.FC = () => {
   const route = useRoute<DetailRouteProp>();
   const navigation = useNavigation<NavigationProp>();
-  const { period } = route.params;
+  const period = route.params?.period;
 
   const handleMarkAttendance = useCallback(() => {
     navigation.navigate('MainTabs', { screen: 'Attendance' });
   }, [navigation]);
 
   const handleAssignHomework = useCallback(() => {
+    if (!period) return;
     navigation.navigate('HomeworkCreate', {
       initialData: {
         title: '',
         description: '',
-        subject: period.subject,
-        class: period.className,
-        section: period.section,
+        subject: period?.subject ?? '',
+        class: period?.className ?? '',
+        section: period?.section ?? '',
         dueDate: '',
       },
     });
   }, [navigation, period]);
+
+  if (!period) {
+    return (
+      <ScreenContainer>
+        <AppHeader title="Period Detail" showBackButton onBackPress={() => navigation.goBack()} />
+        <EmptyState
+          icon="alert-circle-outline"
+          title="Period not found"
+          message="The period details could not be loaded."
+        />
+      </ScreenContainer>
+    );
+  }
+
+  const subject = period?.subject ?? 'Unnamed Period';
+  const periodNumber = period?.periodNumber ?? '?';
+  const className = period?.className ?? '';
+  const section = period?.section ?? '';
+  const teacher = period?.teacher ?? 'Not assigned';
+  const room = period?.room ?? 'Room Not Assigned';
+  const startTime = period?.startTime ?? '--:--';
+  const endTime = period?.endTime ?? '--:--';
+  const studentCount = period?.studentCount ?? 0;
 
   return (
     <ScreenContainer scrollable>
       <AppHeader title="Period Detail" showBackButton onBackPress={() => navigation.goBack()} />
 
       <View style={styles.content}>
-        {/* Subject header */}
         <AppCard variant="elevated">
           <View style={styles.subjectHeader}>
             <View style={styles.subjectIcon}>
               <Text style={styles.subjectIconText}>
-                {period.subject.charAt(0)}
+                {subject.charAt(0) ?? '?'}
               </Text>
             </View>
             <View style={styles.subjectInfo}>
-              <Text style={styles.subjectName}>{period.subject}</Text>
+              <Text style={styles.subjectName}>{subject}</Text>
               <Text style={styles.periodLabel}>
-                Period {period.periodNumber}
+                Period {periodNumber}
               </Text>
             </View>
           </View>
         </AppCard>
 
-        {/* Details card */}
         <AppCard variant="default" style={styles.detailsCard}>
-          <DetailRow label="Class" value={`${period.className} - ${period.section}`} />
-          <DetailRow label="Teacher" value={period.teacher} />
-          <DetailRow label="Room" value={period.room} />
-          <DetailRow label="Time" value={`${period.startTime} - ${period.endTime}`} />
-          <DetailRow label="Students" value={`${period.studentCount} enrolled`} />
+          <DetailRow label="Class" value={className + (section ? ` - ${section}` : '')} />
+          <DetailRow label="Teacher" value={teacher} />
+          <DetailRow label="Room" value={room} />
+          <DetailRow label="Time" value={`${startTime} - ${endTime}`} />
+          <DetailRow label="Students" value={`${studentCount} enrolled`} />
         </AppCard>
 
-        {/* Quick Actions */}
         <View style={styles.actionsSection}>
           <Text style={styles.sectionTitle}>Quick Actions</Text>
           <View style={styles.actionsRow}>

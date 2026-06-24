@@ -7,7 +7,7 @@ import {
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { ScreenContainer } from '../components';
+import { ScreenContainer, AppHeader } from '../components';
 import { AppButton } from '../components/AppButton';
 import { EmptyState } from '../components/EmptyState';
 import { SkeletonList, SkeletonCard } from '../components/SkeletonLoader';
@@ -17,7 +17,7 @@ import {
   AttendanceSummary,
 } from '../components';
 import { useClasses, useStudents, useMarkAttendance } from '../hooks/useAttendance';
-import { TeacherClass, AttendanceStudent, AttendanceMarkingRecord } from '../types';
+import { TeacherClass, AttendanceStudent, AttendanceMarkingRecord, MarkAttendancePayload, MarkAttendanceResponse } from '../types';
 import { theme } from '../theme';
 
 type AttendanceStatus = 'present' | 'absent' | 'late';
@@ -27,7 +27,7 @@ export const AttendanceScreen: React.FC = () => {
   const [attendanceMap, setAttendanceMap] = useState<Record<string, AttendanceStatus>>({});
   const [showSuccess, setShowSuccess] = useState(false);
   const [successData, setSuccessData] = useState<{
-    processedCount: number;
+    markedCount: number;
     presentCount: number;
     absentCount: number;
     lateCount: number;
@@ -87,20 +87,26 @@ export const AttendanceScreen: React.FC = () => {
       return;
     }
 
-    const attendance: AttendanceMarkingRecord[] = Object.entries(attendanceMap).map(([studentId, status]) => ({
-      studentId,
+    const students: AttendanceMarkingRecord[] = Object.entries(attendanceMap).map(([studentId, status]) => ({
+      student_id: Number(studentId),
       status,
     }));
 
-    const payload = {
-      classId: selectedClass.id,
-      date: new Date().toISOString().split('T')[0],
-      attendance,
+    const payload: MarkAttendancePayload = {
+      class_section_id: Number(selectedClass.id),
+      attendance_date: new Date().toISOString().split('T')[0],
+      students,
     };
 
     markAttendance(payload, {
-      onSuccess: (data) => {
-        setSuccessData(data.data);
+      onSuccess: (data: MarkAttendanceResponse) => {
+        const records = data.data.records;
+        setSuccessData({
+          markedCount: data.data.marked_count,
+          presentCount: records.filter((r) => r.status === 'present').length,
+          absentCount: records.filter((r) => r.status === 'absent').length,
+          lateCount: records.filter((r) => r.status === 'late').length,
+        });
         setShowSuccess(true);
         setAttendanceMap({});
         setSelectedClass(null);
@@ -154,7 +160,7 @@ export const AttendanceScreen: React.FC = () => {
               Attendance has been successfully recorded and notifications have been sent.
             </Text>
             <AttendanceSummary
-              processedCount={successData.processedCount}
+              processedCount={successData.markedCount}
               presentCount={successData.presentCount}
               absentCount={successData.absentCount}
               lateCount={successData.lateCount}
@@ -189,7 +195,8 @@ export const AttendanceScreen: React.FC = () => {
   }
 
   return (
-    <ScreenContainer>
+    <ScreenContainer scrollable={false}>
+      <AppHeader title="Attendance" />
       <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
         <Text style={styles.title}>Mark Attendance</Text>
 
@@ -221,9 +228,9 @@ export const AttendanceScreen: React.FC = () => {
             <Text style={styles.sectionTitle}>
               Students ({students.length})
             </Text>
-            {students.map((student) => (
+            {students.map((student, index) => (
               <StudentAttendanceCard
-                key={student.id}
+                key={student.id ?? `student-${index}`}
                 student={student}
                 status={attendanceMap[student.id] || null}
                 onStatusChange={(status) => handleStatusChange(student.id, status)}
@@ -258,19 +265,18 @@ const styles = StyleSheet.create({
     paddingBottom: theme.spacing.xl,
   },
   title: {
-    fontSize: theme.typography.fontSize.xxl,
-    fontWeight: theme.typography.fontWeight.bold,
-    color: theme.colors.text,
-    marginBottom: theme.spacing.lg,
-  },
-  studentsContainer: {
-    marginTop: theme.spacing.lg,
-  },
-  sectionTitle: {
-    fontSize: theme.typography.fontSize.lg,
-    fontWeight: theme.typography.fontWeight.bold,
+    ...theme.typography.hierarchy.title,
     color: theme.colors.text,
     marginBottom: theme.spacing.md,
+  },
+  studentsContainer: {
+    marginTop: theme.spacing.md,
+  },
+  sectionTitle: {
+    ...theme.typography.hierarchy.body,
+    fontWeight: theme.typography.weight.semibold,
+    color: theme.colors.text,
+    marginBottom: theme.spacing.sm,
   },
   submitContainer: {
     marginTop: theme.spacing.xl,
@@ -280,7 +286,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   errorMessage: {
-    fontSize: theme.typography.fontSize.md,
+    ...theme.typography.hierarchy.bodySmall,
     color: theme.colors.textSecondary,
     marginBottom: theme.spacing.sm,
     textAlign: 'center',
@@ -297,13 +303,12 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.lg,
   },
   successTitle: {
-    fontSize: theme.typography.fontSize.xxxl,
-    fontWeight: theme.typography.fontWeight.bold,
+    ...theme.typography.hierarchy.title,
     color: theme.colors.text,
     marginBottom: theme.spacing.md,
   },
   successMessage: {
-    fontSize: theme.typography.fontSize.md,
+    ...theme.typography.hierarchy.bodySmall,
     color: theme.colors.textSecondary,
     textAlign: 'center',
     marginBottom: theme.spacing.xl,

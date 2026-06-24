@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { AppHeader, SkeletonList } from '../components';
+import { AppHeader, ScreenContainer, SkeletonList } from '../components';
 import { TimetableHeader } from '../components/TimetableHeader';
 import { CurrentPeriodBanner } from '../components/CurrentPeriodBanner';
 import { DaySelector } from '../components/DaySelector';
@@ -24,6 +24,7 @@ const getPeriodStatus = (
   currentPeriodId?: string | null,
   nextPeriodId?: string | null
 ): 'current' | 'upcoming' | 'completed' => {
+  if (!period?.id) return 'completed';
   if (currentPeriodId && period.id === currentPeriodId) return 'current';
   if (nextPeriodId && period.id === nextPeriodId) return 'upcoming';
   return 'completed';
@@ -53,14 +54,21 @@ export const TimetableScreen: React.FC = () => {
 
   React.useEffect(() => {
     if (weekData && weekData.length > 0 && !selectedDay) {
-      setSelectedDay(weekData[0].day);
+      const firstDay = weekData[0]?.day;
+      if (firstDay) {
+        setSelectedDay(firstDay);
+      }
     }
   }, [weekData, selectedDay]);
 
   const weekDayMap = useMemo(() => {
     const map = new Map<string, PeriodItem[]>();
     if (weekData) {
-      weekData.forEach((d) => map.set(d.day, d.periods));
+      weekData.forEach((d) => {
+        if (d?.day && d?.periods) {
+          map.set(d.day, d.periods);
+        }
+      });
     }
     return map;
   }, [weekData]);
@@ -71,7 +79,7 @@ export const TimetableScreen: React.FC = () => {
   );
 
   const availableDays = useMemo(
-    () => (weekData ?? []).map((d) => d.day),
+    () => (weekData ?? []).map((d) => d?.day).filter(Boolean) as string[],
     [weekData]
   );
 
@@ -96,7 +104,7 @@ export const TimetableScreen: React.FC = () => {
       'Sunday', 'Monday', 'Tuesday', 'Wednesday',
       'Thursday', 'Friday', 'Saturday',
     ];
-    return names[new Date().getDay()];
+    return names[new Date().getDay()] ?? 'Unknown';
   }, []);
 
   const renderTodayContent = () => {
@@ -114,11 +122,13 @@ export const TimetableScreen: React.FC = () => {
       );
     }
 
-    if (!todayData || todayData.day.periods.length === 0) {
+    if (!todayData?.day?.periods || todayData.day.periods.length === 0) {
       return <EmptyTimetableState />;
     }
 
-    const { day, currentPeriod, nextPeriod } = todayData;
+    const day = todayData.day;
+    const currentPeriod = todayData.currentPeriod ?? null;
+    const nextPeriod = todayData.nextPeriod ?? null;
 
     return (
       <>
@@ -131,9 +141,9 @@ export const TimetableScreen: React.FC = () => {
               : undefined
           }
         />
-        {day.periods.map((period) => (
+        {day.periods.map((period, index) => (
           <PeriodCard
-            key={period.id}
+            key={period?.id ?? `period-${index}`}
             period={period}
             status={getPeriodStatus(period, currentPeriod?.id, nextPeriod?.id)}
             onPress={() => handlePeriodPress(period)}
@@ -177,12 +187,12 @@ export const TimetableScreen: React.FC = () => {
         {periods.length === 0 ? (
           <EmptyTimetableState
             isWeekView
-            message={`No classes on ${selectedDay}`}
+            message={`No classes on ${selectedDay || 'selected day'}`}
           />
         ) : (
-          periods.map((period) => (
+          periods.map((period, index) => (
             <PeriodCard
-              key={period.id}
+              key={period?.id ?? `period-${index}`}
               period={period}
               status="upcoming"
               onPress={() => handlePeriodPress(period)}
@@ -194,7 +204,8 @@ export const TimetableScreen: React.FC = () => {
   };
 
   return (
-    <View style={styles.screen}>
+    <ScreenContainer scrollable={false}>
+      <View style={styles.screen}>
       <AppHeader title="Timetable" />
       <TimetableHeader
         mode={mode}
@@ -215,7 +226,8 @@ export const TimetableScreen: React.FC = () => {
       >
         {mode === 'today' ? renderTodayContent() : renderWeekContent()}
       </ScrollView>
-    </View>
+      </View>
+    </ScreenContainer>
   );
 };
 

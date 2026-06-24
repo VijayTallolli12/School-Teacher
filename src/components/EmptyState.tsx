@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { theme } from '../theme';
 import { AppButton } from './AppButton';
 
@@ -23,8 +24,10 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   onAction,
   style,
 }) => {
+  const insets = useSafeAreaInsets();
+
   return (
-    <View style={[styles.container, style]}>
+    <View style={[styles.container, style, { paddingBottom: insets.bottom + theme.spacing.lg }]}>
       <Ionicons
         name={icon}
         size={iconSize}
@@ -50,7 +53,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: theme.spacing.xl,
+    paddingHorizontal: theme.spacing.xl,
+    paddingVertical: theme.spacing.xl,
   },
   icon: {
     marginBottom: theme.spacing.lg,

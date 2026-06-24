@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { ScreenContainer } from '../components';
+import { ScreenContainer, AppHeader } from '../components';
 import { SkeletonList } from '../components/SkeletonLoader';
 import { EmptyState } from '../components/EmptyState';
 import { HomeworkHeader, HomeworkCard, HomeworkEmptyState } from '../components';
@@ -173,8 +173,8 @@ const styles = StyleSheet.create({
   },
   filterChipText: {
     color: theme.colors.textSecondary,
-    fontSize: theme.typography.fontSize.xs,
-    fontWeight: theme.typography.fontWeight.bold,
+    ...theme.typography.hierarchy.caption,
+    fontWeight: theme.typography.weight.bold,
   },
   filterChipTextActive: {
     color: theme.colors.background,

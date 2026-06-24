@@ -35,7 +35,7 @@ export interface AttendanceRecord {
 }
 
 export interface AttendanceMarkingRecord {
-  studentId: string;
+  student_id: number;
   status: 'present' | 'absent' | 'late';
 }
 
@@ -97,7 +97,11 @@ export type AuthStackParamList = {
 
 export type AppStackParamList = {
   MainTabs: NavigatorScreenParams<MainTabParamList>;
+  Profile: undefined;
   Exams: undefined;
+  ExamDetail: { examId: string };
+  MarksEntry: { examId: string };
+  ExamSchedule: { examId: string };
   HomeworkCreate: { homeworkId?: string; initialData?: HomeworkPayload } | undefined;
   HomeworkDetail: { homeworkId: string };
   PeriodDetail: { period: PeriodItem };
@@ -106,16 +110,17 @@ export type AppStackParamList = {
   LeaveDetail: { leaveId: string };
   Students: undefined;
   StudentDetail: { studentId: string };
+  Transport: undefined;
+  VehicleTracking: { vehicleId: string };
+  RouteDetail: { routeId: string };
 };
 
 export type MainTabParamList = {
   Dashboard: undefined;
-  Students: undefined;
   Attendance: undefined;
   Homework: undefined;
   Notifications: undefined;
-  Profile: undefined;
-  Timetable: undefined;
+  More: undefined;
 };
 
 export type NotificationType =
@@ -219,6 +224,104 @@ export interface DashboardData {
 
 export interface DashboardResponse {
   data: DashboardData;
+}
+
+export interface ExamItem {
+  id: string;
+  name: string;
+  subject: string;
+  className: string;
+  section: string;
+  date: string;
+  duration: number;
+  totalMarks: number;
+  status: 'upcoming' | 'ongoing' | 'completed';
+  resultPublished: boolean;
+  marksEntered: boolean;
+}
+
+export interface ExamDetail extends ExamItem {
+  schedule: ExamScheduleItem[];
+  resultSummary?: ExamResultSummary;
+  marksEntryStatus: 'pending' | 'partial' | 'completed';
+}
+
+export interface ExamScheduleItem {
+  id: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  subject: string;
+  className: string;
+  section: string;
+  maxMarks: number;
+}
+
+export interface ExamResultSummary {
+  totalStudents: number;
+  appeared: number;
+  passed: number;
+  failed: number;
+  passPercentage: number;
+  highestScore: number;
+  averageScore: number;
+}
+
+export interface MarksEntry {
+  studentId: string;
+  studentName: string;
+  rollNumber: string;
+  marks: number | null;
+  maxMarks: number;
+  isDraft: boolean;
+  remarks?: string;
+}
+
+export interface MarksPayload {
+  examId: string;
+  classId: string;
+  subjectId: string;
+  marks: Array<{
+    studentId: string;
+    marks: number;
+    remarks?: string;
+  }>;
+  isDraft: boolean;
+}
+
+export interface ExamListResponse {
+  data: ExamItem[];
+}
+
+export interface ExamDetailResponse {
+  data: ExamDetail;
+}
+
+export interface ExamScheduleResponse {
+  data: ExamScheduleItem[];
+}
+
+export interface ExamClassesResponse {
+  data: Array<{ id: string; name: string; section: string }>;
+}
+
+export interface ExamSubjectsResponse {
+  data: Array<{ id: string; name: string; code: string }>;
+}
+
+export interface MarksResponse {
+  data: MarksEntry[];
+}
+
+export interface SaveMarksResponse {
+  success: boolean;
+  message: string;
+  data?: { savedCount: number };
+}
+
+export interface PublishResultResponse {
+  success: boolean;
+  message: string;
 }
 
 export interface TeacherClass {
@@ -449,19 +552,25 @@ export interface AttendanceRecord {
 }
 
 export interface MarkAttendancePayload {
-  classId: string;
-  date: string;
-  attendance: AttendanceMarkingRecord[];
+  class_section_id: number;
+  attendance_date: string;
+  students: AttendanceMarkingRecord[];
+}
+
+export interface MarkAttendanceRecord {
+  id: number;
+  student_id: number;
+  status: 'present' | 'absent' | 'late';
 }
 
 export interface MarkAttendanceResponse {
   success: boolean;
   message: string;
   data: {
-    processedCount: number;
-    presentCount: number;
-    absentCount: number;
-    lateCount: number;
+    attendance_date: string;
+    class_section_id: number;
+    marked_count: number;
+    records: MarkAttendanceRecord[];
   };
 }
 
@@ -471,4 +580,107 @@ export interface ClassesResponse {
 
 export interface StudentsResponse {
   data: AttendanceStudent[];
+}
+
+// ── Transport ──────────────────────────────────────────────
+
+export type TransportStatusType = 'on_time' | 'arriving' | 'delayed' | 'completed';
+
+export interface Vehicle {
+  id: string;
+  name: string;
+  vehicleNumber: string;
+  driverName: string;
+  driverPhone: string;
+  status: TransportStatusType;
+  currentLocation: {
+    latitude: number;
+    longitude: number;
+  };
+  speed: number;
+  lastUpdate: string;
+  eta: string;
+  routeName: string;
+  capacity: number;
+  assignedStudents: number;
+}
+
+export interface RouteStop {
+  id: string;
+  name: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  arrivalTime: string;
+  departureTime: string;
+  studentCount: number;
+}
+
+export interface Route {
+  id: string;
+  name: string;
+  description: string;
+  status: TransportStatusType;
+  vehicleId: string;
+  vehicleName: string;
+  vehicleNumber: string;
+  driverName: string;
+  driverPhone: string;
+  stops: RouteStop[];
+  assignedStudents: number;
+  estimatedArrivalTimes: string;
+}
+
+export interface VehicleLocation {
+  vehicleId: string;
+  vehicleName: string;
+  vehicleNumber: string;
+  driverName: string;
+  latitude: number;
+  longitude: number;
+  speed: number;
+  lastUpdate: string;
+  eta: string;
+  status: TransportStatusType;
+  routeName: string;
+}
+
+export interface ETAData {
+  routeName: string;
+  vehicleName: string;
+  driverName: string;
+  currentStop: string;
+  nextStop: string;
+  estimatedArrival: string;
+  remainingStops: number;
+  status: TransportStatusType;
+}
+
+export interface LiveTransportStatus {
+  activeRoutes: number;
+  vehiclesInTransit: number;
+  upcomingArrivals: number;
+  delayedRoutes: number;
+  routes: Route[];
+  vehicles: VehicleLocation[];
+}
+
+export interface RoutesResponse {
+  data: Route[];
+}
+
+export interface VehiclesResponse {
+  data: Vehicle[];
+}
+
+export interface VehicleLocationResponse {
+  data: VehicleLocation;
+}
+
+export interface LiveTransportStatusResponse {
+  data: LiveTransportStatus;
+}
+
+export interface RouteDetailResponse {
+  data: Route;
 }

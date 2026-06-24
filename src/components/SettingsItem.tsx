@@ -70,9 +70,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.md - 2,
+    paddingVertical: theme.spacing.sm,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: theme.colors.border,
+    minHeight: theme.spacing.xl,
   },
   label: {
     fontSize: theme.typography.fontSize.md,
@@ -86,6 +87,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: theme.spacing.sm,
+    marginLeft: theme.spacing.sm,
   },
   value: {
     fontSize: theme.typography.fontSize.sm,

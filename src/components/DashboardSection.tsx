@@ -25,8 +25,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: theme.spacing.md,
   },
   title: {
-    fontSize: theme.typography.fontSize.lg,
-    fontWeight: theme.typography.fontWeight.bold,
+    ...theme.typography.hierarchy.heading,
+    fontWeight: theme.typography.weight.semibold,
     color: theme.colors.text,
     marginBottom: theme.spacing.md,
   },

@@ -11,6 +11,8 @@ export const NotificationManager: React.FC = () => {
   const { data: unreadCount } = useUnreadCount();
 
   useEffect(() => {
+    if (__DEV__) return;
+
     registerForPushNotifications().catch((error) => {
       console.warn('Push notification registration failed:', error);
     });
@@ -49,9 +51,8 @@ export const NotificationManager: React.FC = () => {
   }, [queryClient]);
 
   useEffect(() => {
-    if (typeof unreadCount === 'number' && Platform.OS !== 'web') {
-      Notifications.setBadgeCountAsync(unreadCount).catch(() => undefined);
-    }
+    if (__DEV__ || typeof unreadCount !== 'number' || Platform.OS === 'web') return;
+    Notifications.setBadgeCountAsync(unreadCount).catch(() => undefined);
   }, [unreadCount]);
 
   return null;
