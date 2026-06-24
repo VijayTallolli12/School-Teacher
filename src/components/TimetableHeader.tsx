@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../theme';
 
 type TimetableMode = 'today' | 'week';
@@ -22,7 +23,14 @@ export const TimetableHeader: React.FC<TimetableHeaderProps> = ({
           style={[styles.toggleButton, mode === 'today' && styles.activeToggle]}
           onPress={() => onModeChange('today')}
           activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityState={{ selected: mode === 'today' }}
         >
+          <Ionicons
+            name="time-outline"
+            size={16}
+            color={mode === 'today' ? theme.colors.primary : theme.colors.textSecondary}
+          />
           <Text
             style={[
               styles.toggleText,
@@ -36,7 +44,14 @@ export const TimetableHeader: React.FC<TimetableHeaderProps> = ({
           style={[styles.toggleButton, mode === 'week' && styles.activeToggle]}
           onPress={() => onModeChange('week')}
           activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityState={{ selected: mode === 'week' }}
         >
+          <Ionicons
+            name="calendar-outline"
+            size={16}
+            color={mode === 'week' ? theme.colors.primary : theme.colors.textSecondary}
+          />
           <Text
             style={[
               styles.toggleText,
@@ -47,7 +62,12 @@ export const TimetableHeader: React.FC<TimetableHeaderProps> = ({
           </Text>
         </TouchableOpacity>
       </View>
-      {dayInfo && <Text style={styles.dayInfo}>{dayInfo}</Text>}
+      {dayInfo && (
+        <View style={styles.dayInfoRow}>
+          <Ionicons name="calendar-outline" size={14} color={theme.colors.textLight} />
+          <Text style={styles.dayInfo}>{dayInfo}</Text>
+        </View>
+      )}
     </View>
   );
 };
@@ -66,31 +86,36 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.backgroundSecondary,
     borderRadius: theme.radius.sm,
     padding: 2,
+    gap: 2,
   },
   toggleButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.xs,
     paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.xs + 2,
     borderRadius: theme.radius.xs + 2,
   },
   activeToggle: {
     backgroundColor: theme.colors.background,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    ...theme.shadows.sm,
   },
   toggleText: {
-    fontSize: theme.typography.fontSize.sm,
-    fontWeight: theme.typography.fontWeight.medium,
+    ...theme.typography.hierarchy.caption,
+    fontWeight: theme.typography.weight.medium,
     color: theme.colors.textSecondary,
   },
   activeToggleText: {
     color: theme.colors.primary,
-    fontWeight: theme.typography.fontWeight.bold,
+    fontWeight: theme.typography.weight.bold,
+  },
+  dayInfoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.xs,
   },
   dayInfo: {
-    fontSize: theme.typography.fontSize.sm,
+    ...theme.typography.hierarchy.caption,
     color: theme.colors.textLight,
   },
 });

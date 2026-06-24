@@ -1,5 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { AppCard } from './AppCard';
 import { theme } from '../theme';
 
 interface AttendanceSummaryCardProps {
@@ -26,7 +28,7 @@ export const AttendanceSummaryCard: React.FC<AttendanceSummaryCardProps> = ({
   const color = getColor(percentage);
 
   return (
-    <View style={styles.container}>
+    <AppCard variant="default" contentStyle={styles.cardContent}>
       <View style={styles.percentageRow}>
         <Text style={[styles.percentageValue, { color }]}>
           {percentage.toFixed(1)}%
@@ -48,38 +50,38 @@ export const AttendanceSummaryCard: React.FC<AttendanceSummaryCardProps> = ({
 
       <View style={styles.statsRow}>
         <View style={styles.statItem}>
+          <Ionicons name="calendar-outline" size={16} color={theme.colors.textSecondary} />
           <Text style={styles.statValue}>{totalDays}</Text>
           <Text style={styles.statLabel}>Total</Text>
         </View>
         <View style={styles.statItem}>
+          <Ionicons name="checkmark-circle-outline" size={16} color={theme.colors.secondary} />
           <Text style={[styles.statValue, { color: theme.colors.secondary }]}>
             {present}
           </Text>
           <Text style={styles.statLabel}>Present</Text>
         </View>
         <View style={styles.statItem}>
+          <Ionicons name="time-outline" size={16} color={theme.colors.warning} />
           <Text style={[styles.statValue, { color: theme.colors.warning }]}>
             {late}
           </Text>
           <Text style={styles.statLabel}>Late</Text>
         </View>
         <View style={styles.statItem}>
+          <Ionicons name="close-circle-outline" size={16} color={theme.colors.error} />
           <Text style={[styles.statValue, { color: theme.colors.error }]}>
             {absent}
           </Text>
           <Text style={styles.statLabel}>Absent</Text>
         </View>
       </View>
-    </View>
+    </AppCard>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: theme.colors.background,
-    borderRadius: theme.radius.md,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
+  cardContent: {
     padding: theme.spacing.md,
   },
   percentageRow: {

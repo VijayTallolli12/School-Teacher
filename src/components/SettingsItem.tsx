@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Switch,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../theme';
 
 interface SettingsItemProps {
@@ -46,7 +47,7 @@ export const SettingsItem: React.FC<SettingsItemProps> = ({
           />
         )}
         {showArrow && toggle === undefined && (
-          <Text style={styles.arrow}>›</Text>
+          <Ionicons name="chevron-forward" size={20} color={theme.colors.textLight} />
         )}
       </View>
     </View>
@@ -90,9 +91,5 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.fontSize.sm,
     color: theme.colors.textLight,
   },
-  arrow: {
-    fontSize: theme.typography.fontSize.xl,
-    color: theme.colors.textLight,
-    fontWeight: theme.typography.fontWeight.bold,
-  },
+
 });

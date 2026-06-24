@@ -4,17 +4,19 @@ import {
   Text,
   StyleSheet,
   ActivityIndicator,
-  TouchableOpacity,
   Linking,
   Alert,
   ScrollView,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ScreenContainer, AppHeader } from '../components';
 import { StudentProfileCard } from '../components/StudentProfileCard';
 import { ParentInfoCard } from '../components/ParentInfoCard';
 import { AttendanceSummaryCard } from '../components/AttendanceSummaryCard';
+import { AppCard } from '../components/AppCard';
+import { AppButton } from '../components/AppButton';
 import { useStudentDetail } from '../hooks/useStudents';
 import { theme } from '../theme';
 import { AppStackParamList } from '../types';
@@ -72,13 +74,9 @@ export const StudentDetailScreen: React.FC = () => {
           onBackPress={() => navigation.goBack()}
         />
         <View style={styles.centeredContainer}>
+          <Ionicons name="alert-circle-outline" size={48} color={theme.colors.textLight} />
           <Text style={styles.errorText}>Could not load student details</Text>
-          <TouchableOpacity
-            style={styles.retryButton}
-            onPress={() => refetch()}
-          >
-            <Text style={styles.retryText}>Retry</Text>
-          </TouchableOpacity>
+          <AppButton title="Retry" variant="primary" onPress={() => refetch()} />
         </View>
       </ScreenContainer>
     );
@@ -109,32 +107,37 @@ export const StudentDetailScreen: React.FC = () => {
 
         {/* Quick Actions */}
         <View style={styles.quickActions}>
-          <TouchableOpacity
-            style={[styles.quickActionBtn, styles.callBtn]}
+          <AppButton
+            title="Call Parent"
+            variant="secondary"
+            leftIcon={<Ionicons name="call-outline" size={18} color={theme.colors.primary} />}
             onPress={() => handleCall(student.parentInfo.fatherPhone)}
-          >
-            <Text style={styles.quickActionIcon}>📞</Text>
-            <Text style={styles.quickActionLabel}>Call{'\n'}Parent</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.quickActionBtn, styles.attBtn]}
+            style={styles.quickActionBtn}
+            accessibilityLabel="Call parent"
+          />
+          <AppButton
+            title="Attendance"
+            variant="secondary"
+            leftIcon={<Ionicons name="clipboard-outline" size={18} color={theme.colors.secondary} />}
             onPress={handleAttendance}
-          >
-            <Text style={styles.quickActionIcon}>📋</Text>
-            <Text style={styles.quickActionLabel}>View{'\n'}Attendance</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.quickActionBtn, styles.hwBtn]}
+            style={styles.quickActionBtn}
+            accessibilityLabel="View attendance"
+          />
+          <AppButton
+            title="Homework"
+            variant="secondary"
+            leftIcon={<Ionicons name="create-outline" size={18} color={theme.colors.warning} />}
             onPress={handleHomework}
-          >
-            <Text style={styles.quickActionIcon}>📝</Text>
-            <Text style={styles.quickActionLabel}>View{'\n'}Homework</Text>
-          </TouchableOpacity>
+            style={styles.quickActionBtn}
+            accessibilityLabel="View homework"
+          />
         </View>
 
         {/* Attendance Summary */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Attendance</Text>
+          <Text style={styles.sectionTitle}>
+            <Ionicons name="bar-chart-outline" size={14} color={theme.colors.textLight} /> Attendance
+          </Text>
           <AttendanceSummaryCard
             totalDays={student.attendance.totalDays}
             present={student.attendance.present}
@@ -146,7 +149,9 @@ export const StudentDetailScreen: React.FC = () => {
 
         {/* Parent Info */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Parent / Guardian</Text>
+          <Text style={styles.sectionTitle}>
+            <Ionicons name="people-outline" size={14} color={theme.colors.textLight} /> Parent / Guardian
+          </Text>
           <ParentInfoCard
             fatherName={student.parentInfo.fatherName}
             motherName={student.parentInfo.motherName}
@@ -161,51 +166,51 @@ export const StudentDetailScreen: React.FC = () => {
         {/* Transport */}
         {student.transport && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Transport</Text>
-            <View style={styles.infoCard}>
-              <InfoRow label="Route" value={student.transport.route} />
-              <InfoRow label="Stop" value={student.transport.stop} />
-              <InfoRow label="Pickup" value={student.transport.pickupTime} />
-              <InfoRow label="Drop" value={student.transport.dropTime} />
+            <Text style={styles.sectionTitle}>
+              <Ionicons name="bus-outline" size={14} color={theme.colors.textLight} /> Transport
+            </Text>
+            <AppCard variant="default" contentStyle={styles.infoCardContent}>
+              <InfoRow icon="map-outline" label="Route" value={student.transport.route} />
+              <InfoRow icon="location-outline" label="Stop" value={student.transport.stop} />
+              <InfoRow icon="time-outline" label="Pickup" value={student.transport.pickupTime} />
+              <InfoRow icon="time-outline" label="Drop" value={student.transport.dropTime} />
               {student.transport.driverName && (
-                <InfoRow label="Driver" value={student.transport.driverName} />
+                <InfoRow icon="person-outline" label="Driver" value={student.transport.driverName} />
               )}
               {student.transport.driverPhone && (
-                <InfoRow label="Driver Phone" value={student.transport.driverPhone} />
+                <InfoRow icon="call-outline" label="Driver Phone" value={student.transport.driverPhone} />
               )}
-            </View>
+            </AppCard>
           </View>
         )}
 
         {/* Fee Status */}
         {student.feeStatus && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Fee Status</Text>
-            <View style={styles.infoCard}>
-              <InfoRow label="Total Fee" value={`₹${student.feeStatus.totalFee.toLocaleString()}`} />
-              <InfoRow label="Paid" value={`₹${student.feeStatus.paid.toLocaleString()}`} />
-              <InfoRow
-                label="Due"
-                value={`₹${student.feeStatus.due.toLocaleString()}`}
-              />
-              <InfoRow label="Due Date" value={student.feeStatus.dueDate} />
-              <InfoRow
-                label="Status"
-                value={
-                  student.feeStatus.status.charAt(0).toUpperCase() +
-                  student.feeStatus.status.slice(1)
-                }
-              />
-            </View>
+            <Text style={styles.sectionTitle}>
+              <Ionicons name="cash-outline" size={14} color={theme.colors.textLight} /> Fee Status
+            </Text>
+            <AppCard variant="default" contentStyle={styles.infoCardContent}>
+              <InfoRow icon="wallet-outline" label="Total Fee" value={`₹${student.feeStatus.totalFee.toLocaleString()}`} />
+              <InfoRow icon="checkmark-circle" label="Paid" value={`₹${student.feeStatus.paid.toLocaleString()}`} />
+              <InfoRow icon="alert-circle" label="Due" value={`₹${student.feeStatus.due.toLocaleString()}`} />
+              <InfoRow icon="calendar-outline" label="Due Date" value={student.feeStatus.dueDate} />
+              <InfoRow icon="information-circle-outline" label="Status" value={
+                student.feeStatus.status.charAt(0).toUpperCase() +
+                student.feeStatus.status.slice(1)
+              } />
+            </AppCard>
           </View>
         )}
 
         {/* Recent Homework */}
         {student.recentHomework.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Recent Homework</Text>
+            <Text style={styles.sectionTitle}>
+              <Ionicons name="create-outline" size={14} color={theme.colors.textLight} /> Recent Homework
+            </Text>
             {student.recentHomework.map((hw) => (
-              <View key={hw.id} style={styles.homeworkItem}>
+              <AppCard key={hw.id} variant="default" contentStyle={styles.homeworkCardContent}>
                 <View style={styles.hwLeft}>
                   <Text style={styles.hwSubject}>{hw.subject}</Text>
                   <Text style={styles.hwTitle} numberOfLines={1}>
@@ -216,7 +221,7 @@ export const StudentDetailScreen: React.FC = () => {
                   <Text style={styles.hwDueDate}>{hw.dueDate}</Text>
                   <Text style={styles.hwStatus}>{hw.status}</Text>
                 </View>
-              </View>
+              </AppCard>
             ))}
           </View>
         )}
@@ -226,13 +231,17 @@ export const StudentDetailScreen: React.FC = () => {
 };
 
 interface InfoRowProps {
+  icon: keyof typeof Ionicons.glyphMap;
   label: string;
   value: string;
 }
 
-const InfoRow: React.FC<InfoRowProps> = ({ label, value }) => (
-  <View style={styles.infoRow}>
-    <Text style={styles.infoLabel}>{label}</Text>
+const InfoRow: React.FC<InfoRowProps> = ({ icon, label, value }) => (
+  <View style={styles.infoRow} accessibilityRole="text" accessibilityLabel={`${label}: ${value}`}>
+    <View style={styles.infoLeft}>
+      <Ionicons name={icon} size={14} color={theme.colors.textSecondary} />
+      <Text style={styles.infoLabel}>{label}</Text>
+    </View>
     <Text style={styles.infoValue}>{value}</Text>
   </View>
 );
@@ -253,22 +262,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: theme.spacing.xl,
+    gap: theme.spacing.md,
   },
   errorText: {
-    fontSize: theme.typography.fontSize.md,
+    ...theme.typography.hierarchy.body,
     color: theme.colors.textSecondary,
     marginBottom: theme.spacing.md,
-  },
-  retryButton: {
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.sm,
-    borderRadius: theme.radius.sm,
-    backgroundColor: theme.colors.primary,
-  },
-  retryText: {
-    color: theme.colors.background,
-    fontWeight: theme.typography.fontWeight.bold,
-    fontSize: theme.typography.fontSize.sm,
   },
   quickActions: {
     flexDirection: 'row',
@@ -277,54 +277,21 @@ const styles = StyleSheet.create({
   },
   quickActionBtn: {
     flex: 1,
-    padding: theme.spacing.md,
-    borderRadius: theme.radius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: 80,
-    borderWidth: 1,
-  },
-  callBtn: {
-    backgroundColor: '#EEF2FF',
-    borderColor: '#C7D2FE',
-  },
-  attBtn: {
-    backgroundColor: '#F0FDF4',
-    borderColor: '#BBF7D0',
-  },
-  hwBtn: {
-    backgroundColor: '#FEF3C7',
-    borderColor: '#FDE68A',
-  },
-  quickActionIcon: {
-    fontSize: 24,
-    marginBottom: theme.spacing.xs,
-  },
-  quickActionLabel: {
-    fontSize: theme.typography.fontSize.xs,
-    fontWeight: theme.typography.fontWeight.bold,
-    color: theme.colors.text,
-    textAlign: 'center',
-    lineHeight: 16,
   },
   section: {
     marginBottom: theme.spacing.lg,
   },
   sectionTitle: {
-    fontSize: theme.typography.fontSize.xs,
-    fontWeight: theme.typography.fontWeight.bold,
+    ...theme.typography.hierarchy.caption,
+    fontWeight: theme.typography.weight.bold,
     color: theme.colors.textLight,
     textTransform: 'uppercase',
     letterSpacing: 1,
     marginBottom: theme.spacing.sm,
     marginLeft: theme.spacing.xs,
   },
-  infoCard: {
-    backgroundColor: theme.colors.background,
-    borderRadius: theme.radius.md,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    overflow: 'hidden',
+  infoCardContent: {
+    padding: 0,
   },
   infoRow: {
     flexDirection: 'row',
@@ -335,26 +302,27 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: theme.colors.border,
   },
+  infoLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
   infoLabel: {
-    fontSize: theme.typography.fontSize.sm,
+    ...theme.typography.hierarchy.bodySmall,
     color: theme.colors.textSecondary,
   },
   infoValue: {
-    fontSize: theme.typography.fontSize.sm,
-    fontWeight: theme.typography.fontWeight.medium,
+    ...theme.typography.hierarchy.bodySmall,
+    fontWeight: theme.typography.weight.medium,
     color: theme.colors.text,
     textAlign: 'right',
     flex: 1,
     marginLeft: theme.spacing.md,
   },
-  homeworkItem: {
+  homeworkCardContent: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: theme.colors.background,
-    borderRadius: theme.radius.sm,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
     padding: theme.spacing.md,
     marginBottom: theme.spacing.xs,
   },
@@ -362,13 +330,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   hwSubject: {
-    fontSize: theme.typography.fontSize.xs,
-    fontWeight: theme.typography.fontWeight.bold,
+    ...theme.typography.hierarchy.caption,
+    fontWeight: theme.typography.weight.bold,
     color: theme.colors.primary,
     marginBottom: 1,
   },
   hwTitle: {
-    fontSize: theme.typography.fontSize.sm,
+    ...theme.typography.hierarchy.bodySmall,
     color: theme.colors.text,
   },
   hwRight: {
@@ -376,13 +344,13 @@ const styles = StyleSheet.create({
     marginLeft: theme.spacing.sm,
   },
   hwDueDate: {
-    fontSize: theme.typography.fontSize.xs,
+    ...theme.typography.hierarchy.caption,
     color: theme.colors.textLight,
     marginBottom: 2,
   },
   hwStatus: {
-    fontSize: theme.typography.fontSize.xs,
+    ...theme.typography.hierarchy.caption,
     color: theme.colors.textSecondary,
-    fontWeight: theme.typography.fontWeight.medium,
+    fontWeight: theme.typography.weight.medium,
   },
 });

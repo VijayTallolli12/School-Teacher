@@ -3,11 +3,11 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { ScreenContainer, AppHeader } from '../components';
+import { AppButton, AppCard, ScreenContainer, AppHeader } from '../components';
 import { theme } from '../theme';
 import { AppStackParamList } from '../types';
 
@@ -42,50 +42,49 @@ export const PeriodDetailScreen: React.FC = () => {
 
       <View style={styles.content}>
         {/* Subject header */}
-        <View style={styles.subjectHeader}>
-          <View style={styles.subjectIcon}>
-            <Text style={styles.subjectIconText}>
-              {period.subject.charAt(0)}
-            </Text>
+        <AppCard variant="elevated">
+          <View style={styles.subjectHeader}>
+            <View style={styles.subjectIcon}>
+              <Text style={styles.subjectIconText}>
+                {period.subject.charAt(0)}
+              </Text>
+            </View>
+            <View style={styles.subjectInfo}>
+              <Text style={styles.subjectName}>{period.subject}</Text>
+              <Text style={styles.periodLabel}>
+                Period {period.periodNumber}
+              </Text>
+            </View>
           </View>
-          <View style={styles.subjectInfo}>
-            <Text style={styles.subjectName}>{period.subject}</Text>
-            <Text style={styles.periodLabel}>
-              Period {period.periodNumber}
-            </Text>
-          </View>
-        </View>
+        </AppCard>
 
         {/* Details card */}
-        <View style={styles.detailsCard}>
+        <AppCard variant="default" style={styles.detailsCard}>
           <DetailRow label="Class" value={`${period.className} - ${period.section}`} />
           <DetailRow label="Teacher" value={period.teacher} />
           <DetailRow label="Room" value={period.room} />
           <DetailRow label="Time" value={`${period.startTime} - ${period.endTime}`} />
           <DetailRow label="Students" value={`${period.studentCount} enrolled`} />
-        </View>
+        </AppCard>
 
         {/* Quick Actions */}
         <View style={styles.actionsSection}>
           <Text style={styles.sectionTitle}>Quick Actions</Text>
           <View style={styles.actionsRow}>
-            <TouchableOpacity
-              style={[styles.actionButton, styles.attendanceAction]}
+            <AppButton
+              title="Mark Attendance"
+              variant="secondary"
+              leftIcon={<Ionicons name="clipboard-outline" size={20} color={theme.colors.primary} />}
               onPress={handleMarkAttendance}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.actionIcon}>📋</Text>
-              <Text style={styles.actionLabel}>Mark{'\n'}Attendance</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.actionButton, styles.homeworkAction]}
+              style={styles.actionButton}
+            />
+            <AppButton
+              title="Assign Homework"
+              variant="secondary"
+              leftIcon={<Ionicons name="create-outline" size={20} color={theme.colors.secondary} />}
               onPress={handleAssignHomework}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.actionIcon}>📝</Text>
-              <Text style={styles.actionLabel}>Assign{'\n'}Homework</Text>
-            </TouchableOpacity>
+              style={styles.actionButton}
+            />
           </View>
         </View>
       </View>
@@ -112,12 +111,6 @@ const styles = StyleSheet.create({
   subjectHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: theme.spacing.lg,
-    backgroundColor: theme.colors.background,
-    borderRadius: theme.radius.lg,
-    padding: theme.spacing.lg,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
   },
   subjectIcon: {
     width: 56,
@@ -137,39 +130,32 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   subjectName: {
-    fontSize: theme.typography.fontSize.xl,
-    fontWeight: theme.typography.fontWeight.bold,
+    ...theme.typography.hierarchy.heading,
     color: theme.colors.text,
     marginBottom: 2,
   },
   periodLabel: {
-    fontSize: theme.typography.fontSize.sm,
+    ...theme.typography.hierarchy.caption,
     color: theme.colors.textSecondary,
   },
   detailsCard: {
-    backgroundColor: theme.colors.background,
-    borderRadius: theme.radius.md,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
     marginBottom: theme.spacing.lg,
-    overflow: 'hidden',
   },
   detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.md - 2,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: theme.colors.border,
   },
   detailLabel: {
-    fontSize: theme.typography.fontSize.sm,
+    ...theme.typography.hierarchy.caption,
     color: theme.colors.textSecondary,
   },
   detailValue: {
-    fontSize: theme.typography.fontSize.sm,
-    fontWeight: theme.typography.fontWeight.medium,
+    ...theme.typography.hierarchy.bodySmall,
+    fontWeight: theme.typography.weight.medium,
     color: theme.colors.text,
     textAlign: 'right',
     flex: 1,
@@ -179,8 +165,8 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.lg,
   },
   sectionTitle: {
-    fontSize: theme.typography.fontSize.sm,
-    fontWeight: theme.typography.fontWeight.bold,
+    ...theme.typography.hierarchy.caption,
+    fontWeight: theme.typography.weight.bold,
     color: theme.colors.textLight,
     textTransform: 'uppercase',
     letterSpacing: 1,
@@ -193,31 +179,5 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     flex: 1,
-    padding: theme.spacing.md,
-    borderRadius: theme.radius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: 90,
-  },
-  attendanceAction: {
-    backgroundColor: '#EEF2FF',
-    borderWidth: 1,
-    borderColor: '#C7D2FE',
-  },
-  homeworkAction: {
-    backgroundColor: '#F0FDF4',
-    borderWidth: 1,
-    borderColor: '#BBF7D0',
-  },
-  actionIcon: {
-    fontSize: 28,
-    marginBottom: theme.spacing.sm,
-  },
-  actionLabel: {
-    fontSize: theme.typography.fontSize.sm,
-    fontWeight: theme.typography.fontWeight.bold,
-    color: theme.colors.text,
-    textAlign: 'center',
-    lineHeight: 18,
   },
 });

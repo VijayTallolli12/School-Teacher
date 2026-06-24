@@ -1,8 +1,10 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../theme';
 import { LeaveItem } from '../types';
 import { LeaveStatusBadge } from './LeaveStatusBadge';
+import { AppCard } from './AppCard';
 
 interface LeaveCardProps {
   leave: LeaveItem;
@@ -10,8 +12,8 @@ interface LeaveCardProps {
 }
 
 export const LeaveCard: React.FC<LeaveCardProps> = ({ leave, onPress }) => {
-  const content = (
-    <View style={styles.container}>
+  return (
+    <AppCard variant="interactive" onPress={onPress} style={styles.card} contentStyle={styles.cardContent}>
       <View style={styles.topRow}>
         <Text style={styles.leaveType} numberOfLines={1}>
           {leave.leaveType}
@@ -22,9 +24,11 @@ export const LeaveCard: React.FC<LeaveCardProps> = ({ leave, onPress }) => {
       <View style={styles.detailsRow}>
         <View style={styles.detailItem}>
           <Text style={styles.detailLabel}>Dates</Text>
-          <Text style={styles.detailValue}>
-            {leave.fromDate} → {leave.toDate}
-          </Text>
+          <View style={styles.dateRow}>
+            <Text style={styles.detailValue}>{leave.fromDate}</Text>
+            <Ionicons name="chevron-forward" size={12} color={theme.colors.textLight} style={styles.arrowIcon} />
+            <Text style={styles.detailValue}>{leave.toDate}</Text>
+          </View>
         </View>
         <View style={styles.detailItem}>
           <Text style={styles.detailLabel}>Days</Text>
@@ -39,28 +43,16 @@ export const LeaveCard: React.FC<LeaveCardProps> = ({ leave, onPress }) => {
       )}
 
       <Text style={styles.appliedDate}>Applied: {leave.appliedDate}</Text>
-    </View>
+    </AppCard>
   );
-
-  if (onPress) {
-    return (
-      <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
-        {content}
-      </TouchableOpacity>
-    );
-  }
-
-  return content;
 };
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: theme.colors.background,
-    borderRadius: theme.radius.md,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    padding: theme.spacing.md,
+  card: {
     marginBottom: theme.spacing.sm,
+  },
+  cardContent: {
+    padding: theme.spacing.md,
   },
   topRow: {
     flexDirection: 'row',
@@ -69,8 +61,8 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.sm,
   },
   leaveType: {
-    fontSize: theme.typography.fontSize.md,
-    fontWeight: theme.typography.fontWeight.bold,
+    ...theme.typography.hierarchy.body,
+    fontWeight: theme.typography.weight.bold,
     color: theme.colors.text,
     flex: 1,
     marginRight: theme.spacing.sm,
@@ -83,27 +75,34 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   detailLabel: {
-    fontSize: theme.typography.fontSize.xs,
+    ...theme.typography.hierarchy.caption,
     color: theme.colors.textLight,
     marginBottom: 1,
   },
   detailValue: {
-    fontSize: theme.typography.fontSize.sm,
+    ...theme.typography.hierarchy.caption,
     color: theme.colors.textSecondary,
   },
+  dateRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  arrowIcon: {
+    marginHorizontal: 2,
+  },
   daysValue: {
-    fontSize: theme.typography.fontSize.xl,
-    fontWeight: theme.typography.fontWeight.bold,
+    ...theme.typography.hierarchy.heading,
+    fontWeight: theme.typography.weight.bold,
     color: theme.colors.text,
   },
   reason: {
-    fontSize: theme.typography.fontSize.sm,
+    ...theme.typography.hierarchy.bodySmall,
     color: theme.colors.textSecondary,
     lineHeight: 18,
     marginBottom: theme.spacing.xs,
   },
   appliedDate: {
-    fontSize: theme.typography.fontSize.xs,
+    ...theme.typography.hierarchy.caption,
     color: theme.colors.textLight,
   },
 });

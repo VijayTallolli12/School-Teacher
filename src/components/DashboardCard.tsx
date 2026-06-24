@@ -1,9 +1,11 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { AppCard } from './AppCard';
 import { theme } from '../theme';
 
 interface DashboardCardProps {
-  icon: string;
+  icon: keyof typeof Ionicons.glyphMap;
   value: number;
   label: string;
   color?: string;
@@ -19,40 +21,34 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({
 }) => {
   const content = (
     <>
-      <Text style={[styles.icon, { color }]}>{icon}</Text>
+      <Ionicons name={icon} size={32} color={color} style={styles.icon} />
       <Text style={styles.value}>{value}</Text>
       <Text style={styles.label}>{label}</Text>
     </>
   );
 
-  if (onPress) {
-    return (
-      <TouchableOpacity
-        style={[styles.container, { borderLeftColor: color }]}
-        onPress={onPress}
-        accessibilityRole="button"
-        accessibilityLabel={`${label}: ${value}`}
-      >
-        {content}
-      </TouchableOpacity>
-    );
-  }
-
-  return <View style={[styles.container, { borderLeftColor: color }]}>{content}</View>;
+  return (
+    <AppCard
+      variant="stat"
+      accentColor={color}
+      onPress={onPress}
+      style={styles.card}
+      contentStyle={styles.cardContent}
+    >
+      {content}
+    </AppCard>
+  );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  card: {
     flex: 1,
-    backgroundColor: theme.colors.background,
-    borderRadius: theme.radius.md,
-    padding: theme.spacing.md,
     marginHorizontal: theme.spacing.xs,
-    borderLeftWidth: 4,
-    ...theme.shadows.sm,
+  },
+  cardContent: {
+    alignItems: 'center',
   },
   icon: {
-    fontSize: theme.typography.fontSize.xxl,
     marginBottom: theme.spacing.sm,
   },
   value: {

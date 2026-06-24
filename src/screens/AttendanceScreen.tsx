@@ -4,11 +4,13 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  TouchableOpacity,
-  ActivityIndicator,
   Alert,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { ScreenContainer } from '../components';
+import { AppButton } from '../components/AppButton';
+import { EmptyState } from '../components/EmptyState';
+import { SkeletonList, SkeletonCard } from '../components/SkeletonLoader';
 import {
   ClassSelector,
   StudentAttendanceCard,
@@ -129,15 +131,13 @@ export const AttendanceScreen: React.FC = () => {
   if (classesError) {
     return (
       <ScreenContainer>
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorTitle}>Unable to Load Classes</Text>
-          <Text style={styles.errorMessage}>
-            {classesError.message || 'Please check your connection and try again'}
-          </Text>
-          <TouchableOpacity style={styles.retryButton} onPress={handleRetry}>
-            <Text style={styles.retryButtonText}>Retry</Text>
-          </TouchableOpacity>
-        </View>
+        <EmptyState
+          icon="school-outline"
+          title="Unable to Load Classes"
+          message={classesError.message || 'Please check your connection and try again'}
+          actionLabel="Retry"
+          onAction={handleRetry}
+        />
       </ScreenContainer>
     );
   }
@@ -148,7 +148,7 @@ export const AttendanceScreen: React.FC = () => {
       <ScreenContainer>
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
           <View style={styles.successContainer}>
-            <Text style={styles.successIcon}>✅</Text>
+            <Ionicons name="checkmark-circle" size={80} color={theme.colors.success} style={styles.successIcon} />
             <Text style={styles.successTitle}>Attendance Saved!</Text>
             <Text style={styles.successMessage}>
               Attendance has been successfully recorded and notifications have been sent.
@@ -159,21 +159,30 @@ export const AttendanceScreen: React.FC = () => {
               absentCount={successData.absentCount}
               lateCount={successData.lateCount}
             />
-            <TouchableOpacity style={styles.submitButton} onPress={handleReset}>
-              <Text style={styles.submitButtonText}>Mark Another Class</Text>
-            </TouchableOpacity>
+            <AppButton
+              title="Mark Another Class"
+              variant="primary"
+              onPress={handleReset}
+              style={styles.successButton}
+            />
           </View>
         </ScrollView>
       </ScreenContainer>
     );
   }
 
-  // Loading state for classes
   if (classesLoading) {
     return (
       <ScreenContainer>
         <View style={styles.container}>
-          <ClassesSkeleton />
+          <View style={styles.skeletonContainer}>
+            <SkeletonCard lines={1} style={styles.skeletonTitleOnly} />
+            <View style={styles.skeletonChips}>
+              <SkeletonCard lines={1} style={styles.skeletonChipItem} />
+              <SkeletonCard lines={1} style={styles.skeletonChipItem} />
+              <SkeletonCard lines={1} style={styles.skeletonChipItem} />
+            </View>
+          </View>
         </View>
       </ScreenContainer>
     );
@@ -193,17 +202,19 @@ export const AttendanceScreen: React.FC = () => {
         )}
 
         {studentsError && (
-          <View style={styles.errorContainer}>
+          <View style={styles.inlineErrorContainer}>
             <Text style={styles.errorMessage}>
               {studentsError.message || 'Failed to load students'}
             </Text>
-            <TouchableOpacity style={styles.retryButton} onPress={handleRetry}>
-              <Text style={styles.retryButtonText}>Retry</Text>
-            </TouchableOpacity>
+            <AppButton title="Retry" variant="ghost" onPress={handleRetry} />
           </View>
         )}
 
-        {studentsLoading && selectedClass && <StudentsSkeleton />}
+        {studentsLoading && selectedClass && (
+          <View style={styles.studentsContainer}>
+            <SkeletonList count={4} />
+          </View>
+        )}
 
         {students && students.length > 0 && (
           <View style={styles.studentsContainer}>
@@ -223,45 +234,17 @@ export const AttendanceScreen: React.FC = () => {
 
         {selectedClass && students && students.length > 0 && (
           <View style={styles.submitContainer}>
-            <TouchableOpacity
-              style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]}
+            <AppButton
+              title="Submit Attendance"
+              variant="primary"
               onPress={handleSubmit}
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <ActivityIndicator color={theme.colors.background} />
-              ) : (
-                <Text style={styles.submitButtonText}>Submit Attendance</Text>
-              )}
-            </TouchableOpacity>
+              loading={isSubmitting}
+              style={styles.submitButton}
+            />
           </View>
         )}
       </ScrollView>
     </ScreenContainer>
-  );
-};
-
-const ClassesSkeleton: React.FC = () => {
-  return (
-    <View style={styles.skeletonContainer}>
-      <View style={styles.skeletonTitle} />
-      <View style={styles.skeletonChips}>
-        {[1, 2, 3].map((i) => (
-          <View key={i} style={styles.skeletonChip} />
-        ))}
-      </View>
-    </View>
-  );
-};
-
-const StudentsSkeleton: React.FC = () => {
-  return (
-    <View style={styles.studentsContainer}>
-      <View style={styles.skeletonTitle} />
-      {[1, 2, 3, 4].map((i) => (
-        <View key={i} style={styles.skeletonCard} />
-      ))}
-    </View>
   );
 };
 
@@ -294,56 +277,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: theme.spacing.md,
   },
   submitButton: {
-    backgroundColor: theme.colors.primary,
-    paddingVertical: theme.spacing.md,
-    borderRadius: theme.radius.md,
-    alignItems: 'center',
-    ...theme.shadows.md,
-  },
-  submitButtonDisabled: {
-    opacity: 0.7,
-  },
-  submitButtonText: {
-    color: theme.colors.background,
-    fontSize: theme.typography.fontSize.md,
-    fontWeight: theme.typography.fontWeight.bold,
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: theme.spacing.xl,
-  },
-  errorTitle: {
-    fontSize: theme.typography.fontSize.xl,
-    fontWeight: theme.typography.fontWeight.bold,
-    color: theme.colors.text,
-    marginBottom: theme.spacing.md,
-    textAlign: 'center',
+    width: '100%',
   },
   errorMessage: {
     fontSize: theme.typography.fontSize.md,
     color: theme.colors.textSecondary,
-    marginBottom: theme.spacing.lg,
+    marginBottom: theme.spacing.sm,
     textAlign: 'center',
   },
-  retryButton: {
-    backgroundColor: theme.colors.primary,
-    paddingHorizontal: theme.spacing.xl,
-    paddingVertical: theme.spacing.md,
-    borderRadius: theme.radius.md,
-  },
-  retryButtonText: {
-    color: theme.colors.background,
-    fontSize: theme.typography.fontSize.md,
-    fontWeight: theme.typography.fontWeight.bold,
+  inlineErrorContainer: {
+    alignItems: 'center',
+    padding: theme.spacing.lg,
   },
   successContainer: {
     alignItems: 'center',
     padding: theme.spacing.lg,
   },
   successIcon: {
-    fontSize: 80,
     marginBottom: theme.spacing.lg,
   },
   successTitle: {
@@ -358,30 +308,21 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: theme.spacing.xl,
   },
+  successButton: {
+    minWidth: 200,
+  },
   skeletonContainer: {
     padding: theme.spacing.md,
   },
-  skeletonTitle: {
-    height: 24,
-    width: 150,
-    backgroundColor: theme.colors.border,
-    borderRadius: theme.radius.sm,
-    marginBottom: theme.spacing.md,
-  },
   skeletonChips: {
     flexDirection: 'row',
+    gap: theme.spacing.sm,
+    marginTop: theme.spacing.md,
   },
-  skeletonChip: {
-    height: 40,
+  skeletonTitleOnly: {
+    marginBottom: 0,
+  },
+  skeletonChipItem: {
     width: 120,
-    backgroundColor: theme.colors.border,
-    borderRadius: theme.radius.lg,
-    marginRight: theme.spacing.sm,
-  },
-  skeletonCard: {
-    height: 100,
-    backgroundColor: theme.colors.border,
-    borderRadius: theme.radius.md,
-    marginBottom: theme.spacing.sm,
   },
 });

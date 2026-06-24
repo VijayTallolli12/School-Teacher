@@ -3,17 +3,18 @@ import {
   View,
   Text,
   StyleSheet,
-  ActivityIndicator,
   RefreshControl,
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AppHeader, ScreenContainer } from '../components';
 import { LeaveBalanceCard } from '../components/LeaveBalanceCard';
 import { LeaveCard } from '../components/LeaveCard';
 import { LeaveEmptyState } from '../components/LeaveEmptyState';
+import { SkeletonList } from '../components/SkeletonLoader';
 import { useLeaves, useLeaveBalance } from '../hooks/useLeave';
 import { theme } from '../theme';
 import { AppStackParamList, LeaveItem, LeaveStatus } from '../types';
@@ -91,9 +92,7 @@ export const LeaveScreen: React.FC = () => {
     return (
       <ScreenContainer>
         <AppHeader title="Leave Management" />
-        <View style={styles.centeredContainer}>
-          <ActivityIndicator size="large" color={theme.colors.primary} />
-        </View>
+        <SkeletonList count={4} style={styles.skeletonList} />
       </ScreenContainer>
     );
   }
@@ -122,7 +121,7 @@ export const LeaveScreen: React.FC = () => {
 
         {/* Summary chips */}
         {summary.length > 0 && (
-          <View style={styles.summaryRow}>
+          <View style={styles.summaryRow} accessibilityRole="tablist" accessibilityLabel="Filter by status">
             {summary.map((item) => (
               <TouchableOpacity
                 key={item.label}
@@ -132,6 +131,9 @@ export const LeaveScreen: React.FC = () => {
                 ]}
                 onPress={() => setFilter(item.status)}
                 activeOpacity={0.7}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: filter === item.status }}
+                accessibilityLabel={`${item.label}: ${item.count}`}
               >
                 <Text
                   style={[
@@ -185,8 +187,10 @@ export const LeaveScreen: React.FC = () => {
         style={styles.fab}
         onPress={handleApplyLeave}
         activeOpacity={0.8}
+        accessibilityLabel="Apply for leave"
+        accessibilityRole="button"
       >
-        <Text style={styles.fabText}>+</Text>
+        <Ionicons name="add" size={28} color={theme.colors.background} />
       </TouchableOpacity>
     </View>
   );
@@ -202,12 +206,10 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: theme.spacing.md,
-    paddingBottom: theme.spacing.xxxl,
+    paddingBottom: theme.spacing.xxl,
   },
-  centeredContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+  skeletonList: {
+    padding: theme.spacing.md,
   },
   section: {
     marginBottom: theme.spacing.md,
@@ -229,24 +231,24 @@ const styles = StyleSheet.create({
   },
   summaryChipActive: {
     borderColor: theme.colors.primary,
-    backgroundColor: '#EEF2FF',
+    backgroundColor: theme.colors.primaryLight,
   },
   summaryCount: {
-    fontSize: theme.typography.fontSize.xl,
-    fontWeight: theme.typography.fontWeight.bold,
+    ...theme.typography.hierarchy.heading,
+    fontWeight: theme.typography.weight.bold,
     color: theme.colors.text,
   },
   summaryCountActive: {
     color: theme.colors.primary,
   },
   summaryLabel: {
-    fontSize: theme.typography.fontSize.xs,
+    ...theme.typography.hierarchy.caption,
     color: theme.colors.textSecondary,
     marginTop: 1,
   },
   summaryLabelActive: {
     color: theme.colors.primary,
-    fontWeight: theme.typography.fontWeight.medium,
+    fontWeight: theme.typography.weight.medium,
   },
   fab: {
     position: 'absolute',
@@ -258,16 +260,6 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 6,
-  },
-  fabText: {
-    fontSize: 28,
-    color: theme.colors.background,
-    fontWeight: theme.typography.fontWeight.bold,
-    lineHeight: 30,
+    ...theme.shadows.lg,
   },
 });

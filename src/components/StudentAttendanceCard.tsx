@@ -3,6 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { theme } from '../theme';
 import { AttendanceStudent } from '../types';
 import { AttendanceStatusChip } from './AttendanceStatusChip';
+import { AppCard } from './AppCard';
 
 type AttendanceStatus = 'present' | 'absent' | 'late';
 
@@ -18,7 +19,7 @@ export const StudentAttendanceCard: React.FC<StudentAttendanceCardProps> = ({
   onStatusChange,
 }) => {
   return (
-    <View style={styles.container}>
+    <AppCard variant="default" style={styles.card} contentStyle={styles.cardContent}>
       <View style={styles.studentInfo}>
         <Text style={styles.studentName}>{student.name}</Text>
         <Text style={styles.rollNumber}>Roll: {student.rollNumber}</Text>
@@ -40,29 +41,28 @@ export const StudentAttendanceCard: React.FC<StudentAttendanceCardProps> = ({
           onPress={() => onStatusChange('late')}
         />
       </View>
-    </View>
+    </AppCard>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: theme.colors.background,
-    borderRadius: theme.radius.md,
-    padding: theme.spacing.md,
+  card: {
     marginBottom: theme.spacing.sm,
-    ...theme.shadows.sm,
+  },
+  cardContent: {
+    padding: theme.spacing.md,
   },
   studentInfo: {
     marginBottom: theme.spacing.sm,
   },
   studentName: {
-    fontSize: theme.typography.fontSize.md,
-    fontWeight: theme.typography.fontWeight.bold,
+    ...theme.typography.hierarchy.body,
+    fontWeight: theme.typography.weight.bold,
     color: theme.colors.text,
     marginBottom: theme.spacing.xs,
   },
   rollNumber: {
-    fontSize: theme.typography.fontSize.sm,
+    ...theme.typography.hierarchy.bodySmall,
     color: theme.colors.textSecondary,
   },
   statusChips: {

@@ -4,11 +4,11 @@ import {
   Text,
   TextInput,
   StyleSheet,
-  TouchableOpacity,
   Modal,
   Alert,
-  ActivityIndicator,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { AppButton } from './AppButton';
 import { theme } from '../theme';
 import { authApi } from '../api/auth';
 
@@ -104,24 +104,21 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
           />
 
           <View style={styles.buttons}>
-            <TouchableOpacity
-              style={styles.cancelButton}
+            <AppButton
+              title="Cancel"
+              variant="ghost"
               onPress={handleClose}
               disabled={isSubmitting}
-            >
-              <Text style={styles.cancelButtonText}>Cancel</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.submitButton, isSubmitting && styles.buttonDisabled]}
+              style={styles.button}
+            />
+            <AppButton
+              title="Change"
+              variant="primary"
+              loading={isSubmitting}
               onPress={handleChangePassword}
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <ActivityIndicator color={theme.colors.background} size="small" />
-              ) : (
-                <Text style={styles.submitButtonText}>Change</Text>
-              )}
-            </TouchableOpacity>
+              style={styles.button}
+              leftIcon={<Ionicons name="lock-closed-outline" size={18} color={theme.colors.primaryContrast} />}
+            />
           </View>
         </View>
       </View>
@@ -171,32 +168,7 @@ const styles = StyleSheet.create({
     gap: theme.spacing.sm,
     marginTop: theme.spacing.sm,
   },
-  cancelButton: {
+  button: {
     flex: 1,
-    paddingVertical: theme.spacing.sm + 4,
-    borderRadius: theme.radius.sm,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-  cancelButtonText: {
-    fontSize: theme.typography.fontSize.md,
-    fontWeight: theme.typography.fontWeight.medium,
-    color: theme.colors.textSecondary,
-  },
-  submitButton: {
-    flex: 1,
-    paddingVertical: theme.spacing.sm + 4,
-    borderRadius: theme.radius.sm,
-    alignItems: 'center',
-    backgroundColor: theme.colors.primary,
-  },
-  submitButtonText: {
-    fontSize: theme.typography.fontSize.md,
-    fontWeight: theme.typography.fontWeight.bold,
-    color: theme.colors.background,
-  },
-  buttonDisabled: {
-    opacity: 0.6,
   },
 });

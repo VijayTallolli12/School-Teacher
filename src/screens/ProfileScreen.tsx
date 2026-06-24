@@ -15,8 +15,7 @@ import { ChangePasswordModal } from '../components/ChangePasswordModal';
 import { useAuthStore } from '../store/authStore';
 import { useSettingsStore } from '../store/settingsStore';
 import { theme } from '../theme';
-
-const APP_VERSION = '1.0.0';
+import { APP_CONSTANTS } from '../config/constants';
 
 export const ProfileScreen: React.FC = () => {
   const { user, logout, isLoading } = useAuthStore();
@@ -59,13 +58,13 @@ export const ProfileScreen: React.FC = () => {
   }, [logout]);
 
   const handlePrivacyPolicy = useCallback(() => {
-    Linking.openURL('https://school.example.com/privacy').catch(() => {
+    Linking.openURL(APP_CONSTANTS.PRIVACY_POLICY_URL).catch(() => {
       Alert.alert('Error', 'Could not open link');
     });
   }, []);
 
   const handleTerms = useCallback(() => {
-    Linking.openURL('https://school.example.com/terms').catch(() => {
+    Linking.openURL(APP_CONSTANTS.TERMS_OF_SERVICE_URL).catch(() => {
       Alert.alert('Error', 'Could not open link');
     });
   }, []);
@@ -136,7 +135,7 @@ export const ProfileScreen: React.FC = () => {
 
         {/* About Section */}
         <SettingsSection title="About">
-          <SettingsItem label="App Version" value={APP_VERSION} onPress={() => {}} />
+          <SettingsItem label="App Version" value={APP_CONSTANTS.APP_VERSION} onPress={() => {}} />
           <SettingsItem label="Privacy Policy" onPress={handlePrivacyPolicy} />
           <SettingsItem label="Terms of Service" onPress={handleTerms} />
         </SettingsSection>

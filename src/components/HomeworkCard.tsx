@@ -1,5 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { AppCard } from './AppCard';
 import { theme } from '../theme';
 import { HomeworkItem } from '../types';
 import { getHomeworkStatusLabel, getHomeworkStatusColor } from '../utils/homework';
@@ -20,7 +22,7 @@ export const HomeworkCard: React.FC<HomeworkCardProps> = ({ homework, onPress })
   };
 
   return (
-    <TouchableOpacity style={styles.container} onPress={onPress}>
+    <AppCard variant="interactive" onPress={onPress} style={styles.card}>
       <View style={styles.header}>
         <Text style={styles.title} numberOfLines={1}>
           {homework.title}
@@ -30,35 +32,35 @@ export const HomeworkCard: React.FC<HomeworkCardProps> = ({ homework, onPress })
       
       <View style={styles.details}>
         <View style={styles.detailItem}>
+          <Ionicons name="school-outline" size={14} color={theme.colors.textSecondary} style={styles.detailIcon} />
           <Text style={styles.detailLabel}>Class:</Text>
           <Text style={styles.detailValue}>{homework.class} - {homework.section}</Text>
         </View>
         <View style={styles.detailItem}>
+          <Ionicons name="book-outline" size={14} color={theme.colors.textSecondary} style={styles.detailIcon} />
           <Text style={styles.detailLabel}>Subject:</Text>
           <Text style={styles.detailValue}>{homework.subject}</Text>
         </View>
         <View style={styles.detailItem}>
+          <Ionicons name="alarm-outline" size={14} color={statusColor} style={styles.detailIcon} />
           <Text style={styles.detailLabel}>Due:</Text>
           <Text style={[styles.detailValue, { color: statusColor }]}> 
             {formatDate(homework.dueDate)}
           </Text>
         </View>
         <View style={styles.detailItem}>
+          <Ionicons name="calendar-outline" size={14} color={theme.colors.textSecondary} style={styles.detailIcon} />
           <Text style={styles.detailLabel}>Created:</Text>
           <Text style={styles.detailValue}>{formatDate(homework.createdAt)}</Text>
         </View>
       </View>
-    </TouchableOpacity>
+    </AppCard>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: theme.colors.background,
-    borderRadius: theme.radius.md,
-    padding: theme.spacing.md,
+  card: {
     marginBottom: theme.spacing.sm,
-    ...theme.shadows.sm,
   },
   header: {
     flexDirection: 'row',
@@ -80,15 +82,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  detailIcon: {
+    marginRight: theme.spacing.xs,
+    width: 16,
+  },
   detailLabel: {
     fontSize: theme.typography.fontSize.sm,
     color: theme.colors.textSecondary,
-    width: 70,
+    width: 65,
     fontWeight: theme.typography.fontWeight.medium,
   },
   detailValue: {
     fontSize: theme.typography.fontSize.sm,
     color: theme.colors.text,
     fontWeight: theme.typography.fontWeight.medium,
+    flex: 1,
   },
 });

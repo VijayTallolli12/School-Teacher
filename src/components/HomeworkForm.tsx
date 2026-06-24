@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity } from 'react-native';
+import { AppButton } from './AppButton';
 import { theme } from '../theme';
 import { HomeworkPayload, TeacherClass } from '../types';
 
@@ -182,15 +183,13 @@ export const HomeworkForm: React.FC<HomeworkFormProps> = ({
         {errors.dueDate && <Text style={styles.errorText}>{errors.dueDate}</Text>}
       </View>
 
-      <TouchableOpacity
-        style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]}
+      <AppButton
+        title={initialData ? 'Update Homework' : 'Create Homework'}
+        variant="primary"
         onPress={handleSubmit}
-        disabled={isSubmitting}
-      >
-        <Text style={styles.submitButtonText}>
-          {isSubmitting ? 'Submitting...' : initialData ? 'Update Homework' : 'Create Homework'}
-        </Text>
-      </TouchableOpacity>
+        loading={isSubmitting}
+        style={styles.submitButton}
+      />
     </ScrollView>
   );
 };
@@ -259,19 +258,6 @@ const styles = StyleSheet.create({
     fontWeight: theme.typography.fontWeight.bold,
   },
   submitButton: {
-    backgroundColor: theme.colors.primary,
-    paddingVertical: theme.spacing.md,
-    borderRadius: theme.radius.md,
-    alignItems: 'center',
     marginTop: theme.spacing.lg,
-    ...theme.shadows.md,
-  },
-  submitButtonDisabled: {
-    opacity: 0.7,
-  },
-  submitButtonText: {
-    color: theme.colors.background,
-    fontSize: theme.typography.fontSize.md,
-    fontWeight: theme.typography.fontWeight.bold,
   },
 });

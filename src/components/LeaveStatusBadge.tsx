@@ -17,7 +17,11 @@ const statusConfig: Record<LeaveStatus, { bg: string; text: string; label: strin
 export const LeaveStatusBadge: React.FC<LeaveStatusBadgeProps> = ({ status }) => {
   const config = statusConfig[status];
   return (
-    <View style={[styles.badge, { backgroundColor: config.bg }]}>
+    <View
+      style={[styles.badge, { backgroundColor: config.bg }]}
+      accessibilityRole="text"
+      accessibilityLabel={`Status: ${config.label}`}
+    >
       <Text style={[styles.text, { color: config.text }]}>{config.label}</Text>
     </View>
   );
@@ -30,7 +34,7 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.full,
   },
   text: {
-    fontSize: theme.typography.fontSize.xs,
-    fontWeight: theme.typography.fontWeight.bold,
+    ...theme.typography.hierarchy.caption,
+    fontWeight: theme.typography.weight.bold,
   },
 });

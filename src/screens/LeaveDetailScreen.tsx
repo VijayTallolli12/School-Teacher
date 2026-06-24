@@ -4,13 +4,15 @@ import {
   Text,
   StyleSheet,
   ActivityIndicator,
-  TouchableOpacity,
   Alert,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { ScreenContainer, AppHeader } from '../components';
 import { LeaveStatusBadge } from '../components/LeaveStatusBadge';
 import { LeaveTimeline } from '../components/LeaveTimeline';
+import { AppCard } from '../components/AppCard';
+import { AppButton } from '../components/AppButton';
 import { useLeaveDetail, useCancelLeave } from '../hooks/useLeave';
 import { theme } from '../theme';
 import { AppStackParamList } from '../types';
@@ -81,10 +83,9 @@ export const LeaveDetailScreen: React.FC = () => {
           onBackPress={() => navigation.goBack()}
         />
         <View style={styles.centeredContainer}>
+          <Ionicons name="alert-circle-outline" size={48} color={theme.colors.textLight} />
           <Text style={styles.errorText}>Could not load leave details</Text>
-          <TouchableOpacity style={styles.retryButton} onPress={() => refetch()}>
-            <Text style={styles.retryText}>Retry</Text>
-          </TouchableOpacity>
+          <AppButton title="Retry" variant="primary" onPress={() => refetch()} />
         </View>
       </ScreenContainer>
     );
@@ -111,34 +112,38 @@ export const LeaveDetailScreen: React.FC = () => {
         </View>
 
         {/* Info card */}
-        <View style={styles.infoCard}>
-          <InfoRow label="From" value={leave.fromDate} />
-          <InfoRow label="To" value={leave.toDate} />
-          <InfoRow label="Days" value={String(leave.days)} />
-          <InfoRow label="Applied On" value={leave.appliedDate} />
-          {leave.approver && <InfoRow label="Approver" value={leave.approver} />}
+        <AppCard variant="default" contentStyle={styles.infoCardContent}>
+          <InfoRow icon="calendar-outline" label="From" value={leave.fromDate} />
+          <InfoRow icon="calendar-outline" label="To" value={leave.toDate} />
+          <InfoRow icon="bar-chart-outline" label="Days" value={String(leave.days)} />
+          <InfoRow icon="create-outline" label="Applied On" value={leave.appliedDate} />
+          {leave.approver && <InfoRow icon="person-outline" label="Approver" value={leave.approver} />}
           {leave.approvalDate && (
-            <InfoRow label="Approval Date" value={leave.approvalDate} />
+            <InfoRow icon="calendar-outline" label="Approval Date" value={leave.approvalDate} />
           )}
-        </View>
+        </AppCard>
 
         {/* Reason */}
         {leave.reason && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Reason</Text>
-            <View style={styles.reasonCard}>
+            <Text style={styles.sectionTitle}>
+              <Ionicons name="create-outline" size={14} color={theme.colors.textLight} /> Reason
+            </Text>
+            <AppCard variant="default" contentStyle={styles.reasonCardContent}>
               <Text style={styles.reasonText}>{leave.reason}</Text>
-            </View>
+            </AppCard>
           </View>
         )}
 
         {/* Remarks */}
         {leave.remarks && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Remarks</Text>
-            <View style={styles.remarksCard}>
+            <Text style={styles.sectionTitle}>
+              <Ionicons name="chatbubble-outline" size={14} color={theme.colors.textLight} /> Remarks
+            </Text>
+            <AppCard variant="default" contentStyle={styles.remarksCardContent}>
               <Text style={styles.remarksText}>{leave.remarks}</Text>
-            </View>
+            </AppCard>
           </View>
         )}
 
@@ -151,21 +156,14 @@ export const LeaveDetailScreen: React.FC = () => {
 
         {/* Cancel action */}
         {leave.status === 'pending' && (
-          <TouchableOpacity
-            style={[
-              styles.cancelButton,
-              cancelMutation.isPending && styles.cancelButtonDisabled,
-            ]}
+          <AppButton
+            title="Cancel Request"
+            variant="destructive-ghost"
             onPress={handleCancel}
-            disabled={cancelMutation.isPending}
-            activeOpacity={0.7}
-          >
-            {cancelMutation.isPending ? (
-              <ActivityIndicator color={theme.colors.error} size="small" />
-            ) : (
-              <Text style={styles.cancelButtonText}>Cancel Request</Text>
-            )}
-          </TouchableOpacity>
+            loading={cancelMutation.isPending}
+            style={styles.cancelButton}
+            accessibilityLabel="Cancel this leave request"
+          />
         )}
       </View>
     </ScreenContainer>
@@ -173,13 +171,17 @@ export const LeaveDetailScreen: React.FC = () => {
 };
 
 interface InfoRowProps {
+  icon: keyof typeof Ionicons.glyphMap;
   label: string;
   value: string;
 }
 
-const InfoRow: React.FC<InfoRowProps> = ({ label, value }) => (
-  <View style={styles.infoRow}>
-    <Text style={styles.infoLabel}>{label}</Text>
+const InfoRow: React.FC<InfoRowProps> = ({ icon, label, value }) => (
+  <View style={styles.infoRow} accessibilityRole="text" accessibilityLabel={`${label}: ${value}`}>
+    <View style={styles.infoLeft}>
+      <Ionicons name={icon} size={14} color={theme.colors.textSecondary} />
+      <Text style={styles.infoLabel}>{label}</Text>
+    </View>
     <Text style={styles.infoValue}>{value}</Text>
   </View>
 );
@@ -192,22 +194,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: theme.spacing.xl,
+    gap: theme.spacing.md,
   },
   errorText: {
-    fontSize: theme.typography.fontSize.md,
+    ...theme.typography.hierarchy.body,
     color: theme.colors.textSecondary,
     marginBottom: theme.spacing.md,
-  },
-  retryButton: {
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.sm,
-    borderRadius: theme.radius.sm,
-    backgroundColor: theme.colors.primary,
-  },
-  retryText: {
-    color: theme.colors.background,
-    fontWeight: theme.typography.fontWeight.bold,
-    fontSize: theme.typography.fontSize.sm,
   },
   header: {
     flexDirection: 'row',
@@ -220,23 +213,19 @@ const styles = StyleSheet.create({
     gap: theme.spacing.xs,
   },
   leaveType: {
-    fontSize: theme.typography.fontSize.xl,
-    fontWeight: theme.typography.fontWeight.bold,
+    ...theme.typography.hierarchy.heading,
+    fontWeight: theme.typography.weight.bold,
     color: theme.colors.text,
   },
   daysLabel: {
     fontSize: theme.typography.fontSize.xxl,
-    fontWeight: theme.typography.fontWeight.bold,
+    fontWeight: theme.typography.weight.bold,
     color: theme.colors.primary,
     marginLeft: theme.spacing.md,
   },
-  infoCard: {
-    backgroundColor: theme.colors.background,
-    borderRadius: theme.radius.md,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
+  infoCardContent: {
+    padding: 0,
     marginBottom: theme.spacing.lg,
-    overflow: 'hidden',
   },
   infoRow: {
     flexDirection: 'row',
@@ -247,13 +236,18 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: theme.colors.border,
   },
+  infoLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
   infoLabel: {
-    fontSize: theme.typography.fontSize.sm,
+    ...theme.typography.hierarchy.bodySmall,
     color: theme.colors.textSecondary,
   },
   infoValue: {
-    fontSize: theme.typography.fontSize.sm,
-    fontWeight: theme.typography.fontWeight.medium,
+    ...theme.typography.hierarchy.bodySmall,
+    fontWeight: theme.typography.weight.medium,
     color: theme.colors.text,
     textAlign: 'right',
     flex: 1,
@@ -263,53 +257,36 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.lg,
   },
   sectionTitle: {
-    fontSize: theme.typography.fontSize.xs,
-    fontWeight: theme.typography.fontWeight.bold,
+    ...theme.typography.hierarchy.caption,
+    fontWeight: theme.typography.weight.bold,
     color: theme.colors.textLight,
     textTransform: 'uppercase',
     letterSpacing: 1,
     marginBottom: theme.spacing.sm,
     marginLeft: theme.spacing.xs,
   },
-  reasonCard: {
-    backgroundColor: theme.colors.background,
-    borderRadius: theme.radius.md,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
+  reasonCardContent: {
     padding: theme.spacing.md,
   },
   reasonText: {
-    fontSize: theme.typography.fontSize.sm,
+    ...theme.typography.hierarchy.bodySmall,
     color: theme.colors.text,
     lineHeight: 20,
   },
-  remarksCard: {
+  remarksCardContent: {
+    padding: theme.spacing.md,
     backgroundColor: '#FFFBEB',
-    borderRadius: theme.radius.md,
     borderWidth: 1,
     borderColor: '#FDE68A',
-    padding: theme.spacing.md,
   },
   remarksText: {
-    fontSize: theme.typography.fontSize.sm,
+    ...theme.typography.hierarchy.bodySmall,
     color: theme.colors.text,
     lineHeight: 20,
   },
   cancelButton: {
-    paddingVertical: theme.spacing.md - 2,
-    borderRadius: theme.radius.sm,
-    alignItems: 'center',
+    marginBottom: theme.spacing.xxl,
     borderWidth: 1,
     borderColor: theme.colors.error,
-    backgroundColor: theme.colors.background,
-    marginBottom: theme.spacing.xxl,
-  },
-  cancelButtonDisabled: {
-    opacity: 0.6,
-  },
-  cancelButtonText: {
-    fontSize: theme.typography.fontSize.md,
-    fontWeight: theme.typography.fontWeight.bold,
-    color: theme.colors.error,
   },
 });

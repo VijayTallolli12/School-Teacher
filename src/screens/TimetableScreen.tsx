@@ -1,15 +1,13 @@
 import React, { useMemo, useState, useCallback } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
-  ActivityIndicator,
   RefreshControl,
   ScrollView,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { AppHeader } from '../components';
+import { AppHeader, SkeletonList } from '../components';
 import { TimetableHeader } from '../components/TimetableHeader';
 import { CurrentPeriodBanner } from '../components/CurrentPeriodBanner';
 import { DaySelector } from '../components/DaySelector';
@@ -105,7 +103,7 @@ export const TimetableScreen: React.FC = () => {
     if (todayLoading) {
       return (
         <View style={styles.centeredContainer}>
-          <ActivityIndicator size="large" color={theme.colors.primary} />
+          <SkeletonList count={4} />
         </View>
       );
     }
@@ -149,7 +147,7 @@ export const TimetableScreen: React.FC = () => {
     if (weekLoading) {
       return (
         <View style={styles.centeredContainer}>
-          <ActivityIndicator size="large" color={theme.colors.primary} />
+          <SkeletonList count={4} />
         </View>
       );
     }
@@ -238,6 +236,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: theme.spacing.xxxl,
+    paddingVertical: theme.spacing.xxl,
   },
 });

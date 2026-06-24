@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../theme';
 
 interface AppHeaderProps {
@@ -19,13 +20,20 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
     <View style={styles.container}>
       <View style={styles.leftContainer}>
         {showBackButton && (
-          <TouchableOpacity onPress={onBackPress} style={styles.backButton}>
-            <Text style={styles.backButtonText}>←</Text>
+          <TouchableOpacity
+            onPress={onBackPress}
+            style={styles.backButton}
+            accessibilityLabel="Go back"
+            accessibilityRole="button"
+          >
+            <Ionicons name="chevron-back" size={24} color={theme.colors.primary} />
           </TouchableOpacity>
         )}
       </View>
       <View style={styles.titleContainer}>
-        <Text style={styles.title}>{title}</Text>
+        <Text style={styles.title} numberOfLines={1}>
+          {title}
+        </Text>
       </View>
       <View style={styles.rightContainer}>{rightComponent}</View>
     </View>
@@ -38,36 +46,36 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
     backgroundColor: theme.colors.background,
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.border,
-    height: 60,
+    minHeight: 56,
   },
   leftContainer: {
-    width: 40,
+    width: 44,
     justifyContent: 'center',
+    alignItems: 'flex-start',
   },
   titleContainer: {
     flex: 1,
     alignItems: 'center',
   },
   title: {
-    fontSize: theme.typography.fontSize.lg,
-    fontWeight: theme.typography.fontWeight.bold,
+    ...theme.typography.hierarchy.body,
+    fontWeight: theme.typography.weight.semibold,
     color: theme.colors.text,
   },
   rightContainer: {
-    width: 40,
+    width: 44,
     alignItems: 'flex-end',
     justifyContent: 'center',
   },
   backButton: {
     padding: theme.spacing.xs,
-  },
-  backButtonText: {
-    fontSize: theme.typography.fontSize.xxl,
-    color: theme.colors.primary,
-    fontWeight: theme.typography.fontWeight.bold,
+    minWidth: 44,
+    minHeight: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

@@ -1,7 +1,9 @@
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { NotificationItem, NotificationType } from '../types';
 import { theme } from '../theme';
+import { AppCard } from './AppCard';
 import { NotificationBadge } from './NotificationBadge';
 
 interface NotificationCardProps {
@@ -19,14 +21,14 @@ const typeLabels: Record<NotificationType, string> = {
   ai_agent: 'AI Agent',
 };
 
-const typeIcons: Record<NotificationType, string> = {
-  attendance: '✓',
-  homework: '✎',
-  exam: '▣',
-  fee: '$',
-  transport: '▰',
-  system: '⚙',
-  ai_agent: '✦',
+const typeIcons: Record<NotificationType, keyof typeof Ionicons.glyphMap> = {
+  attendance: 'checkmark-circle',
+  homework: 'create-outline',
+  exam: 'grid-outline',
+  fee: 'cash-outline',
+  transport: 'bus-outline',
+  system: 'settings-outline',
+  ai_agent: 'sparkles-outline',
 };
 
 const formatCreatedAt = (value: string): string => {
@@ -43,47 +45,42 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
   notification,
   onPress,
 }) => (
-  <TouchableOpacity
-    style={[styles.card, !notification.isRead && styles.unreadCard]}
+  <AppCard
+    variant="interactive"
     onPress={onPress}
-    accessibilityRole="button"
+    style={notification.isRead ? undefined : styles.unreadCard}
     accessibilityLabel={`${notification.isRead ? 'Read' : 'Unread'} ${notification.title}`}
   >
-    <View style={styles.icon}>
-      <Text style={styles.iconText}>{typeIcons[notification.type]}</Text>
-    </View>
-    <View style={styles.content}>
-      <View style={styles.titleRow}>
-        <Text style={[styles.title, !notification.isRead && styles.unreadTitle]} numberOfLines={1}>
-          {notification.title}
+    <View style={styles.row}>
+      <View style={styles.icon}>
+        <Ionicons name={typeIcons[notification.type]} size={20} color={theme.colors.primary} />
+      </View>
+      <View style={styles.content}>
+        <View style={styles.titleRow}>
+          <Text style={[styles.title, !notification.isRead && styles.unreadTitle]} numberOfLines={1}>
+            {notification.title}
+          </Text>
+          {!notification.isRead && <NotificationBadge label="New" />}
+        </View>
+        <Text style={styles.message} numberOfLines={2}>
+          {notification.message}
         </Text>
-        {!notification.isRead && <NotificationBadge label="New" />}
-      </View>
-      <Text style={styles.message} numberOfLines={2}>
-        {notification.message}
-      </Text>
-      <View style={styles.metaRow}>
-        <Text style={styles.type}>{typeLabels[notification.type]}</Text>
-        <Text style={styles.date}>{formatCreatedAt(notification.createdAt)}</Text>
+        <View style={styles.metaRow}>
+          <Text style={styles.type}>{typeLabels[notification.type]}</Text>
+          <Text style={styles.date}>{formatCreatedAt(notification.createdAt)}</Text>
+        </View>
       </View>
     </View>
-  </TouchableOpacity>
+  </AppCard>
 );
 
 const styles = StyleSheet.create({
-  card: {
-    flexDirection: 'row',
-    marginHorizontal: theme.spacing.md,
-    marginBottom: theme.spacing.sm,
-    padding: theme.spacing.md,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    borderRadius: theme.radius.md,
-    backgroundColor: theme.colors.background,
-  },
   unreadCard: {
     borderColor: theme.colors.primaryLight,
-    backgroundColor: '#F5F3FF',
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
   },
   icon: {
     width: 42,
@@ -93,11 +90,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: theme.colors.backgroundSecondary,
     marginRight: theme.spacing.md,
-  },
-  iconText: {
-    color: theme.colors.primary,
-    fontSize: theme.typography.fontSize.xl,
-    fontWeight: theme.typography.fontWeight.bold,
   },
   content: {
     flex: 1,
@@ -110,15 +102,15 @@ const styles = StyleSheet.create({
   title: {
     flex: 1,
     color: theme.colors.text,
-    fontSize: theme.typography.fontSize.md,
-    fontWeight: theme.typography.fontWeight.medium,
+    ...theme.typography.hierarchy.bodySmall,
+    fontWeight: theme.typography.weight.medium,
   },
   unreadTitle: {
-    fontWeight: theme.typography.fontWeight.bold,
+    fontWeight: theme.typography.weight.bold,
   },
   message: {
     color: theme.colors.textSecondary,
-    fontSize: theme.typography.fontSize.sm,
+    ...theme.typography.hierarchy.caption,
     lineHeight: 20,
     marginTop: theme.spacing.xs,
   },
@@ -129,11 +121,11 @@ const styles = StyleSheet.create({
   },
   type: {
     color: theme.colors.primary,
-    fontSize: theme.typography.fontSize.xs,
-    fontWeight: theme.typography.fontWeight.bold,
+    ...theme.typography.hierarchy.caption,
+    fontWeight: theme.typography.weight.bold,
   },
   date: {
     color: theme.colors.textLight,
-    fontSize: theme.typography.fontSize.xs,
+    ...theme.typography.hierarchy.caption,
   },
 });

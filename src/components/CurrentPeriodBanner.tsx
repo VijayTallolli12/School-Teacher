@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../theme';
 import { PeriodItem } from '../types';
 
@@ -29,9 +30,11 @@ export const CurrentPeriodBanner: React.FC<CurrentPeriodBannerProps> = ({
           style={styles.currentSection}
           onPress={onCurrentPress}
           activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel={`Current period: ${currentPeriod.subject}`}
         >
           <View style={styles.indicator}>
-            <View style={styles.pulsingDot} />
+            <Ionicons name="ellipse" size={12} color={theme.colors.primary} />
             <Text style={styles.indicatorLabel}>NOW</Text>
           </View>
           <View style={styles.info}>
@@ -48,7 +51,7 @@ export const CurrentPeriodBanner: React.FC<CurrentPeriodBannerProps> = ({
       ) : nextPeriod ? (
         <View style={styles.nextSection}>
           <View style={styles.indicator}>
-            <View style={styles.upcomingDot} />
+            <Ionicons name="ellipse-outline" size={12} color={theme.colors.secondary} />
             <Text style={styles.indicatorLabel}>NEXT</Text>
           </View>
           <View style={styles.info}>
@@ -91,20 +94,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: theme.spacing.md,
     minWidth: 36,
-  },
-  pulsingDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: theme.colors.primary,
-    marginBottom: 2,
-  },
-  upcomingDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: theme.colors.secondary,
-    marginBottom: 2,
+    gap: 2,
   },
   indicatorLabel: {
     fontSize: 9,

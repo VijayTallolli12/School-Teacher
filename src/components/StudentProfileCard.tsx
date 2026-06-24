@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../theme';
+import { AppCard } from './AppCard';
 
 interface StudentProfileCardProps {
   name: string;
@@ -31,7 +33,7 @@ export const StudentProfileCard: React.FC<StudentProfileCardProps> = ({
     .slice(0, 2);
 
   return (
-    <View style={styles.container}>
+    <AppCard variant="elevated" style={styles.card} contentStyle={styles.cardContent}>
       <View style={styles.headerRow}>
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>{initials}</Text>
@@ -40,6 +42,7 @@ export const StudentProfileCard: React.FC<StudentProfileCardProps> = ({
           <Text style={styles.name}>{name}</Text>
           <Text style={styles.admissionNo}>ADM: {admissionNo}</Text>
           <View style={styles.classRow}>
+            <Ionicons name="school-outline" size={14} color={theme.colors.textSecondary} />
             <Text style={styles.classText}>
               {className} - {section}
             </Text>
@@ -48,33 +51,34 @@ export const StudentProfileCard: React.FC<StudentProfileCardProps> = ({
         </View>
       </View>
       <View style={styles.detailsRow}>
-        <View style={styles.detailItem}>
+        <View style={styles.detailItem} accessibilityRole="text" accessibilityLabel={`Gender: ${gender}`}>
+          <Ionicons name="person-outline" size={14} color={theme.colors.textLight} />
           <Text style={styles.detailLabel}>Gender</Text>
           <Text style={styles.detailValue}>{gender}</Text>
         </View>
-        <View style={styles.detailItem}>
+        <View style={styles.detailItem} accessibilityRole="text" accessibilityLabel={`Date of birth: ${dateOfBirth}`}>
+          <Ionicons name="calendar-outline" size={14} color={theme.colors.textLight} />
           <Text style={styles.detailLabel}>DOB</Text>
           <Text style={styles.detailValue}>{dateOfBirth}</Text>
         </View>
         {bloodGroup && (
-          <View style={styles.detailItem}>
+          <View style={styles.detailItem} accessibilityRole="text" accessibilityLabel={`Blood group: ${bloodGroup}`}>
+            <Ionicons name="water-outline" size={14} color={theme.colors.textLight} />
             <Text style={styles.detailLabel}>Blood</Text>
             <Text style={styles.detailValue}>{bloodGroup}</Text>
           </View>
         )}
       </View>
-    </View>
+    </AppCard>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: theme.colors.background,
-    borderRadius: theme.radius.lg,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    padding: theme.spacing.lg,
+  card: {
     marginBottom: theme.spacing.lg,
+  },
+  cardContent: {
+    padding: theme.spacing.lg,
   },
   headerRow: {
     flexDirection: 'row',
@@ -90,8 +94,8 @@ const styles = StyleSheet.create({
     marginRight: theme.spacing.md,
   },
   avatarText: {
-    fontSize: theme.typography.fontSize.xl,
-    fontWeight: theme.typography.fontWeight.bold,
+    ...theme.typography.hierarchy.heading,
+    fontWeight: theme.typography.weight.bold,
     color: theme.colors.background,
   },
   headerInfo: {
@@ -99,27 +103,28 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   name: {
-    fontSize: theme.typography.fontSize.lg,
-    fontWeight: theme.typography.fontWeight.bold,
+    ...theme.typography.hierarchy.heading,
+    fontWeight: theme.typography.weight.bold,
     color: theme.colors.text,
     marginBottom: 2,
   },
   admissionNo: {
-    fontSize: theme.typography.fontSize.sm,
+    ...theme.typography.hierarchy.bodySmall,
     color: theme.colors.textSecondary,
     marginBottom: 4,
   },
   classRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 4,
   },
   classText: {
-    fontSize: theme.typography.fontSize.sm,
+    ...theme.typography.hierarchy.bodySmall,
     color: theme.colors.textSecondary,
     marginRight: theme.spacing.md,
   },
   rollText: {
-    fontSize: theme.typography.fontSize.sm,
+    ...theme.typography.hierarchy.bodySmall,
     color: theme.colors.textLight,
   },
   detailsRow: {
@@ -134,13 +139,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   detailLabel: {
-    fontSize: theme.typography.fontSize.xs,
+    ...theme.typography.hierarchy.caption,
     color: theme.colors.textLight,
     marginBottom: 2,
+    marginTop: 2,
   },
   detailValue: {
-    fontSize: theme.typography.fontSize.sm,
-    fontWeight: theme.typography.fontWeight.medium,
+    ...theme.typography.hierarchy.bodySmall,
+    fontWeight: theme.typography.weight.medium,
     color: theme.colors.text,
   },
 });

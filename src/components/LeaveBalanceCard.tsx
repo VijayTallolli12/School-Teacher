@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../theme';
 import { LeaveBalance } from '../types';
 
@@ -12,7 +13,9 @@ export const LeaveBalanceCard: React.FC<LeaveBalanceCardProps> = ({ balances }) 
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Leave Balance</Text>
+      <Text style={styles.title}>
+        <Ionicons name="bar-chart-outline" size={14} color={theme.colors.textLight} /> Leave Balance
+      </Text>
       <View style={styles.grid}>
         {balances.map((balance) => {
           const percentage =
@@ -22,9 +25,12 @@ export const LeaveBalanceCard: React.FC<LeaveBalanceCardProps> = ({ balances }) 
 
           return (
             <View key={balance.leaveTypeId} style={styles.card}>
-              <Text style={styles.leaveTypeName} numberOfLines={1}>
-                {balance.leaveTypeName}
-              </Text>
+              <View style={styles.cardHeader}>
+                <Ionicons name="calendar-outline" size={14} color={theme.colors.textSecondary} />
+                <Text style={styles.leaveTypeName} numberOfLines={1}>
+                  {balance.leaveTypeName}
+                </Text>
+              </View>
               <View style={styles.balanceRow}>
                 <Text style={styles.remainingValue}>{balance.remaining}</Text>
                 <Text style={styles.totalValue}>/ {balance.total}</Text>
@@ -59,8 +65,8 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.lg,
   },
   title: {
-    fontSize: theme.typography.fontSize.xs,
-    fontWeight: theme.typography.fontWeight.bold,
+    ...theme.typography.hierarchy.caption,
+    fontWeight: theme.typography.weight.bold,
     color: theme.colors.textLight,
     textTransform: 'uppercase',
     letterSpacing: 1,
@@ -75,16 +81,22 @@ const styles = StyleSheet.create({
   card: {
     flex: 1,
     minWidth: '45%',
-    backgroundColor: theme.colors.background,
+    backgroundColor: theme.colors.surface,
     borderRadius: theme.radius.md,
     borderWidth: 1,
     borderColor: theme.colors.border,
     padding: theme.spacing.md,
   },
-  leaveTypeName: {
-    fontSize: theme.typography.fontSize.sm,
-    color: theme.colors.textSecondary,
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
     marginBottom: theme.spacing.xs,
+  },
+  leaveTypeName: {
+    ...theme.typography.hierarchy.bodySmall,
+    color: theme.colors.textSecondary,
+    flex: 1,
   },
   balanceRow: {
     flexDirection: 'row',
@@ -93,11 +105,11 @@ const styles = StyleSheet.create({
   },
   remainingValue: {
     fontSize: theme.typography.fontSize.xxl,
-    fontWeight: theme.typography.fontWeight.bold,
+    fontWeight: theme.typography.weight.bold,
     color: theme.colors.text,
   },
   totalValue: {
-    fontSize: theme.typography.fontSize.sm,
+    ...theme.typography.hierarchy.bodySmall,
     color: theme.colors.textLight,
     marginLeft: 2,
   },
@@ -113,7 +125,7 @@ const styles = StyleSheet.create({
     borderRadius: 2,
   },
   usedText: {
-    fontSize: theme.typography.fontSize.xs,
+    ...theme.typography.hierarchy.caption,
     color: theme.colors.textLight,
   },
 });

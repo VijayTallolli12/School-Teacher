@@ -1,7 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../theme';
 import { StudentItem, StudentStatus } from '../types';
+import { AppCard } from './AppCard';
 
 interface StudentCardProps {
   student: StudentItem;
@@ -25,11 +27,7 @@ export const StudentCard: React.FC<StudentCardProps> = ({ student, onPress }) =>
   const status = statusColors[student.status];
 
   return (
-    <TouchableOpacity
-      style={styles.container}
-      onPress={onPress}
-      activeOpacity={0.7}
-    >
+    <AppCard variant="interactive" onPress={onPress} style={styles.card} contentStyle={styles.cardContent}>
       <View style={styles.avatar}>
         <Text style={styles.avatarText}>{initials}</Text>
       </View>
@@ -47,20 +45,17 @@ export const StudentCard: React.FC<StudentCardProps> = ({ student, onPress }) =>
           {status.label}
         </Text>
       </View>
-    </TouchableOpacity>
+    </AppCard>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  card: {
+    marginBottom: theme.spacing.sm,
+  },
+  cardContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.colors.background,
-    borderRadius: theme.radius.md,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    padding: theme.spacing.md,
-    marginBottom: theme.spacing.sm,
   },
   avatar: {
     width: 44,
@@ -72,26 +67,26 @@ const styles = StyleSheet.create({
     marginRight: theme.spacing.md,
   },
   avatarText: {
-    fontSize: theme.typography.fontSize.md,
-    fontWeight: theme.typography.fontWeight.bold,
+    ...theme.typography.hierarchy.body,
+    fontWeight: theme.typography.weight.bold,
     color: theme.colors.background,
   },
   info: {
     flex: 1,
   },
   name: {
-    fontSize: theme.typography.fontSize.md,
-    fontWeight: theme.typography.fontWeight.bold,
+    ...theme.typography.hierarchy.body,
+    fontWeight: theme.typography.weight.bold,
     color: theme.colors.text,
     marginBottom: 1,
   },
   admissionNo: {
-    fontSize: theme.typography.fontSize.xs,
+    ...theme.typography.hierarchy.caption,
     color: theme.colors.textLight,
     marginBottom: 1,
   },
   classSection: {
-    fontSize: theme.typography.fontSize.sm,
+    ...theme.typography.hierarchy.bodySmall,
     color: theme.colors.textSecondary,
   },
   statusBadge: {
@@ -101,7 +96,7 @@ const styles = StyleSheet.create({
     marginLeft: theme.spacing.sm,
   },
   statusText: {
-    fontSize: theme.typography.fontSize.xs,
-    fontWeight: theme.typography.fontWeight.bold,
+    ...theme.typography.hierarchy.caption,
+    fontWeight: theme.typography.weight.bold,
   },
 });

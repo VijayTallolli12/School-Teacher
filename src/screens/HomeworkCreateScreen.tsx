@@ -1,6 +1,8 @@
 import React from 'react';
-import { View, StyleSheet, Alert, Text } from 'react-native';
+import { View, StyleSheet, Alert } from 'react-native';
 import { ScreenContainer } from '../components';
+import { EmptyState } from '../components/EmptyState';
+import { SkeletonCard } from '../components/SkeletonLoader';
 import { HomeworkForm } from '../components';
 import { useCreateHomework, useHomeworkDetail, useUpdateHomework } from '../hooks/useHomework';
 import { useClasses } from '../hooks/useAttendance';
@@ -48,7 +50,7 @@ export const HomeworkCreateScreen: React.FC = () => {
     return (
       <ScreenContainer>
         <View style={styles.loadingContainer}>
-          <View style={styles.skeleton} />
+          <SkeletonCard lines={5} />
         </View>
       </ScreenContainer>
     );
@@ -57,11 +59,11 @@ export const HomeworkCreateScreen: React.FC = () => {
   if (classesError || homeworkError) {
     return (
       <ScreenContainer>
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>
-            {classesError?.message || homeworkError?.message || 'Unable to load data for homework form.'}
-          </Text>
-        </View>
+        <EmptyState
+          icon="alert-circle-outline"
+          title="Unable to Load Data"
+          message={classesError?.message || homeworkError?.message || 'Unable to load data for homework form.'}
+        />
       </ScreenContainer>
     );
   }
@@ -81,22 +83,6 @@ export const HomeworkCreateScreen: React.FC = () => {
 const styles = StyleSheet.create({
   loadingContainer: {
     flex: 1,
-    padding: 16,
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
-  },
-  errorText: {
-    fontSize: 16,
-    color: theme.colors.error,
-    textAlign: 'center',
-  },
-  skeleton: {
-    height: 400,
-    backgroundColor: '#E5E7EB',
-    borderRadius: 8,
+    padding: theme.spacing.md,
   },
 });

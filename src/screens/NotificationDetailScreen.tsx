@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Alert, StyleSheet, Text, View } from 'react-native';
-import { AppHeader, ScreenContainer } from '../components';
+import { Ionicons } from '@expo/vector-icons';
+import { AppCard, AppHeader, ScreenContainer } from '../components';
 import { useMarkAsRead } from '../hooks/useNotifications';
 import { NotificationType, NotificationsStackParamList } from '../types';
 import { theme } from '../theme';
@@ -48,16 +49,23 @@ export const NotificationDetailScreen: React.FC<Props> = ({ navigation, route })
   return (
     <ScreenContainer backgroundColor={theme.colors.backgroundSecondary}>
       <AppHeader title="Notification" showBackButton onBackPress={navigation.goBack} />
-      <View style={styles.card}>
+      <AppCard variant="elevated" style={styles.card}>
         <View style={styles.metaRow}>
           <Text style={styles.type}>{typeLabels[notification.type]}</Text>
-          <Text style={[styles.status, !isRead && styles.unreadStatus]}>{readStatus}</Text>
+          <View style={styles.statusRow}>
+            <Ionicons
+              name={isRead ? 'checkmark-circle' : 'time-outline'}
+              size={14}
+              color={isRead ? theme.colors.success : theme.colors.warning}
+            />
+            <Text style={[styles.status, !isRead && styles.unreadStatus]}>{readStatus}</Text>
+          </View>
         </View>
         <Text style={styles.title}>{notification.title}</Text>
         <Text style={styles.date}>{formatDate(notification.createdAt)}</Text>
         <View style={styles.divider} />
         <Text style={styles.message}>{notification.message}</Text>
-      </View>
+      </AppCard>
     </ScreenContainer>
   );
 };
@@ -65,15 +73,16 @@ export const NotificationDetailScreen: React.FC<Props> = ({ navigation, route })
 const styles = StyleSheet.create({
   card: {
     margin: theme.spacing.md,
-    padding: theme.spacing.lg,
-    borderRadius: theme.radius.lg,
-    backgroundColor: theme.colors.background,
-    ...theme.shadows.sm,
   },
   metaRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  statusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.xs,
   },
   type: {
     color: theme.colors.primary,
@@ -81,12 +90,12 @@ const styles = StyleSheet.create({
     fontWeight: theme.typography.fontWeight.bold,
   },
   status: {
-    color: theme.colors.successDark,
     fontSize: theme.typography.fontSize.xs,
     fontWeight: theme.typography.fontWeight.bold,
+    color: theme.colors.success,
   },
   unreadStatus: {
-    color: theme.colors.warningDark,
+    color: theme.colors.warning,
   },
   title: {
     color: theme.colors.text,

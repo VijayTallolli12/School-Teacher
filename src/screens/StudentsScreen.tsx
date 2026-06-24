@@ -3,16 +3,18 @@ import {
   View,
   Text,
   StyleSheet,
-  ActivityIndicator,
   RefreshControl,
   ScrollView,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AppHeader } from '../components';
 import { StudentCard } from '../components/StudentCard';
 import { StudentSearchBar } from '../components/StudentSearchBar';
 import { StudentFilterSheet } from '../components/StudentFilterSheet';
+import { EmptyState } from '../components/EmptyState';
+import { SkeletonList } from '../components/SkeletonLoader';
 import { useStudents } from '../hooks/useStudents';
 import { theme } from '../theme';
 import { AppStackParamList, StudentItem, StudentStatus } from '../types';
@@ -83,11 +85,13 @@ export const StudentsScreen: React.FC = () => {
       {activeFilterCount > 0 && (
         <View style={styles.activeFiltersRow}>
           <Text style={styles.activeFiltersText}>
-            {activeFilterCount} filter{activeFilterCount > 1 ? 's' : ''} active
+            <Ionicons name="funnel-outline" size={12} color={theme.colors.primary} /> {activeFilterCount} filter{activeFilterCount > 1 ? 's' : ''} active
           </Text>
           <Text
             style={styles.clearFiltersText}
             onPress={() => setFilters({ class: '', section: '', status: '' })}
+            accessibilityRole="button"
+            accessibilityLabel="Clear all filters"
           >
             Clear all
           </Text>
@@ -107,15 +111,13 @@ export const StudentsScreen: React.FC = () => {
         }
       >
         {isLoading ? (
-          <View style={styles.centeredContainer}>
-            <ActivityIndicator size="large" color={theme.colors.primary} />
-          </View>
+          <SkeletonList count={4} />
         ) : isError ? (
-          <View style={styles.centeredContainer}>
-            <Text style={styles.emptyText}>
-              Could not load students. Pull down to retry.
-            </Text>
-          </View>
+          <EmptyState
+            icon="alert-circle-outline"
+            title="Something went wrong"
+            message="Could not load students. Pull down to retry."
+          />
         ) : students && students.length > 0 ? (
           students.map((student) => (
             <StudentCard
@@ -125,15 +127,15 @@ export const StudentsScreen: React.FC = () => {
             />
           ))
         ) : (
-          <View style={styles.centeredContainer}>
-            <Text style={styles.emptyIcon}>👥</Text>
-            <Text style={styles.emptyTitle}>No students found</Text>
-            <Text style={styles.emptyText}>
-              {search
+          <EmptyState
+            icon="people-outline"
+            title="No students found"
+            message={
+              search
                 ? 'Try adjusting your search or filters'
-                : 'No students are assigned to you'}
-            </Text>
-          </View>
+                : 'No students are assigned to you'
+            }
+          />
         )}
       </ScrollView>
 
@@ -160,29 +162,6 @@ const styles = StyleSheet.create({
     paddingBottom: theme.spacing.xxl,
     flexGrow: 1,
   },
-  centeredContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: theme.spacing.xxxl,
-    paddingHorizontal: theme.spacing.lg,
-  },
-  emptyIcon: {
-    fontSize: 48,
-    marginBottom: theme.spacing.md,
-  },
-  emptyTitle: {
-    fontSize: theme.typography.fontSize.lg,
-    fontWeight: theme.typography.fontWeight.bold,
-    color: theme.colors.text,
-    marginBottom: theme.spacing.sm,
-  },
-  emptyText: {
-    fontSize: theme.typography.fontSize.sm,
-    color: theme.colors.textSecondary,
-    textAlign: 'center',
-    lineHeight: 20,
-  },
   activeFiltersRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -191,12 +170,12 @@ const styles = StyleSheet.create({
     paddingVertical: theme.spacing.xs,
   },
   activeFiltersText: {
-    fontSize: theme.typography.fontSize.xs,
+    ...theme.typography.hierarchy.caption,
     color: theme.colors.primary,
-    fontWeight: theme.typography.fontWeight.medium,
+    fontWeight: theme.typography.weight.medium,
   },
   clearFiltersText: {
-    fontSize: theme.typography.fontSize.xs,
+    ...theme.typography.hierarchy.caption,
     color: theme.colors.textLight,
     textDecorationLine: 'underline',
   },

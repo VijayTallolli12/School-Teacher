@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
-import { ScreenContainer } from '../components';
+import { View, Text, StyleSheet, TextInput, Alert } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { ScreenContainer, AppHeader } from '../components';
+import { AppButton } from '../components/AppButton';
 import { useAuthStore } from '../store/authStore';
+import { theme } from '../theme';
 
 export const LoginScreen: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -52,7 +55,6 @@ export const LoginScreen: React.FC = () => {
     try {
       await login({ email, password });
     } catch (error) {
-      // Error is handled in the store
       Alert.alert('Login Failed', useAuthStore.getState().error || 'An error occurred');
     }
   };
@@ -60,48 +62,59 @@ export const LoginScreen: React.FC = () => {
   return (
     <ScreenContainer scrollable={false}>
       <View style={styles.container}>
-        <Text style={styles.title}>Teacher App</Text>
-        <Text style={styles.subtitle}>Sign in to continue</Text>
+        <View style={styles.logoContainer}>
+          <Ionicons name="school-outline" size={64} color={theme.colors.primary} />
+          <Text style={styles.title}>Teacher App</Text>
+          <Text style={styles.subtitle}>Sign in to continue</Text>
+        </View>
 
         <View style={styles.formContainer}>
-          <TextInput
-            style={[styles.input, emailError && styles.inputError]}
-            placeholder="Email"
-            placeholderTextColor="#9CA3AF"
-            value={email}
-            onChangeText={(text) => {
-              setEmail(text);
-              setEmailError('');
-            }}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
+          <View style={styles.inputWrapper}>
+            <Ionicons name="mail-outline" size={18} color={theme.colors.textLight} style={styles.inputIcon} />
+            <TextInput
+              style={[styles.input, emailError && styles.inputError]}
+              placeholder="Email"
+              placeholderTextColor={theme.colors.textLight}
+              value={email}
+              onChangeText={(text) => {
+                setEmail(text);
+                setEmailError('');
+              }}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              accessibilityLabel="Email address"
+            />
+          </View>
           {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
 
-          <TextInput
-            style={[styles.input, passwordError && styles.inputError]}
-            placeholder="Password"
-            placeholderTextColor="#9CA3AF"
-            value={password}
-            onChangeText={(text) => {
-              setPassword(text);
-              setPasswordError('');
-            }}
-            secureTextEntry
-            autoCapitalize="none"
-          />
+          <View style={styles.inputWrapper}>
+            <Ionicons name="key-outline" size={18} color={theme.colors.textLight} style={styles.inputIcon} />
+            <TextInput
+              style={[styles.input, passwordError && styles.inputError]}
+              placeholder="Password"
+              placeholderTextColor={theme.colors.textLight}
+              value={password}
+              onChangeText={(text) => {
+                setPassword(text);
+                setPasswordError('');
+              }}
+              secureTextEntry
+              autoCapitalize="none"
+              accessibilityLabel="Password"
+            />
+          </View>
           {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
 
-          <TouchableOpacity
-            style={[styles.button, isLoading && styles.buttonDisabled]}
+          <AppButton
+            title={isLoading ? 'Logging in...' : 'Login'}
+            variant="primary"
             onPress={handleLogin}
-            disabled={isLoading}
-          >
-            <Text style={styles.buttonText}>
-              {isLoading ? 'Logging in...' : 'Login'}
-            </Text>
-          </TouchableOpacity>
+            loading={isLoading}
+            leftIcon={<Ionicons name="log-in-outline" size={18} color={theme.colors.primaryContrast} />}
+            style={styles.button}
+            accessibilityLabel="Login to your account"
+          />
         </View>
       </View>
     </ScreenContainer>
@@ -113,57 +126,57 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
+    padding: theme.spacing[6],
+    backgroundColor: theme.colors.background,
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: theme.spacing[8],
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    marginBottom: 8,
-    color: '#111827',
+    ...theme.typography.hierarchy.display,
+    color: theme.colors.text,
+    marginTop: theme.spacing.md,
+    marginBottom: theme.spacing.xs,
   },
   subtitle: {
-    fontSize: 16,
-    marginBottom: 32,
-    color: '#6B7280',
+    ...theme.typography.hierarchy.body,
+    color: theme.colors.textSecondary,
   },
   formContainer: {
     width: '100%',
     maxWidth: 400,
   },
-  input: {
-    width: '100%',
-    height: 50,
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#E5E7EB',
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    marginBottom: 8,
-    fontSize: 16,
-    color: '#111827',
-    backgroundColor: '#FFFFFF',
+    borderColor: theme.colors.border,
+    borderRadius: theme.radius.sm,
+    backgroundColor: theme.colors.surface,
+    marginBottom: theme.spacing.xs,
+    paddingHorizontal: theme.spacing.md,
+  },
+  inputIcon: {
+    marginRight: theme.spacing.sm,
+  },
+  input: {
+    flex: 1,
+    height: 50,
+    fontSize: theme.typography.fontSize.md,
+    color: theme.colors.text,
   },
   inputError: {
-    borderColor: '#EF4444',
+    borderColor: theme.colors.error,
   },
   errorText: {
-    color: '#EF4444',
-    fontSize: 12,
-    marginBottom: 16,
+    color: theme.colors.error,
+    ...theme.typography.hierarchy.caption,
+    marginBottom: theme.spacing.md,
+    marginLeft: theme.spacing.xs,
   },
   button: {
-    backgroundColor: '#4F46E5',
-    paddingHorizontal: 32,
-    paddingVertical: 14,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 16,
-  },
-  buttonDisabled: {
-    backgroundColor: '#9CA3AF',
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
+    marginTop: theme.spacing.lg,
+    width: '100%',
   },
 });

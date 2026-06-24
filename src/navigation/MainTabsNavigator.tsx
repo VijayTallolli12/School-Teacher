@@ -11,6 +11,7 @@ import {
 import { MainTabParamList } from '../types';
 import { NotificationsNavigator } from './NotificationsNavigator';
 import { useUnreadCount } from '../hooks/useNotifications';
+import { theme } from '../theme';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
@@ -21,8 +22,8 @@ export const MainTabs: React.FC = () => {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#4F46E5',
-        tabBarInactiveTintColor: '#9CA3AF',
+        tabBarActiveTintColor: theme.colors.primary,
+        tabBarInactiveTintColor: theme.colors.textTertiary,
       }}
     >
       <Tab.Screen 

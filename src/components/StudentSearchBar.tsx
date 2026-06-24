@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, TextInput, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { View, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../theme';
 
 interface StudentSearchBarProps {
@@ -18,7 +19,7 @@ export const StudentSearchBar: React.FC<StudentSearchBarProps> = ({
   return (
     <View style={styles.container}>
       <View style={styles.inputContainer}>
-        <Text style={styles.searchIcon}>🔍</Text>
+        <Ionicons name="search-outline" size={16} color={theme.colors.textLight} style={styles.searchIcon} />
         <TextInput
           style={styles.input}
           value={value}
@@ -28,16 +29,22 @@ export const StudentSearchBar: React.FC<StudentSearchBarProps> = ({
           returnKeyType="search"
           autoCapitalize="none"
           autoCorrect={false}
+          accessibilityLabel="Search students"
         />
         {value.length > 0 && (
-          <TouchableOpacity onPress={() => onChangeText('')}>
-            <Text style={styles.clearIcon}>✕</Text>
+          <TouchableOpacity onPress={() => onChangeText('')} accessibilityLabel="Clear search" accessibilityRole="button">
+            <Ionicons name="close" size={16} color={theme.colors.textLight} style={styles.clearIcon} />
           </TouchableOpacity>
         )}
       </View>
       {onFilterPress && (
-        <TouchableOpacity style={styles.filterButton} onPress={onFilterPress}>
-          <Text style={styles.filterIcon}>⚙</Text>
+        <TouchableOpacity
+          style={styles.filterButton}
+          onPress={onFilterPress}
+          accessibilityLabel="Open filters"
+          accessibilityRole="button"
+        >
+          <Ionicons name="options-outline" size={18} color={theme.colors.textSecondary} />
         </TouchableOpacity>
       )}
     </View>
@@ -55,38 +62,32 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.colors.background,
+    backgroundColor: theme.colors.surface,
     borderRadius: theme.radius.sm,
     borderWidth: 1,
     borderColor: theme.colors.border,
     paddingHorizontal: theme.spacing.sm,
   },
   searchIcon: {
-    fontSize: 16,
     marginRight: theme.spacing.xs,
   },
   input: {
     flex: 1,
     paddingVertical: theme.spacing.sm,
-    fontSize: theme.typography.fontSize.sm,
+    ...theme.typography.hierarchy.bodySmall,
     color: theme.colors.text,
   },
   clearIcon: {
-    fontSize: 16,
-    color: theme.colors.textLight,
     padding: 4,
   },
   filterButton: {
     width: 42,
     height: 42,
     borderRadius: theme.radius.sm,
-    backgroundColor: theme.colors.background,
+    backgroundColor: theme.colors.surface,
     borderWidth: 1,
     borderColor: theme.colors.border,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  filterIcon: {
-    fontSize: 18,
   },
 });

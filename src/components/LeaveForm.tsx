@@ -5,12 +5,12 @@ import {
   TextInput,
   StyleSheet,
   TouchableOpacity,
-  Alert,
-  ActivityIndicator,
   ScrollView,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../theme';
 import { LeaveType, LeavePayload } from '../types';
+import { AppButton } from './AppButton';
 
 interface LeaveFormProps {
   leaveTypes: LeaveType[];
@@ -107,12 +107,13 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({
     });
   };
 
-  const todayStr = formatDate(new Date());
-
   return (
     <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
       {/* Leave Type */}
-      <Text style={styles.label}>Leave Type *</Text>
+      <View style={styles.labelRow}>
+        <Ionicons name="list-outline" size={16} color={theme.colors.textSecondary} />
+        <Text style={styles.label}>Leave Type *</Text>
+      </View>
       <View style={styles.typeGrid}>
         {leaveTypes.map((type) => {
           const isSelected = selectedTypeId === type.id;
@@ -125,6 +126,9 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({
                 setErrors((e) => ({ ...e, type: '' }));
               }}
               activeOpacity={0.7}
+              accessibilityRole="radio"
+              accessibilityState={{ selected: isSelected }}
+              accessibilityLabel={`Leave type: ${type.name}`}
             >
               <Text
                 style={[
@@ -149,9 +153,12 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({
       {errors.type && <Text style={styles.errorText}>{errors.type}</Text>}
 
       {/* From Date */}
-      <Text style={styles.label}>From Date *</Text>
+      <View style={styles.labelRow}>
+        <Ionicons name="calendar-outline" size={16} color={theme.colors.textSecondary} />
+        <Text style={styles.label}>From Date *</Text>
+      </View>
       <TextInput
-        style={styles.input}
+        style={[styles.input, errors.fromDate && styles.inputError]}
         value={fromDate}
         onChangeText={(v) => {
           setFromDate(v);
@@ -161,13 +168,17 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({
         placeholderTextColor={theme.colors.textLight}
         keyboardType="numbers-and-punctuation"
         maxLength={10}
+        accessibilityLabel="From date"
       />
       {errors.fromDate && <Text style={styles.errorText}>{errors.fromDate}</Text>}
 
       {/* To Date */}
-      <Text style={styles.label}>To Date *</Text>
+      <View style={styles.labelRow}>
+        <Ionicons name="calendar-outline" size={16} color={theme.colors.textSecondary} />
+        <Text style={styles.label}>To Date *</Text>
+      </View>
       <TextInput
-        style={styles.input}
+        style={[styles.input, errors.toDate && styles.inputError]}
         value={toDate}
         onChangeText={(v) => {
           setToDate(v);
@@ -177,12 +188,14 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({
         placeholderTextColor={theme.colors.textLight}
         keyboardType="numbers-and-punctuation"
         maxLength={10}
+        accessibilityLabel="To date"
       />
       {errors.toDate && <Text style={styles.errorText}>{errors.toDate}</Text>}
 
       {/* Days summary */}
       {days > 0 && (
         <View style={styles.daysBanner}>
+          <Ionicons name="calendar-outline" size={16} color={theme.colors.secondary} />
           <Text style={styles.daysBannerText}>
             {days} day{days > 1 ? 's' : ''}
             {selectedType && days > selectedType.maxConsecutiveDays
@@ -193,9 +206,12 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({
       )}
 
       {/* Reason */}
-      <Text style={styles.label}>Reason *</Text>
+      <View style={styles.labelRow}>
+        <Ionicons name="create-outline" size={16} color={theme.colors.textSecondary} />
+        <Text style={styles.label}>Reason *</Text>
+      </View>
       <TextInput
-        style={[styles.input, styles.textArea]}
+        style={[styles.input, styles.textArea, errors.reason && styles.inputError]}
         value={reason}
         onChangeText={(v) => {
           setReason(v);
@@ -206,22 +222,20 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({
         multiline
         numberOfLines={4}
         textAlignVertical="top"
+        accessibilityLabel="Reason for leave"
       />
       {errors.reason && <Text style={styles.errorText}>{errors.reason}</Text>}
 
       {/* Submit */}
-      <TouchableOpacity
-        style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]}
+      <AppButton
+        title="Apply Leave"
+        variant="primary"
         onPress={handleSubmit}
-        disabled={isSubmitting}
-        activeOpacity={0.7}
-      >
-        {isSubmitting ? (
-          <ActivityIndicator color={theme.colors.background} size="small" />
-        ) : (
-          <Text style={styles.submitButtonText}>Apply Leave</Text>
-        )}
-      </TouchableOpacity>
+        loading={isSubmitting}
+        leftIcon={<Ionicons name="paper-plane-outline" size={18} color={theme.colors.primaryContrast} />}
+        style={styles.submitButton}
+        accessibilityLabel="Submit leave application"
+      />
     </ScrollView>
   );
 };
@@ -230,12 +244,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  label: {
-    fontSize: theme.typography.fontSize.sm,
-    fontWeight: theme.typography.fontWeight.medium,
-    color: theme.colors.text,
-    marginBottom: theme.spacing.xs,
+  labelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
     marginTop: theme.spacing.md,
+    marginBottom: theme.spacing.xs,
+  },
+  label: {
+    ...theme.typography.hierarchy.bodySmall,
+    fontWeight: theme.typography.weight.medium,
+    color: theme.colors.text,
   },
   input: {
     borderWidth: 1,
@@ -245,14 +264,17 @@ const styles = StyleSheet.create({
     paddingVertical: theme.spacing.sm + 2,
     fontSize: theme.typography.fontSize.md,
     color: theme.colors.text,
-    backgroundColor: theme.colors.background,
+    backgroundColor: theme.colors.surface,
+  },
+  inputError: {
+    borderColor: theme.colors.error,
   },
   textArea: {
     minHeight: 100,
     paddingTop: theme.spacing.sm + 2,
   },
   errorText: {
-    fontSize: theme.typography.fontSize.xs,
+    ...theme.typography.hierarchy.caption,
     color: theme.colors.error,
     marginTop: 2,
   },
@@ -267,27 +289,27 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.sm,
     borderWidth: 1,
     borderColor: theme.colors.border,
-    backgroundColor: theme.colors.background,
+    backgroundColor: theme.colors.surface,
     alignItems: 'center',
     minWidth: '30%',
     flex: 1,
   },
   typeChipSelected: {
     borderColor: theme.colors.primary,
-    backgroundColor: '#EEF2FF',
+    backgroundColor: theme.colors.primaryLight,
   },
   typeChipText: {
-    fontSize: theme.typography.fontSize.sm,
-    fontWeight: theme.typography.fontWeight.medium,
+    ...theme.typography.hierarchy.bodySmall,
+    fontWeight: theme.typography.weight.medium,
     color: theme.colors.text,
     marginBottom: 2,
   },
   typeChipTextSelected: {
     color: theme.colors.primary,
-    fontWeight: theme.typography.fontWeight.bold,
+    fontWeight: theme.typography.weight.bold,
   },
   typeChipDays: {
-    fontSize: theme.typography.fontSize.xs,
+    ...theme.typography.hierarchy.caption,
     color: theme.colors.textLight,
   },
   typeChipDaysSelected: {
@@ -298,27 +320,18 @@ const styles = StyleSheet.create({
     padding: theme.spacing.sm,
     backgroundColor: '#F0FDF4',
     borderRadius: theme.radius.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
   daysBannerText: {
-    fontSize: theme.typography.fontSize.sm,
-    fontWeight: theme.typography.fontWeight.medium,
+    ...theme.typography.hierarchy.bodySmall,
+    fontWeight: theme.typography.weight.medium,
     color: theme.colors.secondary,
     textAlign: 'center',
   },
   submitButton: {
-    backgroundColor: theme.colors.primary,
-    paddingVertical: theme.spacing.md - 2,
-    borderRadius: theme.radius.sm,
-    alignItems: 'center',
     marginTop: theme.spacing.lg,
     marginBottom: theme.spacing.xxl,
-  },
-  submitButtonDisabled: {
-    opacity: 0.6,
-  },
-  submitButtonText: {
-    fontSize: theme.typography.fontSize.md,
-    fontWeight: theme.typography.fontWeight.bold,
-    color: theme.colors.background,
   },
 });

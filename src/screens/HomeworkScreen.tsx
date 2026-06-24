@@ -1,6 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { ScreenContainer } from '../components';
+import { SkeletonList } from '../components/SkeletonLoader';
+import { EmptyState } from '../components/EmptyState';
 import { HomeworkHeader, HomeworkCard, HomeworkEmptyState } from '../components';
 import { useHomework } from '../hooks/useHomework';
 import { HomeworkItem } from '../types';
@@ -53,15 +56,13 @@ export const HomeworkScreen: React.FC = () => {
   if (error) {
     return (
       <ScreenContainer>
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorTitle}>Unable to Load Homework</Text>
-          <Text style={styles.errorMessage}>
-            {error.message || 'Please check your connection and try again'}
-          </Text>
-          <TouchableOpacity style={styles.retryButton} onPress={handleRetry}>
-            <Text style={styles.retryButtonText}>Retry</Text>
-          </TouchableOpacity>
-        </View>
+        <EmptyState
+          icon="cloud-offline-outline"
+          title="Unable to Load Homework"
+          message={error.message || 'Please check your connection and try again'}
+          actionLabel="Retry"
+          onAction={handleRetry}
+        />
       </ScreenContainer>
     );
   }
@@ -71,7 +72,7 @@ export const HomeworkScreen: React.FC = () => {
       <ScreenContainer>
         <HomeworkHeader title="Homework" />
         <View style={styles.container}>
-          <HomeworkListSkeleton />
+          <SkeletonList count={4} style={styles.skeletonList} />
         </View>
       </ScreenContainer>
     );
@@ -118,21 +119,11 @@ export const HomeworkScreen: React.FC = () => {
         )}
       </ScrollView>
       <View style={styles.fabContainer}>
-        <TouchableOpacity style={styles.fab} onPress={handleCreateHomework}>
-          <Text style={styles.fabText}>+</Text>
+        <TouchableOpacity style={styles.fab} onPress={handleCreateHomework} accessibilityRole="button" accessibilityLabel="Create homework">
+          <Ionicons name="add" size={28} color={theme.colors.primaryContrast} />
         </TouchableOpacity>
       </View>
     </ScreenContainer>
-  );
-};
-
-const HomeworkListSkeleton: React.FC = () => {
-  return (
-    <View style={styles.skeletonContainer}>
-      {[1, 2, 3, 4].map((i) => (
-        <View key={i} style={styles.skeletonCard} />
-      ))}
-    </View>
   );
 };
 
@@ -188,44 +179,8 @@ const styles = StyleSheet.create({
   filterChipTextActive: {
     color: theme.colors.background,
   },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: theme.spacing.xl,
-  },
-  errorTitle: {
-    fontSize: theme.typography.fontSize.xl,
-    fontWeight: theme.typography.fontWeight.bold,
-    color: theme.colors.text,
-    marginBottom: theme.spacing.md,
-    textAlign: 'center',
-  },
-  errorMessage: {
-    fontSize: theme.typography.fontSize.md,
-    color: theme.colors.textSecondary,
-    marginBottom: theme.spacing.lg,
-    textAlign: 'center',
-  },
-  retryButton: {
-    backgroundColor: theme.colors.primary,
-    paddingHorizontal: theme.spacing.xl,
-    paddingVertical: theme.spacing.md,
-    borderRadius: theme.radius.md,
-  },
-  retryButtonText: {
-    color: theme.colors.background,
-    fontSize: theme.typography.fontSize.md,
-    fontWeight: theme.typography.fontWeight.bold,
-  },
-  skeletonContainer: {
+  skeletonList: {
     padding: theme.spacing.md,
-  },
-  skeletonCard: {
-    height: 120,
-    backgroundColor: theme.colors.border,
-    borderRadius: theme.radius.md,
-    marginBottom: theme.spacing.sm,
   },
   fabContainer: {
     position: 'absolute',
@@ -240,10 +195,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     ...theme.shadows.md,
-  },
-  fabText: {
-    fontSize: 32,
-    color: theme.colors.background,
-    fontWeight: theme.typography.fontWeight.bold,
   },
 });

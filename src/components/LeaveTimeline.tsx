@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../theme';
 import { LeaveTimelineEntry, LeaveStatus } from '../types';
 
@@ -21,21 +22,35 @@ const statusLabels: Record<LeaveStatus, string> = {
   cancelled: 'Cancelled',
 };
 
+const statusIcons: Record<LeaveStatus, keyof typeof Ionicons.glyphMap> = {
+  pending: 'hourglass-outline',
+  approved: 'checkmark-circle',
+  rejected: 'close-circle',
+  cancelled: 'close-circle',
+};
+
 export const LeaveTimeline: React.FC<LeaveTimelineProps> = ({ entries }) => {
   if (entries.length === 0) return null;
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Status Timeline</Text>
+    <View style={styles.container} accessibilityRole="list" accessibilityLabel="Status Timeline">
+      <Text style={styles.title}>
+        <Ionicons name="hourglass-outline" size={14} color={theme.colors.textLight} /> Status Timeline
+      </Text>
       <View style={styles.timeline}>
         {entries.map((entry, index) => {
           const isLast = index === entries.length - 1;
           const color = statusColors[entry.status];
 
           return (
-            <View key={index} style={styles.entry}>
+            <View key={index} style={styles.entry} accessibilityRole="text">
               <View style={styles.dotContainer}>
-                <View style={[styles.dot, { backgroundColor: color }]} />
+                <Ionicons
+                  name={statusIcons[entry.status]}
+                  size={14}
+                  color={color}
+                  style={styles.dotIcon}
+                />
                 {!isLast && (
                   <View style={[styles.line, { backgroundColor: theme.colors.border }]} />
                 )}
@@ -65,8 +80,8 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.lg,
   },
   title: {
-    fontSize: theme.typography.fontSize.xs,
-    fontWeight: theme.typography.fontWeight.bold,
+    ...theme.typography.hierarchy.caption,
+    fontWeight: theme.typography.weight.bold,
     color: theme.colors.textLight,
     textTransform: 'uppercase',
     letterSpacing: 1,
@@ -74,7 +89,7 @@ const styles = StyleSheet.create({
     marginLeft: theme.spacing.xs,
   },
   timeline: {
-    backgroundColor: theme.colors.background,
+    backgroundColor: theme.colors.surface,
     borderRadius: theme.radius.md,
     borderWidth: 1,
     borderColor: theme.colors.border,
@@ -89,10 +104,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: theme.spacing.sm,
   },
-  dot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
+  dotIcon: {
     marginTop: 3,
   },
   line: {
@@ -105,23 +117,23 @@ const styles = StyleSheet.create({
     paddingBottom: theme.spacing.md,
   },
   statusText: {
-    fontSize: theme.typography.fontSize.sm,
-    fontWeight: theme.typography.fontWeight.bold,
+    ...theme.typography.hierarchy.bodySmall,
+    fontWeight: theme.typography.weight.bold,
     color: theme.colors.text,
   },
   dateText: {
-    fontSize: theme.typography.fontSize.xs,
+    ...theme.typography.hierarchy.caption,
     color: theme.colors.textSecondary,
     marginTop: 1,
   },
   remarkText: {
-    fontSize: theme.typography.fontSize.sm,
+    ...theme.typography.hierarchy.bodySmall,
     color: theme.colors.textSecondary,
     marginTop: theme.spacing.xs,
     lineHeight: 18,
   },
   updatedByText: {
-    fontSize: theme.typography.fontSize.xs,
+    ...theme.typography.hierarchy.caption,
     color: theme.colors.textLight,
     marginTop: 2,
   },

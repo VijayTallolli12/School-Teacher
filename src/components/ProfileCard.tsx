@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../theme';
+import { AppCard } from './AppCard';
 
 interface ProfileCardProps {
   name: string;
@@ -17,16 +19,23 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ name, email, employeeI
     .slice(0, 2);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.avatarContainer}>
-        <Text style={styles.avatarText}>{initials}</Text>
+    <AppCard variant="elevated">
+      <View style={styles.container}>
+        <View style={styles.avatarContainer}>
+          <Text style={styles.avatarText}>{initials}</Text>
+        </View>
+        <View style={styles.infoContainer}>
+          <Text style={styles.name}>{name}</Text>
+          <Text style={styles.email}>{email}</Text>
+          {employeeId && (
+            <View style={styles.idRow}>
+              <Ionicons name="briefcase-outline" size={14} color={theme.colors.textLight} />
+              <Text style={styles.employeeId}>ID: {employeeId}</Text>
+            </View>
+          )}
+        </View>
       </View>
-      <View style={styles.infoContainer}>
-        <Text style={styles.name}>{name}</Text>
-        <Text style={styles.email}>{email}</Text>
-        {employeeId && <Text style={styles.employeeId}>ID: {employeeId}</Text>}
-      </View>
-    </View>
+    </AppCard>
   );
 };
 
@@ -34,11 +43,6 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: theme.spacing.lg,
-    backgroundColor: theme.colors.background,
-    borderRadius: theme.radius.md,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
   },
   avatarContainer: {
     width: 60,
@@ -58,18 +62,23 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   name: {
-    fontSize: theme.typography.fontSize.lg,
-    fontWeight: theme.typography.fontWeight.bold,
+    ...theme.typography.hierarchy.body,
+    fontWeight: theme.typography.weight.bold,
     color: theme.colors.text,
     marginBottom: 2,
   },
   email: {
-    fontSize: theme.typography.fontSize.sm,
+    ...theme.typography.hierarchy.caption,
     color: theme.colors.textSecondary,
     marginBottom: 2,
   },
+  idRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.xs,
+  },
   employeeId: {
-    fontSize: theme.typography.fontSize.xs,
+    ...theme.typography.hierarchy.caption,
     color: theme.colors.textLight,
   },
 });

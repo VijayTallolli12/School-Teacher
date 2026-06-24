@@ -7,9 +7,11 @@ import {
   Modal,
   ScrollView,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../theme';
 import { useClasses } from '../hooks/useAttendance';
 import { StudentStatus } from '../types';
+import { AppButton } from './AppButton';
 
 interface FilterState {
   class: string;
@@ -60,26 +62,33 @@ export const StudentFilterSheet: React.FC<StudentFilterSheetProps> = ({
   );
 
   return (
-    <Modal visible={visible} transparent animationType="slide">
+    <Modal visible={visible} transparent animationType="slide" accessibilityViewIsModal>
       <View style={styles.overlay}>
         <View style={styles.sheet}>
           <View style={styles.header}>
             <Text style={styles.title}>Filters</Text>
-            <TouchableOpacity onPress={onClose}>
-              <Text style={styles.closeText}>✕</Text>
+            <TouchableOpacity
+              onPress={onClose}
+              accessibilityLabel="Close filters"
+              accessibilityRole="button"
+            >
+              <Ionicons name="close" size={20} color={theme.colors.textLight} style={styles.closeIcon} />
             </TouchableOpacity>
           </View>
 
           <ScrollView style={styles.body}>
             {/* Class Filter */}
             <Text style={styles.filterLabel}>Class</Text>
-            <View style={styles.chipRow}>
+            <View style={styles.chipRow} accessibilityRole="radiogroup" accessibilityLabel="Select class">
               <TouchableOpacity
                 style={[
                   styles.chip,
                   filters.class === '' && styles.chipActive,
                 ]}
                 onPress={() => setFilters((f) => ({ ...f, class: '', section: '' }))}
+                accessibilityRole="radio"
+                accessibilityState={{ selected: filters.class === '' }}
+                accessibilityLabel="All classes"
               >
                 <Text
                   style={[
@@ -98,6 +107,9 @@ export const StudentFilterSheet: React.FC<StudentFilterSheetProps> = ({
                     filters.class === cls && styles.chipActive,
                   ]}
                   onPress={() => setFilters((f) => ({ ...f, class: cls }))}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: filters.class === cls }}
+                  accessibilityLabel={`Class ${cls}`}
                 >
                   <Text
                     style={[
@@ -113,13 +125,16 @@ export const StudentFilterSheet: React.FC<StudentFilterSheetProps> = ({
 
             {/* Section Filter */}
             <Text style={styles.filterLabel}>Section</Text>
-            <View style={styles.chipRow}>
+            <View style={styles.chipRow} accessibilityRole="radiogroup" accessibilityLabel="Select section">
               <TouchableOpacity
                 style={[
                   styles.chip,
                   filters.section === '' && styles.chipActive,
                 ]}
                 onPress={() => setFilters((f) => ({ ...f, section: '' }))}
+                accessibilityRole="radio"
+                accessibilityState={{ selected: filters.section === '' }}
+                accessibilityLabel="All sections"
               >
                 <Text
                   style={[
@@ -138,6 +153,9 @@ export const StudentFilterSheet: React.FC<StudentFilterSheetProps> = ({
                     filters.section === sec && styles.chipActive,
                   ]}
                   onPress={() => setFilters((f) => ({ ...f, section: sec }))}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: filters.section === sec }}
+                  accessibilityLabel={`Section ${sec}`}
                 >
                   <Text
                     style={[
@@ -153,7 +171,7 @@ export const StudentFilterSheet: React.FC<StudentFilterSheetProps> = ({
 
             {/* Status Filter */}
             <Text style={styles.filterLabel}>Status</Text>
-            <View style={styles.chipRow}>
+            <View style={styles.chipRow} accessibilityRole="radiogroup" accessibilityLabel="Select status">
               {STATUSES.map((s) => (
                 <TouchableOpacity
                   key={s.label}
@@ -162,6 +180,9 @@ export const StudentFilterSheet: React.FC<StudentFilterSheetProps> = ({
                     filters.status === s.value && styles.chipActive,
                   ]}
                   onPress={() => setFilters((f) => ({ ...f, status: s.value }))}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: filters.status === s.value }}
+                  accessibilityLabel={s.label}
                 >
                   <Text
                     style={[
@@ -177,18 +198,20 @@ export const StudentFilterSheet: React.FC<StudentFilterSheetProps> = ({
           </ScrollView>
 
           <View style={styles.footer}>
-            <TouchableOpacity
-              style={styles.resetButton}
+            <AppButton
+              title="Reset"
+              variant="ghost"
               onPress={handleReset}
-            >
-              <Text style={styles.resetText}>Reset</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.applyButton}
+              style={styles.footerButton}
+              accessibilityLabel="Reset all filters"
+            />
+            <AppButton
+              title="Apply"
+              variant="primary"
               onPress={handleApply}
-            >
-              <Text style={styles.applyText}>Apply</Text>
-            </TouchableOpacity>
+              style={styles.footerButton}
+              accessibilityLabel="Apply filters"
+            />
           </View>
         </View>
       </View>
@@ -203,7 +226,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   sheet: {
-    backgroundColor: theme.colors.background,
+    backgroundColor: theme.colors.surface,
     borderTopLeftRadius: theme.radius.xl,
     borderTopRightRadius: theme.radius.xl,
     maxHeight: '70%',
@@ -217,21 +240,19 @@ const styles = StyleSheet.create({
     borderBottomColor: theme.colors.border,
   },
   title: {
-    fontSize: theme.typography.fontSize.lg,
-    fontWeight: theme.typography.fontWeight.bold,
+    ...theme.typography.hierarchy.heading,
+    fontWeight: theme.typography.weight.bold,
     color: theme.colors.text,
   },
-  closeText: {
-    fontSize: 20,
-    color: theme.colors.textLight,
+  closeIcon: {
     padding: 4,
   },
   body: {
     padding: theme.spacing.md,
   },
   filterLabel: {
-    fontSize: theme.typography.fontSize.sm,
-    fontWeight: theme.typography.fontWeight.bold,
+    ...theme.typography.hierarchy.bodySmall,
+    fontWeight: theme.typography.weight.bold,
     color: theme.colors.textSecondary,
     marginBottom: theme.spacing.sm,
     marginTop: theme.spacing.md,
@@ -251,15 +272,15 @@ const styles = StyleSheet.create({
   },
   chipActive: {
     borderColor: theme.colors.primary,
-    backgroundColor: '#EEF2FF',
+    backgroundColor: theme.colors.primaryLight,
   },
   chipText: {
-    fontSize: theme.typography.fontSize.sm,
+    ...theme.typography.hierarchy.bodySmall,
     color: theme.colors.textSecondary,
   },
   chipTextActive: {
     color: theme.colors.primary,
-    fontWeight: theme.typography.fontWeight.bold,
+    fontWeight: theme.typography.weight.bold,
   },
   footer: {
     flexDirection: 'row',
@@ -268,29 +289,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: theme.colors.border,
   },
-  resetButton: {
+  footerButton: {
     flex: 1,
-    paddingVertical: theme.spacing.sm + 2,
-    borderRadius: theme.radius.sm,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-  resetText: {
-    fontSize: theme.typography.fontSize.md,
-    fontWeight: theme.typography.fontWeight.medium,
-    color: theme.colors.textSecondary,
-  },
-  applyButton: {
-    flex: 1,
-    paddingVertical: theme.spacing.sm + 2,
-    borderRadius: theme.radius.sm,
-    alignItems: 'center',
-    backgroundColor: theme.colors.primary,
-  },
-  applyText: {
-    fontSize: theme.typography.fontSize.md,
-    fontWeight: theme.typography.fontWeight.bold,
-    color: theme.colors.background,
   },
 });

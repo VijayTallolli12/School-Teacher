@@ -1,8 +1,9 @@
 import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import { notificationsApi } from '../api/notifications';
+import { APP_CONSTANTS } from '../config/constants';
 
-export const NOTIFICATION_CHANNEL_ID = 'teacher-updates';
+export const NOTIFICATION_CHANNEL_ID = APP_CONSTANTS.NOTIFICATION_CHANNEL_ID;
 
 if (Platform.OS !== 'web') {
   Notifications.setNotificationHandler({

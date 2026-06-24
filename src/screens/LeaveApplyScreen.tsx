@@ -1,8 +1,10 @@
 import React, { useCallback } from 'react';
-import { View, Text, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, Alert } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { ScreenContainer, AppHeader } from '../components';
 import { LeaveForm } from '../components/LeaveForm';
+import { SkeletonList } from '../components/SkeletonLoader';
 import { useLeaveTypes, useApplyLeave } from '../hooks/useLeave';
 import { theme } from '../theme';
 import { AppStackParamList, LeavePayload } from '../types';
@@ -44,9 +46,7 @@ export const LeaveApplyScreen: React.FC = () => {
           showBackButton
           onBackPress={() => navigation.goBack()}
         />
-        <View style={styles.centeredContainer}>
-          <ActivityIndicator size="large" color={theme.colors.primary} />
-        </View>
+        <SkeletonList count={3} style={styles.skeletonList} />
       </ScreenContainer>
     );
   }
@@ -60,6 +60,7 @@ export const LeaveApplyScreen: React.FC = () => {
           onBackPress={() => navigation.goBack()}
         />
         <View style={styles.centeredContainer}>
+          <Ionicons name="alert-circle-outline" size={48} color={theme.colors.textLight} />
           <Text style={styles.errorText}>Leave types not available</Text>
         </View>
       </ScreenContainer>
@@ -90,13 +91,18 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: theme.spacing.md,
   },
+  skeletonList: {
+    padding: theme.spacing.md,
+  },
   centeredContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: theme.spacing.xl,
+    gap: theme.spacing.md,
   },
   errorText: {
-    fontSize: theme.typography.fontSize.md,
+    ...theme.typography.hierarchy.body,
     color: theme.colors.textSecondary,
   },
 });
