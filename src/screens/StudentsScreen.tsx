@@ -7,8 +7,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { router } from 'expo-router';
 import { ScreenContainer, AppHeader } from '../components';
 import { StudentCard } from '../components/StudentCard';
 import { StudentSearchBar } from '../components/StudentSearchBar';
@@ -17,9 +16,7 @@ import { EmptyState } from '../components/EmptyState';
 import { SkeletonList } from '../components/SkeletonLoader';
 import { useStudents } from '../hooks/useStudents';
 import { theme } from '../theme';
-import { AppStackParamList, StudentItem, StudentStatus } from '../types';
-
-type NavigationProp = NativeStackNavigationProp<AppStackParamList>;
+import { StudentItem, StudentStatus } from '../types';
 
 interface FilterState {
   classSectionId: string;
@@ -27,7 +24,6 @@ interface FilterState {
 }
 
 export const StudentsScreen: React.FC = () => {
-  const navigation = useNavigation<NavigationProp>();
   const [search, setSearch] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<FilterState>({
@@ -53,9 +49,9 @@ export const StudentsScreen: React.FC = () => {
 
   const handleStudentPress = useCallback(
     (student: StudentItem) => {
-      navigation.navigate('StudentDetail', { studentId: student.id });
+      router.push({ pathname: '/(tabs)/more/student-detail', params: { studentId: student.id } });
     },
-    [navigation]
+    []
   );
 
   const handleApplyFilters = useCallback(
@@ -73,7 +69,7 @@ export const StudentsScreen: React.FC = () => {
   return (
     <ScreenContainer scrollable={false}>
       <View style={styles.screen}>
-      <AppHeader title="Students" />
+      <AppHeader title="Students" showBackButton onBackPress={() => router.back()} />
 
       <StudentSearchBar
         value={search}
@@ -160,7 +156,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    padding: theme.spacing.md,
     paddingBottom: theme.spacing.xxl,
     flexGrow: 1,
   },

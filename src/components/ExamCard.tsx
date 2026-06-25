@@ -49,31 +49,31 @@ export const ExamCard: React.FC<ExamCardProps> = ({ exam, onPress }) => {
 
 const styles = StyleSheet.create({
   card: {
-    marginBottom: theme.spacing.sm,
+    marginBottom: 16,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: theme.spacing.sm,
+    marginBottom: 12,
   },
   headerLeft: {
     flex: 1,
-    gap: theme.spacing.xs,
+    gap: 4,
   },
   name: {
-    ...theme.typography.hierarchy.body,
-    fontWeight: theme.typography.weight.bold,
-    color: theme.colors.text,
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#0F172A',
   },
   marks: {
-    ...theme.typography.hierarchy.bodySmall,
-    color: theme.colors.textSecondary,
-    marginLeft: theme.spacing.sm,
+    fontSize: 14,
+    color: '#64748B',
+    marginLeft: 12,
     marginTop: 2,
   },
   details: {
-    gap: theme.spacing.xs,
+    gap: 4,
   },
   detailRow: {
     flexDirection: 'row',
@@ -81,21 +81,21 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   detailText: {
-    ...theme.typography.hierarchy.bodySmall,
-    color: theme.colors.textSecondary,
+    fontSize: 14,
+    color: '#64748B',
   },
   publishedBanner: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    marginTop: theme.spacing.sm,
-    paddingTop: theme.spacing.sm,
+    marginTop: 12,
+    paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: theme.colors.border,
+    borderTopColor: '#E2E8F0',
   },
   publishedText: {
-    ...theme.typography.hierarchy.caption,
+    fontSize: 12,
     color: theme.colors.success,
-    fontWeight: theme.typography.weight.medium,
+    fontWeight: '500',
   },
 });

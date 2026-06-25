@@ -21,36 +21,43 @@ export const typography = {
     sm: 12,
     md: 14,
     lg: 16,
-    xl: 20,
-    xxl: 24,
-    xxxl: 32,
-    huge: 48,
+    xl: 18,
+    xxl: 20,
+    xxxl: 24,
+    huge: 28,
+    massive: 32,
   },
   lineHeight: {
     xs: 14,
     sm: 16,
     md: 20,
     lg: 24,
-    xl: 28,
-    xxl: 32,
-    xxxl: 40,
-    huge: 56,
+    xl: 26,
+    xxl: 28,
+    xxxl: 32,
+    huge: 36,
+    massive: 40,
   },
   hierarchy: {
-    display: {
-      fontSize: 32,
-      lineHeight: 40,
+    h1: {
+      fontSize: 28,
+      lineHeight: 36,
       fontWeight: '700',
     },
-    title: {
+    h2: {
       fontSize: 24,
       lineHeight: 32,
-      fontWeight: '600',
+      fontWeight: '700',
     },
-    heading: {
+    h3: {
       fontSize: 20,
       lineHeight: 28,
       fontWeight: '600',
+    },
+    h4: {
+      fontSize: 18,
+      lineHeight: 26,
+      fontWeight: '500',
     },
     body: {
       fontSize: 16,
@@ -66,6 +73,26 @@ export const typography = {
       fontSize: 12,
       lineHeight: 16,
       fontWeight: '400',
+    },
+    metric: {
+      fontSize: 24,
+      lineHeight: 32,
+      fontWeight: '700',
+    },
+    display: {
+      fontSize: 28,
+      lineHeight: 36,
+      fontWeight: '700',
+    },
+    title: {
+      fontSize: 24,
+      lineHeight: 32,
+      fontWeight: '700',
+    },
+    heading: {
+      fontSize: 20,
+      lineHeight: 28,
+      fontWeight: '600',
     },
   },
 } as const;

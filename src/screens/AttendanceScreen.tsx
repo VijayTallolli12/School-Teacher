@@ -1,16 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
   Alert,
+  TouchableOpacity,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { ScreenContainer, AppHeader } from '../components';
 import { AppButton } from '../components/AppButton';
 import { EmptyState } from '../components/EmptyState';
 import { SkeletonList, SkeletonCard } from '../components/SkeletonLoader';
+import { Card } from '../components/ui/Card';
 import {
   ClassSelector,
   StudentAttendanceCard,
@@ -32,161 +34,154 @@ export const AttendanceScreen: React.FC = () => {
     absentCount: number;
     lateCount: number;
   } | null>(null);
+  const [isAlreadyMarked, setIsAlreadyMarked] = useState(false);
+  const scrollRef = useRef<ScrollView>(null);
+
+  // Reset success state when screen loses focus (fixes P9: success screen persistence)
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        setShowSuccess(false);
+        setSuccessData(null);
+      };
+    }, [])
+  );
 
   const { data: classes, isLoading: classesLoading, error: classesError, refetch: refetchClasses } = useClasses();
   const { data: students, isLoading: studentsLoading, error: studentsError, refetch: refetchStudents } = useStudents(
     selectedClass?.id || ''
   );
-  const { mutate: markAttendance, isPending: isSubmitting, error: submitError } = useMarkAttendance();
+  const { mutate: markAttendance, isPending: isSubmitting } = useMarkAttendance();
 
-  const handleStatusChange = (studentId: string, status: AttendanceStatus) => {
+  useEffect(() => {
+    if (classes && classes.length === 1 && !selectedClass) {
+      setSelectedClass(classes[0]);
+    }
+  }, [classes, selectedClass]);
+
+  // Reset success state on every focus (fixes P9: navigation state persistence)
+  useFocusEffect(
+    useCallback(() => {
+      if (showSuccess) {
+        setShowSuccess(false);
+        setSuccessData(null);
+      }
+    }, [])
+  );
+
+  // Detect if attendance already marked
+  useEffect(() => {
+    if (students && students.length > 0) {
+      const hasExisting = students.some((s) => s.attendanceStatus != null);
+      setIsAlreadyMarked(hasExisting);
+      if (hasExisting) {
+        const prefill: Record<string, AttendanceStatus> = {};
+        students.forEach((s) => {
+          if (s.attendanceStatus) prefill[s.id] = s.attendanceStatus;
+        });
+        setAttendanceMap(prefill);
+      } else {
+        setAttendanceMap({});
+      }
+    }
+  }, [students]);
+
+  const handleStatusChange = useCallback((studentId: string, status: AttendanceStatus) => {
+    if (isAlreadyMarked) return;
     setAttendanceMap((prev) => ({
       ...prev,
       [studentId]: status,
     }));
-  };
+  }, [isAlreadyMarked]);
 
-  const handleSubmit = () => {
-    // Validation
+  const handleSubmit = useCallback(() => {
     if (!selectedClass) {
       Alert.alert('Error', 'Please select a class first');
       return;
     }
-
     if (!students || students.length === 0) {
       Alert.alert('Error', 'No students loaded for this class');
       return;
     }
-
     const markedCount = Object.keys(attendanceMap).length;
     if (markedCount === 0) {
       Alert.alert('Error', 'Please mark attendance for at least one student');
       return;
     }
 
+    const doSubmit = () => {
+      const records: AttendanceMarkingRecord[] = Object.entries(attendanceMap).map(([studentId, status]) => ({
+        student_id: Number(studentId),
+        status,
+      }));
+      const payload: MarkAttendancePayload = {
+        class_section_id: Number(selectedClass.id),
+        attendance_date: new Date().toISOString().split('T')[0],
+        students: records,
+      };
+      markAttendance(payload, {
+        onSuccess: (data: MarkAttendanceResponse) => {
+          const records = data.data.records;
+          setSuccessData({
+            markedCount: data.data.marked_count,
+            presentCount: records.filter((r) => r.status === 'present').length,
+            absentCount: records.filter((r) => r.status === 'absent').length,
+            lateCount: records.filter((r) => r.status === 'late').length,
+          });
+          setShowSuccess(true);
+          setAttendanceMap({});
+          setSelectedClass(null);
+          setIsAlreadyMarked(false);
+        },
+        onError: (error) => {
+          const message = error.message || '';
+          if (message.toLowerCase().includes('already') || message.toLowerCase().includes('already marked')) {
+            Alert.alert('Already Marked', 'Attendance has already been recorded for this class today.');
+          } else {
+            Alert.alert('Error', message || 'Failed to submit attendance');
+          }
+        },
+      });
+    };
+
     if (markedCount < students.length) {
       Alert.alert(
-        'Incomplete Attendance',
-        `You have marked ${markedCount} out of ${students.length} students. Do you want to submit?`,
+        'Incomplete',
+        `You have marked ${markedCount} out of ${students.length} students. Submit anyway?`,
         [
           { text: 'Cancel', style: 'cancel' },
-          {
-            text: 'Submit',
-            onPress: submitAttendance,
-          },
+          { text: 'Submit', onPress: doSubmit },
         ]
       );
     } else {
-      submitAttendance();
+      doSubmit();
     }
-  };
+  }, [selectedClass, students, attendanceMap, markAttendance]);
 
-  const submitAttendance = () => {
-    if (!selectedClass) {
-      Alert.alert('Error', 'Please select a class first');
-      return;
-    }
-
-    const students: AttendanceMarkingRecord[] = Object.entries(attendanceMap).map(([studentId, status]) => ({
-      student_id: Number(studentId),
-      status,
-    }));
-
-    const payload: MarkAttendancePayload = {
-      class_section_id: Number(selectedClass.id),
-      attendance_date: new Date().toISOString().split('T')[0],
-      students,
-    };
-
-    markAttendance(payload, {
-      onSuccess: (data: MarkAttendanceResponse) => {
-        const records = data.data.records;
-        setSuccessData({
-          markedCount: data.data.marked_count,
-          presentCount: records.filter((r) => r.status === 'present').length,
-          absentCount: records.filter((r) => r.status === 'absent').length,
-          lateCount: records.filter((r) => r.status === 'late').length,
-        });
-        setShowSuccess(true);
-        setAttendanceMap({});
-        setSelectedClass(null);
-      },
-      onError: (error) => {
-        Alert.alert('Error', error.message || 'Failed to submit attendance');
-      },
-    });
-  };
-
-  const handleRetry = () => {
-    if (classesError) {
-      refetchClasses();
-    }
-    if (studentsError) {
-      refetchStudents();
-    }
-  };
-
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     setShowSuccess(false);
     setSuccessData(null);
     setAttendanceMap({});
     setSelectedClass(null);
-  };
+    setIsAlreadyMarked(false);
+  }, []);
 
-  // Error state
-  if (classesError) {
-    return (
-      <ScreenContainer>
-        <EmptyState
-          icon="school-outline"
-          title="Unable to Load Classes"
-          message={classesError.message || 'Please check your connection and try again'}
-          actionLabel="Retry"
-          onAction={handleRetry}
-        />
-      </ScreenContainer>
-    );
-  }
+  const handleEditAttendance = useCallback(() => {
+    setIsAlreadyMarked(false);
+  }, []);
 
-  // Success state
-  if (showSuccess && successData) {
-    return (
-      <ScreenContainer>
-        <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-          <View style={styles.successContainer}>
-            <Ionicons name="checkmark-circle" size={80} color={theme.colors.success} style={styles.successIcon} />
-            <Text style={styles.successTitle}>Attendance Saved!</Text>
-            <Text style={styles.successMessage}>
-              Attendance has been successfully recorded and notifications have been sent.
-            </Text>
-            <AttendanceSummary
-              processedCount={successData.markedCount}
-              presentCount={successData.presentCount}
-              absentCount={successData.absentCount}
-              lateCount={successData.lateCount}
-            />
-            <AppButton
-              title="Mark Another Class"
-              variant="primary"
-              onPress={handleReset}
-              style={styles.successButton}
-            />
-          </View>
-        </ScrollView>
-      </ScreenContainer>
-    );
-  }
-
+  // Classes loading
   if (classesLoading) {
     return (
       <ScreenContainer>
-        <View style={styles.container}>
-          <View style={styles.skeletonContainer}>
-            <SkeletonCard lines={1} style={styles.skeletonTitleOnly} />
-            <View style={styles.skeletonChips}>
-              <SkeletonCard lines={1} style={styles.skeletonChipItem} />
-              <SkeletonCard lines={1} style={styles.skeletonChipItem} />
-              <SkeletonCard lines={1} style={styles.skeletonChipItem} />
+        <AppHeader title="Attendance" />
+        <View className="flex-1 bg-slate-50">
+          <View>
+            <SkeletonCard lines={1} />
+            <View style={{ flexDirection: 'row', gap: 12, marginTop: 16 }}>
+              <SkeletonCard lines={1} style={{ width: 120 }} />
+              <SkeletonCard lines={1} style={{ width: 120 }} />
+              <SkeletonCard lines={1} style={{ width: 120 }} />
             </View>
           </View>
         </View>
@@ -194,38 +189,104 @@ export const AttendanceScreen: React.FC = () => {
     );
   }
 
+  // Classes error
+  if (classesError) {
+    return (
+      <ScreenContainer>
+        <AppHeader title="Attendance" />
+        <EmptyState
+          icon="school-outline"
+          title="Unable to Load Classes"
+          message={classesError.message || 'Please check your connection and try again'}
+          actionLabel="Retry"
+          onAction={refetchClasses}
+        />
+      </ScreenContainer>
+    );
+  }
+
+  // Success screen (redesigned)
+  if (showSuccess && successData) {
+    return (
+      <ScreenContainer scrollable={false}>
+        <AppHeader title="Attendance" />
+        <View className="flex-1 bg-slate-50 justify-center">
+          <Card padding="lg" className="items-center">
+            <View className="w-14 h-14 bg-green-50 rounded-full items-center justify-center mb-4">
+              <Ionicons name="checkmark-circle" size={32} color="#22C55E" />
+            </View>
+            <Text className="text-slate-900 text-xl font-bold mb-1">Attendance Saved</Text>
+            <Text className="text-slate-400 text-xs text-center mb-5">
+              Attendance recorded and notifications sent.
+            </Text>
+            <AttendanceSummary
+              processedCount={successData.markedCount}
+              presentCount={successData.presentCount}
+              absentCount={successData.absentCount}
+              lateCount={successData.lateCount}
+            />
+            <View className="w-full mt-5">
+              <AppButton
+                title="Mark Another Class"
+                variant="primary"
+                onPress={handleReset}
+              />
+            </View>
+          </Card>
+        </View>
+      </ScreenContainer>
+    );
+  }
+
+  // Main screen
   return (
     <ScreenContainer scrollable={false}>
       <AppHeader title="Attendance" />
-      <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-        <Text style={styles.title}>Mark Attendance</Text>
-
+      <ScrollView
+        ref={scrollRef}
+        className="flex-1 bg-slate-50"
+        contentContainerStyle={{ paddingBottom: 100 }}
+        keyboardShouldPersistTaps="handled"
+      >
         {classes && classes.length > 0 && (
-          <ClassSelector
-            classes={classes}
-            selectedClass={selectedClass}
-            onSelectClass={setSelectedClass}
-          />
+          <View className="pt-4">
+            <ClassSelector
+              classes={classes}
+              selectedClass={selectedClass}
+              onSelectClass={setSelectedClass}
+            />
+          </View>
         )}
 
         {studentsError && (
-          <View style={styles.inlineErrorContainer}>
-            <Text style={styles.errorMessage}>
+          <View className="items-center py-6">
+            <Text className="text-slate-400 text-sm mb-3 text-center">
               {studentsError.message || 'Failed to load students'}
             </Text>
-            <AppButton title="Retry" variant="ghost" onPress={handleRetry} />
+            <AppButton title="Retry" variant="ghost" onPress={() => refetchStudents()} />
           </View>
         )}
 
         {studentsLoading && selectedClass && (
-          <View style={styles.studentsContainer}>
+          <View className="mt-4">
             <SkeletonList count={4} />
           </View>
         )}
 
         {students && students.length > 0 && (
-          <View style={styles.studentsContainer}>
-            <Text style={styles.sectionTitle}>
+          <View className="mt-4">
+            {isAlreadyMarked && (
+              <Card padding="sm" className="mb-3 flex-row items-center gap-2 bg-amber-50 border-amber-200">
+                <Ionicons name="information-circle-outline" size={18} color="#D97706" />
+                <Text className="text-amber-700 text-sm flex-1">
+                  Attendance already submitted for today
+                </Text>
+                <TouchableOpacity onPress={handleEditAttendance} activeOpacity={0.7}>
+                  <Text className="text-primary-600 text-sm font-semibold">Edit</Text>
+                </TouchableOpacity>
+              </Card>
+            )}
+            <Text className="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-3">
               Students ({students.length})
             </Text>
             {students.map((student, index) => (
@@ -240,13 +301,13 @@ export const AttendanceScreen: React.FC = () => {
         )}
 
         {selectedClass && students && students.length > 0 && (
-          <View style={styles.submitContainer}>
+          <View className="mt-6">
             <AppButton
-              title="Submit Attendance"
+              title={isAlreadyMarked ? 'Update Attendance' : 'Submit Attendance'}
               variant="primary"
               onPress={handleSubmit}
               loading={isSubmitting}
-              style={styles.submitButton}
+              className="w-full"
             />
           </View>
         )}
@@ -254,80 +315,3 @@ export const AttendanceScreen: React.FC = () => {
     </ScreenContainer>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.backgroundSecondary,
-  },
-  contentContainer: {
-    padding: theme.spacing.md,
-    paddingBottom: theme.spacing.xl,
-  },
-  title: {
-    ...theme.typography.hierarchy.title,
-    color: theme.colors.text,
-    marginBottom: theme.spacing.md,
-  },
-  studentsContainer: {
-    marginTop: theme.spacing.md,
-  },
-  sectionTitle: {
-    ...theme.typography.hierarchy.body,
-    fontWeight: theme.typography.weight.semibold,
-    color: theme.colors.text,
-    marginBottom: theme.spacing.sm,
-  },
-  submitContainer: {
-    marginTop: theme.spacing.xl,
-    paddingHorizontal: theme.spacing.md,
-  },
-  submitButton: {
-    width: '100%',
-  },
-  errorMessage: {
-    ...theme.typography.hierarchy.bodySmall,
-    color: theme.colors.textSecondary,
-    marginBottom: theme.spacing.sm,
-    textAlign: 'center',
-  },
-  inlineErrorContainer: {
-    alignItems: 'center',
-    padding: theme.spacing.lg,
-  },
-  successContainer: {
-    alignItems: 'center',
-    padding: theme.spacing.lg,
-  },
-  successIcon: {
-    marginBottom: theme.spacing.lg,
-  },
-  successTitle: {
-    ...theme.typography.hierarchy.title,
-    color: theme.colors.text,
-    marginBottom: theme.spacing.md,
-  },
-  successMessage: {
-    ...theme.typography.hierarchy.bodySmall,
-    color: theme.colors.textSecondary,
-    textAlign: 'center',
-    marginBottom: theme.spacing.xl,
-  },
-  successButton: {
-    minWidth: 200,
-  },
-  skeletonContainer: {
-    padding: theme.spacing.md,
-  },
-  skeletonChips: {
-    flexDirection: 'row',
-    gap: theme.spacing.sm,
-    marginTop: theme.spacing.md,
-  },
-  skeletonTitleOnly: {
-    marginBottom: 0,
-  },
-  skeletonChipItem: {
-    width: 120,
-  },
-});

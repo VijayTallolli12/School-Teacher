@@ -33,7 +33,11 @@ export const MoreScreen: React.FC = () => {
     <ScreenContainer scrollable={false} backgroundColor={theme.colors.backgroundSecondary}>
       <AppHeader title="More" />
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.sectionTitle}>All Features</Text>
+        <View className="pt-5 pb-3">
+          <Text className="text-slate-400 text-xs font-semibold uppercase tracking-wider">
+            All Features
+          </Text>
+        </View>
         <View style={styles.grid}>
           {moreItems.map((item) => (
             <TouchableOpacity
@@ -55,46 +59,37 @@ export const MoreScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: theme.colors.backgroundSecondary,
-  },
   content: {
-    padding: theme.spacing.md,
-    paddingBottom: theme.spacing.xxl,
-  },
-  sectionTitle: {
-    ...theme.typography.hierarchy.body,
-    fontWeight: theme.typography.weight.semibold,
-    color: theme.colors.text,
-    marginBottom: theme.spacing.md,
+    paddingHorizontal: 20,
+    paddingBottom: 24,
   },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: theme.spacing.sm,
+    gap: 12,
   },
   gridItem: {
     width: '30%',
     alignItems: 'center',
-    padding: theme.spacing.md,
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radius.md,
+    paddingVertical: 16,
+    paddingHorizontal: 8,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderColor: '#E2E8F0',
   },
   iconContainer: {
     width: 48,
     height: 48,
-    borderRadius: theme.radius.md,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: theme.spacing.sm,
+    marginBottom: 8,
   },
   gridLabel: {
-    ...theme.typography.hierarchy.caption,
-    color: theme.colors.text,
-    fontWeight: theme.typography.weight.medium,
+    fontSize: 12,
+    color: '#0F172A',
+    fontWeight: '600',
     textAlign: 'center',
   },
 });

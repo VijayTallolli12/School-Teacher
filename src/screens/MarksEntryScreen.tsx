@@ -10,8 +10,8 @@ import {
   Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useLocalSearchParams } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';
 import { ScreenContainer, AppHeader } from '../components';
 import { AppButton } from '../components/AppButton';
 import { MarksEntryRow } from '../components/MarksEntryRow';
@@ -20,10 +20,7 @@ import { EmptyState } from '../components/EmptyState';
 import { useMarks, useSaveMarks } from '../hooks/useExams';
 import { useExamDetail } from '../hooks/useExams';
 import { theme } from '../theme';
-import { AppStackParamList, MarksEntry as MarksEntryType } from '../types';
-
-type MarksEntryRouteProp = RouteProp<AppStackParamList, 'MarksEntry'>;
-type NavigationProp = NativeStackNavigationProp<AppStackParamList>;
+import { MarksEntry as MarksEntryType } from '../types';
 
 interface MarksRecord {
   studentId: string;
@@ -32,9 +29,8 @@ interface MarksRecord {
 }
 
 export const MarksEntryScreen: React.FC = () => {
-  const navigation = useNavigation<NavigationProp>();
-  const route = useRoute<MarksEntryRouteProp>();
-  const { examId } = route.params;
+  const navigation = useNavigation();
+  const { examId } = useLocalSearchParams<{ examId: string }>();
   const { data: exam } = useExamDetail(examId);
   const [classId, setClassId] = useState(exam?.className || '');
   const [subjectId, setSubjectId] = useState(exam?.subject || '');
@@ -164,7 +160,7 @@ export const MarksEntryScreen: React.FC = () => {
   if (error) {
     return (
       <ScreenContainer>
-        <AppHeader title="Enter Marks" showBackButton onBackPress={() => navigation.goBack()} />
+        <AppHeader variant="secondary" title="Enter Marks" showBackButton onBackPress={() => navigation.goBack()} />
         <EmptyState
           icon="cloud-offline-outline"
           title="Unable to Load"
@@ -179,6 +175,7 @@ export const MarksEntryScreen: React.FC = () => {
   return (
     <ScreenContainer scrollable={false}>
       <AppHeader
+        variant="secondary"
         title="Enter Marks"
         showBackButton
         onBackPress={() => navigation.goBack()}

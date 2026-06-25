@@ -7,13 +7,15 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "scheme": "school-teacher",
     "plugins": [
       [
         "expo-notifications",
         {
           "defaultChannel": "teacher-updates"
         }
-      ]
+      ],
+      "expo-router"
     ],
     "splash": {
       "image": "./assets/splash-icon.png",

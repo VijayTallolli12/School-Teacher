@@ -1,36 +1,31 @@
 import React, { useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';
 import { ScreenContainer, AppHeader } from '../components';
 import { AppCard } from '../components/AppCard';
 import { AppButton } from '../components/AppButton';
-import { ExamHeader } from '../components/ExamHeader';
+import { ExamStatusBadge } from '../components/ExamStatusBadge';
 import { MarksSummaryCard } from '../components/MarksSummaryCard';
 import { SkeletonCard } from '../components/SkeletonLoader';
 import { EmptyState } from '../components/EmptyState';
 import { useExamDetail, usePublishResults } from '../hooks/useExams';
 import { theme } from '../theme';
-import { AppStackParamList } from '../types';
-
-type DetailRouteProp = RouteProp<AppStackParamList, 'ExamDetail'>;
-type NavigationProp = NativeStackNavigationProp<AppStackParamList>;
 
 export const ExamDetailScreen: React.FC = () => {
-  const navigation = useNavigation<NavigationProp>();
-  const route = useRoute<DetailRouteProp>();
-  const { examId } = route.params;
+  const navigation = useNavigation();
+  const { examId } = useLocalSearchParams<{ examId: string }>();
   const { data: exam, isLoading, error, refetch } = useExamDetail(examId);
   const publishMutation = usePublishResults();
 
   const handleEnterMarks = useCallback(() => {
-    navigation.navigate('MarksEntry', { examId });
-  }, [navigation, examId]);
+    router.push({ pathname: '/(tabs)/more/marks-entry', params: { examId } });
+  }, [examId]);
 
   const handleViewSchedule = useCallback(() => {
-    navigation.navigate('ExamSchedule', { examId });
-  }, [navigation, examId]);
+    router.push({ pathname: '/(tabs)/more/exam-schedule', params: { examId } });
+  }, [examId]);
 
   const handlePublishResults = useCallback(() => {
     Alert.alert(
@@ -60,7 +55,7 @@ export const ExamDetailScreen: React.FC = () => {
   if (error) {
     return (
       <ScreenContainer>
-        <AppHeader title="Exam Details" showBackButton onBackPress={() => navigation.goBack()} />
+        <AppHeader variant="secondary" title="Exam Details" showBackButton onBackPress={() => navigation.goBack()} />
         <EmptyState
           icon="cloud-offline-outline"
           title="Unable to Load Exam"
@@ -75,7 +70,7 @@ export const ExamDetailScreen: React.FC = () => {
   if (isLoading || !exam) {
     return (
       <ScreenContainer>
-        <AppHeader title="Exam Details" showBackButton onBackPress={() => navigation.goBack()} />
+        <AppHeader variant="secondary" title="Exam Details" showBackButton onBackPress={() => navigation.goBack()} />
         <View style={styles.container}>
           <SkeletonCard lines={5} style={styles.skeletonCard} />
         </View>
@@ -85,9 +80,44 @@ export const ExamDetailScreen: React.FC = () => {
 
   return (
     <ScreenContainer>
-      <AppHeader title="Exam Details" showBackButton onBackPress={() => navigation.goBack()} />
+      <AppHeader variant="secondary" title="Exam Details" showBackButton onBackPress={() => navigation.goBack()} />
       <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-        <ExamHeader exam={exam} />
+        <AppCard variant="elevated">
+          <View style={examHeaderStyles.topRow}>
+            <Text style={examHeaderStyles.name}>{exam.name}</Text>
+            <ExamStatusBadge status={exam.status} />
+          </View>
+          <View style={examHeaderStyles.detailsGrid}>
+            <View style={examHeaderStyles.detailItem}>
+              <Ionicons name="book-outline" size={16} color={theme.colors.textSecondary} />
+              <View>
+                <Text style={examHeaderStyles.detailLabel}>Subject</Text>
+                <Text style={examHeaderStyles.detailValue}>{exam.subject}</Text>
+              </View>
+            </View>
+            <View style={examHeaderStyles.detailItem}>
+              <Ionicons name="school-outline" size={16} color={theme.colors.textSecondary} />
+              <View>
+                <Text style={examHeaderStyles.detailLabel}>Class</Text>
+                <Text style={examHeaderStyles.detailValue}>{exam.className} - {exam.section}</Text>
+              </View>
+            </View>
+            <View style={examHeaderStyles.detailItem}>
+              <Ionicons name="calendar-outline" size={16} color={theme.colors.textSecondary} />
+              <View>
+                <Text style={examHeaderStyles.detailLabel}>Date</Text>
+                <Text style={examHeaderStyles.detailValue}>{exam.date}</Text>
+              </View>
+            </View>
+            <View style={examHeaderStyles.detailItem}>
+              <Ionicons name="stats-chart-outline" size={16} color={theme.colors.textSecondary} />
+              <View>
+                <Text style={examHeaderStyles.detailLabel}>Marks</Text>
+                <Text style={examHeaderStyles.detailValue}>{exam.totalMarks}</Text>
+              </View>
+            </View>
+          </View>
+        </AppCard>
 
         {exam.resultSummary && (
           <View style={styles.section}>
@@ -178,6 +208,39 @@ export const ExamDetailScreen: React.FC = () => {
     </ScreenContainer>
   );
 };
+
+const examHeaderStyles = StyleSheet.create({
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: theme.spacing.md,
+  },
+  name: {
+    ...theme.typography.hierarchy.heading,
+    fontWeight: theme.typography.weight.bold,
+    color: theme.colors.text,
+    flex: 1,
+    marginRight: theme.spacing.sm,
+  },
+  detailsGrid: {
+    gap: theme.spacing.sm,
+  },
+  detailItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+  },
+  detailLabel: {
+    ...theme.typography.hierarchy.caption,
+    color: theme.colors.textTertiary,
+  },
+  detailValue: {
+    ...theme.typography.hierarchy.bodySmall,
+    color: theme.colors.text,
+    fontWeight: theme.typography.weight.medium,
+  },
+});
 
 const styles = StyleSheet.create({
   container: {

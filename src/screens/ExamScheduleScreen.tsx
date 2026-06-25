@@ -1,30 +1,25 @@
 import React, { useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useLocalSearchParams } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';
 import { ScreenContainer, AppHeader } from '../components';
 import { AppCard } from '../components/AppCard';
 import { SkeletonList } from '../components/SkeletonLoader';
 import { EmptyState } from '../components/EmptyState';
 import { useExamSchedule, useExamDetail } from '../hooks/useExams';
 import { theme } from '../theme';
-import { AppStackParamList } from '../types';
-
-type ScheduleRouteProp = RouteProp<AppStackParamList, 'ExamSchedule'>;
-type NavigationProp = NativeStackNavigationProp<AppStackParamList>;
 
 export const ExamScheduleScreen: React.FC = () => {
-  const navigation = useNavigation<NavigationProp>();
-  const route = useRoute<ScheduleRouteProp>();
-  const { examId } = route.params;
+  const navigation = useNavigation();
+  const { examId } = useLocalSearchParams<{ examId: string }>();
   const { data: exam } = useExamDetail(examId);
   const { data: schedule, isLoading, error, refetch, isRefetching } = useExamSchedule(examId);
 
   if (error) {
     return (
       <ScreenContainer>
-        <AppHeader title="Exam Schedule" showBackButton onBackPress={() => navigation.goBack()} />
+        <AppHeader variant="secondary" title="Exam Schedule" showBackButton onBackPress={() => navigation.goBack()} />
         <EmptyState
           icon="cloud-offline-outline"
           title="Unable to Load Schedule"
@@ -39,7 +34,7 @@ export const ExamScheduleScreen: React.FC = () => {
   if (isLoading) {
     return (
       <ScreenContainer>
-        <AppHeader title="Exam Schedule" showBackButton onBackPress={() => navigation.goBack()} />
+        <AppHeader variant="secondary" title="Exam Schedule" showBackButton onBackPress={() => navigation.goBack()} />
         <SkeletonList count={4} style={styles.skeletonList} />
       </ScreenContainer>
     );
@@ -55,7 +50,7 @@ export const ExamScheduleScreen: React.FC = () => {
 
   return (
     <ScreenContainer>
-      <AppHeader title="Exam Schedule" showBackButton onBackPress={() => navigation.goBack()} />
+      <AppHeader variant="secondary" title="Exam Schedule" showBackButton onBackPress={() => navigation.goBack()} />
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.contentContainer}

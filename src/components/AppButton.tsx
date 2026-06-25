@@ -97,12 +97,12 @@ const styles = StyleSheet.create({
   baseButton: {
     height: 48,
     minWidth: 48,
-    borderRadius: theme.radius.md,
+    borderRadius: theme.radius.button,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: theme.spacing[4],
+    paddingHorizontal: theme.spacing.xl,
     flexDirection: 'row',
-    ...theme.shadows.sm,
+    ...theme.shadows.xs,
   },
   content: {
     flexDirection: 'row',
@@ -110,12 +110,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   baseText: {
-    ...theme.typography.hierarchy.body,
+    fontSize: theme.typography.fontSize.lg,
     textAlign: 'center',
     fontWeight: theme.typography.weight.semibold,
   },
   iconContainer: {
-    marginHorizontal: theme.spacing[2],
+    marginHorizontal: theme.spacing.sm,
   },
   disabled: {
     opacity: 0.6,

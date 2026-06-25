@@ -1,21 +1,16 @@
 import React from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
+import { router, useLocalSearchParams } from 'expo-router';
 import { ScreenContainer } from '../components';
 import { EmptyState } from '../components/EmptyState';
 import { SkeletonCard } from '../components/SkeletonLoader';
 import { HomeworkForm } from '../components';
 import { useCreateHomework, useHomeworkDetail, useUpdateHomework } from '../hooks/useHomework';
 import { useClasses } from '../hooks/useAttendance';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import { AppStackParamList } from '../types';
 import { theme } from '../theme';
 
-type HomeworkCreateRouteProp = RouteProp<AppStackParamList, 'HomeworkCreate'>;
-
 export const HomeworkCreateScreen: React.FC = () => {
-  const navigation = useNavigation();
-  const route = useRoute<HomeworkCreateRouteProp>();
-  const homeworkId = route.params?.homeworkId;
+  const { homeworkId } = useLocalSearchParams<{ homeworkId?: string }>();
   const isEditMode = Boolean(homeworkId);
 
   const { mutate: createHomework, isPending: isCreating } = useCreateHomework();
@@ -31,7 +26,7 @@ export const HomeworkCreateScreen: React.FC = () => {
     const callbackOptions = {
       onSuccess: () => {
         Alert.alert('Success', `Homework ${isEditMode ? 'updated' : 'created'} successfully`, [
-          { text: 'OK', onPress: () => navigation.goBack() },
+          { text: 'OK', onPress: () => router.back() },
         ]);
       },
       onError: (error: Error) => {

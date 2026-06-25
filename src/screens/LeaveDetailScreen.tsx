@@ -7,7 +7,8 @@ import {
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useLocalSearchParams } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';
 import { ScreenContainer, AppHeader } from '../components';
 import { LeaveStatusBadge } from '../components/LeaveStatusBadge';
 import { LeaveTimeline } from '../components/LeaveTimeline';
@@ -15,14 +16,10 @@ import { AppCard } from '../components/AppCard';
 import { AppButton } from '../components/AppButton';
 import { useLeaveDetail, useCancelLeave } from '../hooks/useLeave';
 import { theme } from '../theme';
-import { AppStackParamList } from '../types';
-
-type DetailRouteProp = RouteProp<AppStackParamList, 'LeaveDetail'>;
 
 export const LeaveDetailScreen: React.FC = () => {
   const navigation = useNavigation();
-  const route = useRoute<DetailRouteProp>();
-  const { leaveId } = route.params;
+  const { leaveId } = useLocalSearchParams<{ leaveId: string }>();
 
   const {
     data: leave,
@@ -63,6 +60,7 @@ export const LeaveDetailScreen: React.FC = () => {
     return (
       <ScreenContainer>
         <AppHeader
+          variant="secondary"
           title="Leave Detail"
           showBackButton
           onBackPress={() => navigation.goBack()}
@@ -78,6 +76,7 @@ export const LeaveDetailScreen: React.FC = () => {
     return (
       <ScreenContainer>
         <AppHeader
+          variant="secondary"
           title="Leave Detail"
           showBackButton
           onBackPress={() => navigation.goBack()}

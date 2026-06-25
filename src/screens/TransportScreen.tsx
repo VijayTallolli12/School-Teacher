@@ -1,8 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { View, Text, StyleSheet, RefreshControl, ScrollView, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { router } from 'expo-router';
 import { AppHeader, ScreenContainer } from '../components';
 import { AppCard } from '../components/AppCard';
 import { RouteCard } from '../components/RouteCard';
@@ -11,12 +10,9 @@ import { TransportEmptyState } from '../components/TransportEmptyState';
 import { SkeletonList } from '../components/SkeletonLoader';
 import { useLiveTransportStatus, useAssignedRoutes, useVehicles } from '../hooks/useTransport';
 import { theme } from '../theme';
-import { AppStackParamList, Route, Vehicle } from '../types';
-
-type NavigationProp = NativeStackNavigationProp<AppStackParamList>;
+import { Route, Vehicle } from '../types';
 
 export const TransportScreen: React.FC = () => {
-  const navigation = useNavigation<NavigationProp>();
   const { data: liveStatus, isLoading: liveLoading, isError: liveError, refetch: refetchLive, isRefetching: liveRefetching } = useLiveTransportStatus();
   const { data: routes, isLoading: routesLoading } = useAssignedRoutes();
   const { data: vehicles, isLoading: vehiclesLoading } = useVehicles();
@@ -25,16 +21,16 @@ export const TransportScreen: React.FC = () => {
 
   const handleRoutePress = useCallback(
     (route: Route) => {
-      navigation.navigate('RouteDetail', { routeId: route.id });
+      router.push({ pathname: '/(tabs)/more/route-detail', params: { routeId: route.id } });
     },
-    [navigation]
+    []
   );
 
   const handleVehiclePress = useCallback(
     (vehicle: Vehicle) => {
-      navigation.navigate('VehicleTracking', { vehicleId: vehicle.id });
+      router.push({ pathname: '/(tabs)/more/vehicle-tracking', params: { vehicleId: vehicle.id } });
     },
-    [navigation]
+    []
   );
 
   const summaryCards = useMemo(() => {
@@ -50,15 +46,15 @@ export const TransportScreen: React.FC = () => {
   if (isLoading) {
     return (
       <ScreenContainer>
-        <AppHeader title="Transport" />
+        <AppHeader title="Transport" showBackButton onBackPress={() => router.back()} />
         <SkeletonList count={4} style={styles.skeletonList} />
       </ScreenContainer>
     );
   }
 
   return (
-    <View style={styles.screen}>
-      <AppHeader title="Transport" />
+    <ScreenContainer scrollable={false} backgroundColor={theme.colors.backgroundSecondary} style={{ paddingBottom: 0 }} bottomInset={false}>
+      <AppHeader title="Transport" showBackButton onBackPress={() => router.back()} />
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -105,20 +101,15 @@ export const TransportScreen: React.FC = () => {
           </>
         )}
       </ScrollView>
-    </View>
+    </ScreenContainer>
   );
 };
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: theme.colors.backgroundSecondary,
-  },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    padding: theme.spacing.md,
     paddingBottom: theme.spacing.xxl,
   },
   skeletonList: {
@@ -132,11 +123,11 @@ const styles = StyleSheet.create({
   summaryCard: {
     flex: 1,
     alignItems: 'center',
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radius.md,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
     padding: theme.spacing.sm,
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderColor: '#E2E8F0',
     gap: 4,
   },
   summaryValue: {
@@ -152,9 +143,11 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.md,
   },
   sectionTitle: {
-    ...theme.typography.hierarchy.body,
-    fontWeight: theme.typography.weight.semibold,
-    color: theme.colors.text,
-    marginBottom: theme.spacing.sm,
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#94A3B8',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 12,
   },
 });

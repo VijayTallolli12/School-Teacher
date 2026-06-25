@@ -22,3 +22,8 @@ export { TransportScreen } from './TransportScreen';
 export { VehicleTrackingScreen } from './VehicleTrackingScreen';
 export { RouteDetailScreen } from './RouteDetailScreen';
 export { MoreScreen } from './MoreScreen';
+export { ResultsScreen } from './ResultsScreen';
+export { CalendarScreen } from './CalendarScreen';
+export { CircularsScreen } from './CircularsScreen';
+export { DocumentsScreen } from './DocumentsScreen';
+export { SettingsScreen } from './SettingsScreen';

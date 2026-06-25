@@ -338,6 +338,7 @@ export interface AttendanceStudent {
   rollNumber: string;
   class: string;
   section: string;
+  attendanceStatus?: 'present' | 'absent' | 'late' | null;
 }
 
 export type StudentStatus = 'active' | 'inactive' | 'transferred';

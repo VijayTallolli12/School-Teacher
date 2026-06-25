@@ -2,7 +2,9 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
 import { theme } from '../theme';
+import { NotificationBadge } from './NotificationBadge';
 
 interface AppHeaderProps {
   title: string;
@@ -11,6 +13,8 @@ interface AppHeaderProps {
   onBackPress?: () => void;
   rightComponent?: React.ReactNode;
   showNotification?: boolean;
+  unreadCount?: number;
+  variant?: 'primary' | 'secondary';
 }
 
 export const AppHeader: React.FC<AppHeaderProps> = ({
@@ -20,37 +24,49 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   onBackPress,
   rightComponent,
   showNotification = false,
+  unreadCount = 0,
+  variant = 'primary',
 }) => {
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top + theme.spacing.sm }]}>
-      <View style={styles.leftContainer}>
-        {showBackButton && (
-          <TouchableOpacity
-            onPress={onBackPress}
-            style={styles.backButton}
-            accessibilityLabel="Go back"
-            accessibilityRole="button"
-          >
-            <Ionicons name="chevron-back" size={24} color={theme.colors.primary} />
-          </TouchableOpacity>
-        )}
-      </View>
+    <View style={[styles.container, { paddingTop: insets.top + (variant === 'primary' ? 10 : 8) }]}>
+      {showBackButton && (
+        <TouchableOpacity
+          onPress={onBackPress}
+          style={styles.backButton}
+          accessibilityLabel="Go back"
+          accessibilityRole="button"
+        >
+          <Ionicons name="chevron-back" size={22} color="#4F46E5" />
+        </TouchableOpacity>
+      )}
       <View style={styles.titleContainer}>
-        <Text style={styles.title} numberOfLines={1}>
+        <Text style={[styles.title, variant === 'secondary' && styles.titleSecondary]} numberOfLines={1}>
           {title}
         </Text>
         {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
       </View>
-      <View style={styles.rightContainer}>
-        {showNotification ? (
-          <TouchableOpacity style={styles.iconButton} accessibilityLabel="Notifications">
-            <Ionicons name="notifications-outline" size={20} color={theme.colors.textSecondary} />
-          </TouchableOpacity>
-        ) : null}
-        {rightComponent}
-      </View>
+      {(showNotification || rightComponent) && (
+        <View style={styles.rightContainer}>
+          {showNotification ? (
+            <TouchableOpacity
+              style={styles.notificationButton}
+              activeOpacity={0.7}
+              onPress={() => router.push("/(tabs)/notifications" as any)}
+              accessibilityLabel="Notifications"
+            >
+              <Ionicons name="notifications-outline" size={20} color="#64748B" />
+              {unreadCount > 0 && (
+                <View style={styles.badgeContainer}>
+                  <NotificationBadge count={unreadCount} />
+                </View>
+              )}
+            </TouchableOpacity>
+          ) : null}
+          {rightComponent}
+        </View>
+      )}
     </View>
   );
 };
@@ -59,31 +75,29 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: theme.spacing.md,
-    paddingBottom: theme.spacing.sm,
-    backgroundColor: theme.colors.background,
+    paddingBottom: 12,
+    backgroundColor: '#ffffff00',
     borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border,
-    minHeight: theme.spacing.xl,
-  },
-  leftContainer: {
-    width: 44,
-    justifyContent: 'center',
-    alignItems: 'flex-start',
+    borderBottomColor: '#E2E8F0',
+    minHeight: 56,
   },
   titleContainer: {
     flex: 1,
-    alignItems: 'center',
+    justifyContent: 'center',
   },
   title: {
-    ...theme.typography.hierarchy.heading,
-    color: theme.colors.text,
+    fontSize: theme.typography.fontSize.xl,
+    fontWeight: '700',
+    color: '#0F172A',
+  },
+  titleSecondary: {
+    fontSize: theme.typography.fontSize.lg,
+    fontWeight: '600',
   },
   subtitle: {
-    ...theme.typography.hierarchy.caption,
+    fontSize: theme.typography.fontSize.sm,
     color: theme.colors.textSecondary,
-    marginTop: theme.spacing.xs,
+    marginTop: 2,
   },
   rightContainer: {
     minWidth: 44,
@@ -92,16 +106,23 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
   backButton: {
-    padding: theme.spacing.xs,
-    minWidth: 44,
-    minHeight: 44,
+    width: 44,
+    minHeight: 40,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  iconButton: {
-    minWidth: 36,
-    minHeight: 36,
+  notificationButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 9999,
+    backgroundColor: '#F1F5F9',
     justifyContent: 'center',
     alignItems: 'center',
+    position: 'relative',
+  },
+  badgeContainer: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
   },
 });

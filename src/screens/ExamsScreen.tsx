@@ -1,27 +1,24 @@
 import React, { useCallback, useMemo } from 'react';
-import { View, Text, StyleSheet, RefreshControl, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, RefreshControl, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { router } from 'expo-router';
 import { AppHeader, ScreenContainer } from '../components';
+import { Card } from '../components/ui/Card';
 import { ExamCard } from '../components/ExamCard';
 import { ExamEmptyState } from '../components/ExamEmptyState';
 import { SkeletonList } from '../components/SkeletonLoader';
 import { useExams } from '../hooks/useExams';
 import { theme } from '../theme';
-import { AppStackParamList, ExamItem } from '../types';
-
-type NavigationProp = NativeStackNavigationProp<AppStackParamList>;
+import { ExamItem } from '../types';
 
 export const ExamsScreen: React.FC = () => {
-  const navigation = useNavigation<NavigationProp>();
   const { data: exams, isLoading, isError, refetch, isRefetching } = useExams();
 
   const handleExamPress = useCallback(
     (exam: ExamItem) => {
-      navigation.navigate('ExamDetail', { examId: exam.id });
+      router.push({ pathname: '/(tabs)/more/exam-detail', params: { examId: exam.id } });
     },
-    [navigation]
+    []
   );
 
   const summary = useMemo(() => {
@@ -44,7 +41,7 @@ export const ExamsScreen: React.FC = () => {
   if (isLoading) {
     return (
       <ScreenContainer scrollable={false} backgroundColor={theme.colors.backgroundSecondary}>
-        <AppHeader title="Exams" />
+        <AppHeader title="Exams" showBackButton onBackPress={() => router.back()} />
         <SkeletonList count={4} style={styles.skeletonList} />
       </ScreenContainer>
     );
@@ -52,7 +49,7 @@ export const ExamsScreen: React.FC = () => {
 
   return (
     <ScreenContainer scrollable={false} backgroundColor={theme.colors.backgroundSecondary}>
-      <AppHeader title="Exams" />
+      <AppHeader title="Exams" showBackButton onBackPress={() => router.back()} />
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -66,14 +63,61 @@ export const ExamsScreen: React.FC = () => {
         }
       >
         {exams && exams.length > 0 && (
-          <View style={styles.summaryRow}>
-            {summary.map((item, index) => (
-              <View key={index} style={styles.summaryCard}>
-                <Ionicons name={item.icon} size={20} color={item.color} />
-                <Text style={[styles.summaryValue, { color: item.color }]}>{item.value}</Text>
-                <Text style={styles.summaryLabel}>{item.label}</Text>
-              </View>
-            ))}
+          <View style={styles.summaryGrid}>
+            <View style={styles.summaryRow}>
+              {summary.slice(0, 2).map((item, index) => (
+                <Card key={index} padding="md" className="flex-1">
+                  <View className="items-center">
+                    <Text
+                      className="text-slate-900 text-2xl font-bold"
+                      numberOfLines={1}
+                      ellipsizeMode="tail"
+                      style={{ lineHeight: 30 }}
+                    >
+                      {item.value}
+                    </Text>
+                    <View className="flex-row items-center gap-1 mt-1.5">
+                      <View
+                        className="w-5 h-5 rounded-md items-center justify-center"
+                        style={{ backgroundColor: item.color + '20' }}
+                      >
+                        <Ionicons name={item.icon} size={12} color={item.color} />
+                      </View>
+                      <Text className="text-slate-500 text-[11px] font-medium" numberOfLines={1}>
+                        {item.label}
+                      </Text>
+                    </View>
+                  </View>
+                </Card>
+              ))}
+            </View>
+            <View style={styles.summaryRow}>
+              {summary.slice(2, 4).map((item, index) => (
+                <Card key={index} padding="md" className="flex-1">
+                  <View className="items-center">
+                    <Text
+                      className="text-slate-900 text-2xl font-bold"
+                      numberOfLines={1}
+                      ellipsizeMode="tail"
+                      style={{ lineHeight: 30 }}
+                    >
+                      {item.value}
+                    </Text>
+                    <View className="flex-row items-center gap-1 mt-1.5">
+                      <View
+                        className="w-5 h-5 rounded-md items-center justify-center"
+                        style={{ backgroundColor: item.color + '20' }}
+                      >
+                        <Ionicons name={item.icon} size={12} color={item.color} />
+                      </View>
+                      <Text className="text-slate-500 text-[11px] font-medium" numberOfLines={1}>
+                        {item.label}
+                      </Text>
+                    </View>
+                  </View>
+                </Card>
+              ))}
+            </View>
           </View>
         )}
 
@@ -92,42 +136,21 @@ export const ExamsScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: theme.colors.backgroundSecondary,
-  },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    padding: theme.spacing.md,
     paddingBottom: theme.spacing.xxl,
   },
   skeletonList: {
     padding: theme.spacing.md,
   },
+  summaryGrid: {
+    gap: 10,
+    marginBottom: 16,
+  },
   summaryRow: {
     flexDirection: 'row',
-    gap: theme.spacing.sm,
-    marginBottom: theme.spacing.lg,
-  },
-  summaryCard: {
-    flex: 1,
-    alignItems: 'center',
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radius.md,
-    padding: theme.spacing.sm,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    gap: 4,
-  },
-  summaryValue: {
-    ...theme.typography.hierarchy.title,
-    fontWeight: theme.typography.weight.bold,
-  },
-  summaryLabel: {
-    ...theme.typography.hierarchy.caption,
-    color: theme.colors.textSecondary,
-    textAlign: 'center',
+    gap: 10,
   },
 });

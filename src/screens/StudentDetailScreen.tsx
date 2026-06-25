@@ -9,8 +9,8 @@ import {
   ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';
 import { ScreenContainer, AppHeader } from '../components';
 import { StudentProfileCard } from '../components/StudentProfileCard';
 import { ParentInfoCard } from '../components/ParentInfoCard';
@@ -19,15 +19,10 @@ import { AppCard } from '../components/AppCard';
 import { AppButton } from '../components/AppButton';
 import { useStudentDetail } from '../hooks/useStudents';
 import { theme } from '../theme';
-import { AppStackParamList } from '../types';
-
-type DetailRouteProp = RouteProp<AppStackParamList, 'StudentDetail'>;
-type NavigationProp = NativeStackNavigationProp<AppStackParamList>;
 
 export const StudentDetailScreen: React.FC = () => {
-  const navigation = useNavigation<NavigationProp>();
-  const route = useRoute<DetailRouteProp>();
-  const { studentId } = route.params;
+  const navigation = useNavigation();
+  const { studentId } = useLocalSearchParams<{ studentId: string }>();
 
   const {
     data: student,
@@ -43,17 +38,18 @@ export const StudentDetailScreen: React.FC = () => {
   }, []);
 
   const handleAttendance = useCallback(() => {
-    navigation.navigate('MainTabs', { screen: 'Attendance' });
-  }, [navigation]);
+    router.push('/(tabs)/attendance');
+  }, []);
 
   const handleHomework = useCallback(() => {
-    navigation.navigate('MainTabs', { screen: 'Homework' });
-  }, [navigation]);
+    router.push('/(tabs)/homework');
+  }, []);
 
   if (isLoading) {
     return (
       <ScreenContainer>
         <AppHeader
+          variant="secondary"
           title="Student Detail"
           showBackButton
           onBackPress={() => navigation.goBack()}
@@ -69,6 +65,7 @@ export const StudentDetailScreen: React.FC = () => {
     return (
       <ScreenContainer>
         <AppHeader
+          variant="secondary"
           title="Student Detail"
           showBackButton
           onBackPress={() => navigation.goBack()}
@@ -85,6 +82,7 @@ export const StudentDetailScreen: React.FC = () => {
   return (
     <View style={styles.screen}>
       <AppHeader
+        variant="secondary"
         title="Student Detail"
         showBackButton
         onBackPress={() => navigation.goBack()}
@@ -255,7 +253,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    padding: theme.spacing.md,
     paddingBottom: theme.spacing.xxl,
   },
   centeredContainer: {

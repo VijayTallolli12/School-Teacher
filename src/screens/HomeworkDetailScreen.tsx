@@ -1,22 +1,18 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { ScreenContainer, AppCard } from '../components';
+import { router, useLocalSearchParams } from 'expo-router';
+import { ScreenContainer, AppCard, AppHeader } from '../components';
 import { AppButton } from '../components/AppButton';
 import { EmptyState } from '../components/EmptyState';
 import { SkeletonCard } from '../components/SkeletonLoader';
-import { HomeworkHeader, HomeworkStatusBadge } from '../components';
+import { HomeworkStatusBadge } from '../components';
 import { useHomeworkById } from '../hooks/useHomework';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { theme } from '../theme';
 import { getHomeworkStatusLabel, getHomeworkStatusColor } from '../utils/homework';
 
-type HomeworkDetailRouteProp = RouteProp<{ HomeworkDetail: { homeworkId: string } }, 'HomeworkDetail'>;
-
 export const HomeworkDetailScreen: React.FC = () => {
-  const navigation = useNavigation();
-  const route = useRoute<HomeworkDetailRouteProp>();
-  const { homeworkId } = route.params;
+  const { id: homeworkId } = useLocalSearchParams<{ id: string }>();
   const { data: homework, isLoading, error, refetch } = useHomeworkById(homeworkId);
 
   const handleRetry = () => {
@@ -53,7 +49,7 @@ export const HomeworkDetailScreen: React.FC = () => {
   if (isLoading || !homework) {
     return (
       <ScreenContainer>
-        <HomeworkHeader title="Homework Details" />
+        <AppHeader variant="secondary" title="Homework Details" showBackButton onBackPress={() => router.back()} />
         <View style={styles.container}>
           <SkeletonCard lines={6} style={styles.skeletonCard} />
         </View>
@@ -63,7 +59,7 @@ export const HomeworkDetailScreen: React.FC = () => {
 
   return (
     <ScreenContainer>
-      <HomeworkHeader title="Homework Details" />
+      <AppHeader variant="secondary" title="Homework Details" showBackButton onBackPress={() => router.back()} />
       <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
         <AppCard variant="elevated">
           <View style={styles.header}>
@@ -75,7 +71,7 @@ export const HomeworkDetailScreen: React.FC = () => {
               title="Edit"
               variant="ghost"
               leftIcon={<Ionicons name="create-outline" size={16} color={theme.colors.primary} />}
-              onPress={() => (navigation as any).navigate('HomeworkCreate', { homeworkId })}
+              onPress={() => router.push({ pathname: '/(tabs)/homework/create', params: { homeworkId } })}
               style={styles.editButton}
             />
           </View>

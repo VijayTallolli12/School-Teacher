@@ -1,14 +1,13 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { ScreenContainer, AppHeader } from '../components';
 import { SkeletonList } from '../components/SkeletonLoader';
 import { EmptyState } from '../components/EmptyState';
-import { HomeworkHeader, HomeworkCard, HomeworkEmptyState } from '../components';
+import { HomeworkCard, HomeworkEmptyState } from '../components';
 import { useHomework } from '../hooks/useHomework';
 import { HomeworkItem } from '../types';
-import { theme } from '../theme';
-import { useNavigation } from '@react-navigation/native';
 import { getHomeworkStatusLabel } from '../utils/homework';
 
 const filters = ['All', 'Due Today', 'Upcoming', 'Overdue'] as const;
@@ -16,17 +15,16 @@ const filters = ['All', 'Due Today', 'Upcoming', 'Overdue'] as const;
 type FilterOption = (typeof filters)[number];
 
 export const HomeworkScreen: React.FC = () => {
-  const navigation = useNavigation();
   const { data: homework, isLoading, error, refetch } = useHomework();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<FilterOption>('All');
 
   const handleCreateHomework = () => {
-    (navigation as any).navigate('HomeworkCreate');
+    router.push('/(tabs)/homework/create');
   };
 
   const handleHomeworkPress = (homeworkItem: HomeworkItem) => {
-    (navigation as any).navigate('HomeworkDetail', { homeworkId: homeworkItem.id });
+    router.push({ pathname: '/(tabs)/homework/[id]', params: { id: homeworkItem.id } });
   };
 
   const handleRetry = () => {
@@ -70,7 +68,7 @@ export const HomeworkScreen: React.FC = () => {
   if (isLoading) {
     return (
       <ScreenContainer>
-        <HomeworkHeader title="Homework" />
+        <AppHeader title="Homework" />
         <View style={styles.container}>
           <SkeletonList count={4} style={styles.skeletonList} />
         </View>
@@ -80,15 +78,23 @@ export const HomeworkScreen: React.FC = () => {
 
   return (
     <ScreenContainer>
-      <HomeworkHeader title="Homework" subtitle={homework && homework.length > 0 ? `${homework.length} assignments` : undefined} />
+      <AppHeader title="Homework" subtitle={homework && homework.length > 0 ? `${homework.length} assignment${homework.length > 1 ? 's' : ''}` : undefined} />
       <View style={styles.filterBar}>
-        <TextInput
-          style={styles.searchInput}
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          placeholder="Search by title or subject"
-          placeholderTextColor={theme.colors.textLight}
-        />
+        <View style={styles.searchContainer}>
+          <Ionicons name="search-outline" size={16} color="#94A3B8" />
+          <TextInput
+            style={styles.searchInput}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholder="Search by title or subject"
+            placeholderTextColor="#94A3B8"
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity onPress={() => setSearchQuery('')} activeOpacity={0.7}>
+              <Ionicons name="close-circle" size={16} color="#94A3B8" />
+            </TouchableOpacity>
+          )}
+        </View>
         <View style={styles.filterChips}>
           {filters.map((filter) => {
             const isActive = filter === activeFilter;
@@ -118,82 +124,86 @@ export const HomeworkScreen: React.FC = () => {
           <HomeworkEmptyState message={homework && homework.length > 0 ? 'No homework matches your search or filter.' : 'No homework assigned yet'} />
         )}
       </ScrollView>
-      <View style={styles.fabContainer}>
-        <TouchableOpacity style={styles.fab} onPress={handleCreateHomework} accessibilityRole="button" accessibilityLabel="Create homework">
-          <Ionicons name="add" size={28} color={theme.colors.primaryContrast} />
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity style={styles.fab} onPress={handleCreateHomework} accessibilityRole="button" accessibilityLabel="Create homework">
+        <Ionicons name="add" size={28} color="#FFFFFF" />
+      </TouchableOpacity>
     </ScreenContainer>
   );
 };
 
-const styles = StyleSheet.create({
+const styles: Record<string, any> = {
   container: {
     flex: 1,
-    backgroundColor: theme.colors.backgroundSecondary,
+    backgroundColor: '#F8FAFC',
   },
   contentContainer: {
-    padding: theme.spacing.md,
-    paddingBottom: 80,
+    padding: 12,
+    paddingBottom: 90,
   },
   filterBar: {
-    backgroundColor: theme.colors.background,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border,
+    borderBottomColor: '#E2E8F0',
+  },
+  searchContainer: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    backgroundColor: '#F1F5F9',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    marginBottom: 10,
+    height: 40,
+    gap: 8,
   },
   searchInput: {
-    backgroundColor: theme.colors.backgroundSecondary,
-    borderRadius: theme.radius.lg,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
-    marginBottom: theme.spacing.sm,
-    color: theme.colors.text,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
+    flex: 1,
+    fontSize: 14,
+    color: '#0F172A',
+    padding: 0,
   },
   filterChips: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: theme.spacing.sm,
+    flexDirection: 'row' as const,
+    gap: 8,
   },
   filterChip: {
-    backgroundColor: theme.colors.backgroundSecondary,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.xs,
-    borderRadius: theme.radius.full,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 999,
     borderWidth: 1,
-    borderColor: theme.colors.border,
-    marginRight: theme.spacing.xs,
+    borderColor: '#E2E8F0',
+    backgroundColor: '#FFFFFF',
   },
   filterChipActive: {
-    backgroundColor: theme.colors.primary,
-    borderColor: theme.colors.primary,
+    backgroundColor: '#4F46E5',
+    borderColor: '#4F46E5',
   },
   filterChipText: {
-    color: theme.colors.textSecondary,
-    ...theme.typography.hierarchy.caption,
-    fontWeight: theme.typography.weight.bold,
+    fontSize: 12,
+    fontWeight: '600' as const,
+    color: '#64748B',
   },
   filterChipTextActive: {
-    color: theme.colors.background,
+    color: '#FFFFFF',
   },
   skeletonList: {
-    padding: theme.spacing.md,
-  },
-  fabContainer: {
-    position: 'absolute',
-    bottom: theme.spacing.xl,
-    right: theme.spacing.xl,
+    padding: 12,
   },
   fab: {
+    position: 'absolute' as const,
+    bottom: 24,
+    right: 20,
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: theme.colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    ...theme.shadows.md,
+    backgroundColor: '#4F46E5',
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+    shadowColor: '#4F46E5',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
-});
+};

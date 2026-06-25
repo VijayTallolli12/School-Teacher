@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';
 import { ScreenContainer, AppHeader } from '../components';
 import { AppCard } from '../components/AppCard';
 import { AppButton } from '../components/AppButton';
@@ -11,27 +11,22 @@ import { SkeletonCard } from '../components/SkeletonLoader';
 import { EmptyState } from '../components/EmptyState';
 import { useRouteDetail } from '../hooks/useTransport';
 import { theme } from '../theme';
-import { AppStackParamList } from '../types';
-
-type DetailRouteProp = RouteProp<AppStackParamList, 'RouteDetail'>;
-type NavigationProp = NativeStackNavigationProp<AppStackParamList>;
 
 export const RouteDetailScreen: React.FC = () => {
-  const navigation = useNavigation<NavigationProp>();
-  const route = useRoute<DetailRouteProp>();
-  const { routeId } = route.params;
+  const navigation = useNavigation();
+  const { routeId } = useLocalSearchParams<{ routeId: string }>();
   const { data: routeDetail, isLoading, error, refetch, isRefetching } = useRouteDetail(routeId);
 
   const handleTrackVehicle = useCallback(() => {
     if (routeDetail?.vehicleId) {
-      navigation.navigate('VehicleTracking', { vehicleId: routeDetail.vehicleId });
+      router.push({ pathname: '/(tabs)/more/vehicle-tracking', params: { vehicleId: routeDetail.vehicleId } });
     }
-  }, [navigation, routeDetail]);
+  }, [routeDetail]);
 
   if (error) {
     return (
       <ScreenContainer>
-        <AppHeader title="Route Details" showBackButton onBackPress={() => navigation.goBack()} />
+        <AppHeader variant="secondary" title="Route Details" showBackButton onBackPress={() => navigation.goBack()} />
         <EmptyState
           icon="cloud-offline-outline"
           title="Unable to Load Route"
@@ -46,7 +41,7 @@ export const RouteDetailScreen: React.FC = () => {
   if (isLoading || !routeDetail) {
     return (
       <ScreenContainer>
-        <AppHeader title="Route Details" showBackButton onBackPress={() => navigation.goBack()} />
+        <AppHeader variant="secondary" title="Route Details" showBackButton onBackPress={() => navigation.goBack()} />
         <View style={styles.container}>
           <SkeletonCard lines={5} style={styles.skeletonCard} />
         </View>
@@ -56,7 +51,7 @@ export const RouteDetailScreen: React.FC = () => {
 
   return (
     <ScreenContainer>
-      <AppHeader title="Route Details" showBackButton onBackPress={() => navigation.goBack()} />
+      <AppHeader variant="secondary" title="Route Details" showBackButton onBackPress={() => navigation.goBack()} />
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.contentContainer}

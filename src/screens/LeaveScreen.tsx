@@ -8,8 +8,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { router } from 'expo-router';
 import { AppHeader, ScreenContainer } from '../components';
 import { LeaveBalanceCard } from '../components/LeaveBalanceCard';
 import { LeaveCard } from '../components/LeaveCard';
@@ -17,9 +16,7 @@ import { LeaveEmptyState } from '../components/LeaveEmptyState';
 import { SkeletonList } from '../components/SkeletonLoader';
 import { useLeaves, useLeaveBalance } from '../hooks/useLeave';
 import { theme } from '../theme';
-import { AppStackParamList, LeaveItem, LeaveStatus } from '../types';
-
-type NavigationProp = NativeStackNavigationProp<AppStackParamList>;
+import { LeaveItem, LeaveStatus } from '../types';
 
 const statusSummary = (
   leaves: LeaveItem[]
@@ -38,7 +35,6 @@ const statusSummary = (
 };
 
 export const LeaveScreen: React.FC = () => {
-  const navigation = useNavigation<NavigationProp>();
 
   const {
     data: leaves,
@@ -70,14 +66,14 @@ export const LeaveScreen: React.FC = () => {
   );
 
   const handleApplyLeave = useCallback(() => {
-    navigation.navigate('LeaveApply', {});
-  }, [navigation]);
+    router.push('/(tabs)/more/leave-apply');
+  }, []);
 
   const handleLeavePress = useCallback(
     (leave: LeaveItem) => {
-      navigation.navigate('LeaveDetail', { leaveId: leave.id });
+      router.push({ pathname: '/(tabs)/more/leave-detail', params: { leaveId: leave.id } });
     },
-    [navigation]
+    []
   );
 
   const isRefreshing = leavesRefetching || balanceRefetching;
@@ -91,7 +87,7 @@ export const LeaveScreen: React.FC = () => {
   if (isLoading) {
     return (
       <ScreenContainer scrollable={false} backgroundColor={theme.colors.backgroundSecondary}>
-        <AppHeader title="Leave Management" />
+        <AppHeader title="Leave Management" showBackButton onBackPress={() => router.back()} />
         <SkeletonList count={4} style={styles.skeletonList} />
       </ScreenContainer>
     );
@@ -99,7 +95,7 @@ export const LeaveScreen: React.FC = () => {
 
   return (
     <ScreenContainer scrollable={false} backgroundColor={theme.colors.backgroundSecondary}>
-      <AppHeader title="Leave Management" />
+      <AppHeader title="Leave Management" showBackButton onBackPress={() => router.back()} />
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -205,7 +201,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    padding: theme.spacing.md,
     paddingBottom: theme.spacing.xxl,
   },
   skeletonList: {

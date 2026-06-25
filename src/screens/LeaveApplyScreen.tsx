@@ -1,20 +1,19 @@
 import React, { useCallback } from 'react';
 import { View, Text, StyleSheet, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useLocalSearchParams } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';
 import { ScreenContainer, AppHeader } from '../components';
 import { LeaveForm } from '../components/LeaveForm';
 import { SkeletonList } from '../components/SkeletonLoader';
 import { useLeaveTypes, useApplyLeave } from '../hooks/useLeave';
 import { theme } from '../theme';
-import { AppStackParamList, LeavePayload } from '../types';
-
-type ApplyRouteProp = RouteProp<AppStackParamList, 'LeaveApply'>;
+import { LeavePayload } from '../types';
 
 export const LeaveApplyScreen: React.FC = () => {
   const navigation = useNavigation();
-  const route = useRoute<ApplyRouteProp>();
-  const preselectedTypeId = route.params?.leaveType;
+  const { leaveType } = useLocalSearchParams<{ leaveType?: string }>();
+  const preselectedTypeId = leaveType;
 
   const { data: leaveTypes, isLoading: typesLoading } = useLeaveTypes();
   const applyMutation = useApplyLeave();
@@ -42,6 +41,7 @@ export const LeaveApplyScreen: React.FC = () => {
     return (
       <ScreenContainer>
         <AppHeader
+          variant="secondary"
           title="Apply Leave"
           showBackButton
           onBackPress={() => navigation.goBack()}
@@ -55,6 +55,7 @@ export const LeaveApplyScreen: React.FC = () => {
     return (
       <ScreenContainer>
         <AppHeader
+          variant="secondary"
           title="Apply Leave"
           showBackButton
           onBackPress={() => navigation.goBack()}

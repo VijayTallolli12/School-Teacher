@@ -48,7 +48,7 @@ export const NotificationDetailScreen: React.FC<Props> = ({ navigation, route })
 
   return (
     <ScreenContainer backgroundColor={theme.colors.backgroundSecondary}>
-      <AppHeader title="Notification" showBackButton onBackPress={navigation.goBack} />
+      <AppHeader variant="secondary" title="Notification" showBackButton onBackPress={navigation.goBack} />
       <AppCard variant="elevated" style={styles.card}>
         <View style={styles.metaRow}>
           <Text style={styles.type}>{typeLabels[notification.type]}</Text>

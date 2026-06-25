@@ -5,8 +5,7 @@ import {
   RefreshControl,
   ScrollView,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { router } from 'expo-router';
 import { AppHeader, ScreenContainer, SkeletonList } from '../components';
 import { TimetableHeader } from '../components/TimetableHeader';
 import { CurrentPeriodBanner } from '../components/CurrentPeriodBanner';
@@ -15,9 +14,8 @@ import { PeriodCard } from '../components/PeriodCard';
 import { EmptyTimetableState } from '../components/EmptyTimetableState';
 import { useTodayTimetable, useWeeklyTimetable } from '../hooks/useTimetable';
 import { theme } from '../theme';
-import { PeriodItem, AppStackParamList } from '../types';
-
-type NavigationProp = NativeStackNavigationProp<AppStackParamList>;
+import { PeriodItem } from '../types';
+import { useNavParamStore } from '@/store/navParams.store';
 
 const getPeriodStatus = (
   period: PeriodItem,
@@ -31,7 +29,6 @@ const getPeriodStatus = (
 };
 
 export const TimetableScreen: React.FC = () => {
-  const navigation = useNavigation<NavigationProp>();
   const [mode, setMode] = useState<'today' | 'week'>('today');
 
   const {
@@ -83,11 +80,14 @@ export const TimetableScreen: React.FC = () => {
     [weekData]
   );
 
+  const setNavParams = useNavParamStore((s) => s.setParams);
+
   const handlePeriodPress = useCallback(
     (period: PeriodItem) => {
-      navigation.navigate('PeriodDetail', { period });
+      setNavParams('period', period);
+      router.push('/(tabs)/more/period-detail');
     },
-    [navigation]
+    [setNavParams]
   );
 
   const isRefreshing =
@@ -206,7 +206,7 @@ export const TimetableScreen: React.FC = () => {
   return (
     <ScreenContainer scrollable={false}>
       <View style={styles.screen}>
-      <AppHeader title="Timetable" />
+      <AppHeader title="Timetable" showBackButton onBackPress={() => router.back()} />
       <TimetableHeader
         mode={mode}
         onModeChange={setMode}

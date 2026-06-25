@@ -8,7 +8,6 @@ interface DashboardCardProps {
   value: number;
   label: string;
   color?: string;
-  onPress?: () => void;
 }
 
 export const DashboardCard: React.FC<DashboardCardProps> = ({
@@ -16,51 +15,48 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({
   value,
   label,
   color = theme.colors.primary,
-  onPress,
 }) => {
   return (
     <View style={styles.card}>
       <View style={[styles.iconContainer, { backgroundColor: color + '15' }]}>
-        <Ionicons name={icon} size={22} color={color} />
+        <Ionicons name={icon} size={28} color={color} />
       </View>
-      <View style={styles.textContainer}>
-        <Text style={styles.value}>{value}</Text>
-        <Text style={styles.label}>{label}</Text>
-      </View>
+      <Text style={styles.value}>{value}</Text>
+      <Text style={styles.label}>{label}</Text>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   card: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flex: 1,
     backgroundColor: theme.colors.surface,
-    borderRadius: theme.radius.md,
-    padding: theme.spacing.md,
+    borderRadius: theme.radius.card,
     borderWidth: 1,
     borderColor: theme.colors.border,
-    gap: theme.spacing.md,
+    ...theme.shadows.sm,
+    padding: theme.spacing.cardPadding,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 130,
   },
   iconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
+    width: 52,
+    height: 52,
+    borderRadius: theme.radius.icon,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  textContainer: {
-    flex: 1,
+    marginBottom: theme.spacing.md,
   },
   value: {
-    ...theme.typography.hierarchy.title,
-    fontWeight: theme.typography.weight.bold,
-    color: theme.colors.text,
-    lineHeight: 28,
+    ...theme.typography.hierarchy.metric,
+    color: theme.colors.textPrimary,
+    marginBottom: 2,
   },
   label: {
-    ...theme.typography.hierarchy.caption,
+    fontSize: theme.typography.fontSize.sm,
     color: theme.colors.textSecondary,
-    marginTop: 1,
+    textAlign: 'center',
+    fontWeight: theme.typography.weight.medium,
   },
 });

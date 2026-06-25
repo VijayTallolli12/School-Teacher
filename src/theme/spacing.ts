@@ -12,12 +12,20 @@ export const spacing = {
   16: 64,
   20: 80,
   24: 96,
-  xs: 8,
-  sm: 12,
-  md: 16,
-  lg: 24,
-  xl: 32,
-  xxl: 48,
+  xs: 4,
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 20,
+  xxl: 24,
+  xxxl: 32,
+  huge: 48,
+
+  screenPadding: 20,
+  cardPadding: 16,
+  itemGap: 12,
+  sectionGap: 24,
+  gridGap: 12,
 } as const;
 
 export type Spacing = typeof spacing;

@@ -39,24 +39,27 @@ export const ScreenLayout: React.FC<ScreenLayoutProps> = ({
   bottomInset = true,
 }) => {
   const insets = useSafeAreaInsets();
+  const safeAreaEdges = bottomInset
+    ? undefined
+    : (['top', 'left', 'right'] as const);
 
   if (loading) {
     return (
-      <SafeAreaView style={[styles.safeArea, { backgroundColor }]}>
+      <SafeAreaView style={[styles.safeArea, { backgroundColor }]} edges={safeAreaEdges}>
         <LoadingScreen message={loadingMessage} />
       </SafeAreaView>
     );
   }
 
   const content = (
-    <View style={[styles.inner, style, { backgroundColor, paddingBottom: bottomInset ? insets.bottom + theme.spacing.md : theme.spacing.md }]}>
+    <View style={[styles.inner, { backgroundColor, paddingBottom: bottomInset ? insets.bottom + theme.spacing.md : theme.spacing.md }, style]}>
       {empty ? emptyContent ?? null : children}
     </View>
   );
 
   if (!scrollable) {
     return (
-      <SafeAreaView style={[styles.safeArea, { backgroundColor }]}>
+      <SafeAreaView style={[styles.safeArea, { backgroundColor }]} edges={safeAreaEdges}>
         <KeyboardAvoidingView
           style={styles.flex}
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -69,7 +72,7 @@ export const ScreenLayout: React.FC<ScreenLayoutProps> = ({
   }
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor }]}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor }]} edges={safeAreaEdges}>
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -77,7 +80,7 @@ export const ScreenLayout: React.FC<ScreenLayoutProps> = ({
       >
         <ScrollView
           style={styles.flex}
-          contentContainerStyle={[styles.scrollContent, contentContainerStyle, { paddingTop: theme.spacing.md, paddingBottom: bottomInset ? insets.bottom + theme.spacing.md : theme.spacing.md }]}
+          contentContainerStyle={[styles.scrollContent, { paddingBottom: bottomInset ? insets.bottom + theme.spacing.md : theme.spacing.md }, contentContainerStyle]}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
@@ -97,12 +100,10 @@ const styles = StyleSheet.create({
   },
   inner: {
     flex: 1,
-    paddingHorizontal: theme.spacing.md,
-    paddingTop: theme.spacing.md,
+    paddingHorizontal: theme.spacing.screenPadding,
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: theme.spacing.md,
-    paddingTop: theme.spacing.md,
+    paddingHorizontal: theme.spacing.screenPadding,
   },
 });

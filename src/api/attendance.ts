@@ -59,6 +59,7 @@ export const attendanceApi = {
       rollNumber: s.roll_no,
       class: response.data.data.class_section.class,
       section: response.data.data.class_section.section,
+      attendanceStatus: s.attendance?.status as AttendanceStudent['attendanceStatus'] ?? null,
     }));
     return { data: mapped };
   },

@@ -5,42 +5,35 @@ import {
   StyleSheet,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';
 import { AppButton, AppCard, ScreenContainer, AppHeader, EmptyState } from '../components';
 import { theme } from '../theme';
-import { AppStackParamList } from '../types';
-
-type DetailRouteProp = RouteProp<AppStackParamList, 'PeriodDetail'>;
-type NavigationProp = NativeStackNavigationProp<AppStackParamList>;
+import { useNavParamStore } from '@/store/navParams.store';
+import type { PeriodItem } from '@/types';
 
 export const PeriodDetailScreen: React.FC = () => {
-  const route = useRoute<DetailRouteProp>();
-  const navigation = useNavigation<NavigationProp>();
-  const period = route.params?.period;
+  const navigation = useNavigation();
+  const storedPeriod = useNavParamStore((s) => s.params.period);
+  const period = storedPeriod as PeriodItem | undefined;
 
   const handleMarkAttendance = useCallback(() => {
-    navigation.navigate('MainTabs', { screen: 'Attendance' });
-  }, [navigation]);
+    router.push('/(tabs)/attendance');
+  }, []);
 
   const handleAssignHomework = useCallback(() => {
     if (!period) return;
-    navigation.navigate('HomeworkCreate', {
-      initialData: {
-        title: '',
-        description: '',
-        subject: period?.subject ?? '',
-        class: period?.className ?? '',
-        section: period?.section ?? '',
-        dueDate: '',
-      },
-    });
-  }, [navigation, period]);
+    router.push({ pathname: '/(tabs)/homework/create', params: {
+      subject: period?.subject ?? '',
+      className: period?.className ?? '',
+      section: period?.section ?? '',
+    }});
+  }, [period]);
 
   if (!period) {
     return (
       <ScreenContainer>
-        <AppHeader title="Period Detail" showBackButton onBackPress={() => navigation.goBack()} />
+        <AppHeader variant="secondary" title="Period Detail" showBackButton onBackPress={() => navigation.goBack()} />
         <EmptyState
           icon="alert-circle-outline"
           title="Period not found"
@@ -62,7 +55,7 @@ export const PeriodDetailScreen: React.FC = () => {
 
   return (
     <ScreenContainer scrollable>
-      <AppHeader title="Period Detail" showBackButton onBackPress={() => navigation.goBack()} />
+      <AppHeader variant="secondary" title="Period Detail" showBackButton onBackPress={() => navigation.goBack()} />
 
       <View style={styles.content}>
         <AppCard variant="elevated">

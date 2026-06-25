@@ -6,7 +6,6 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
   AppButton,
   AppHeader,
@@ -24,31 +23,41 @@ import {
 import {
   NotificationFilterValue,
   NotificationItem,
-  NotificationsStackParamList,
 } from '../types';
 import { theme } from '../theme';
 
-type Props = NativeStackScreenProps<NotificationsStackParamList, 'NotificationsList'>;
-
-export const NotificationsScreen: React.FC<Props> = ({ navigation }) => {
+export const NotificationsScreen: React.FC = () => {
   const [filter, setFilter] = useState<NotificationFilterValue>('all');
   const { data = [], isLoading, isRefetching, error, refetch } = useNotifications();
   const markAllAsRead = useMarkAllAsRead();
 
-  const filteredNotifications = useMemo(
-    () =>
-      data.filter((notification) => {
-        if (filter === 'unread') return !notification.isRead;
-        if (filter === 'read') return notification.isRead;
-        return true;
-      }),
-    [data, filter],
-  );
+  const filteredNotifications = useMemo(() => {
+    const filtered = data.filter((notification) => {
+      if (filter === 'unread') return !notification.isRead;
+      if (filter === 'read') return notification.isRead;
+      return true;
+    });
+    return filtered.sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  }, [data, filter]);
 
   const hasUnread = data.some((notification) => !notification.isRead);
 
   const openNotification = (notification: NotificationItem) => {
-    navigation.navigate('NotificationDetail', { notification });
+    // Navigate using expo-router for deep linking
+    const { router } = require('expo-router');
+    router.push({
+      pathname: '/(tabs)/notifications/[id]',
+      params: {
+        id: notification.id ?? '',
+        title: notification.title ?? '',
+        body: notification.message ?? '',
+        type: notification.type ?? 'system',
+        is_read: String(!!notification.isRead),
+        created_at: notification.createdAt ?? '',
+      },
+    });
   };
 
   if (error && data.length === 0) {

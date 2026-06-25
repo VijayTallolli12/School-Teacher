@@ -92,13 +92,21 @@ export const AppCard: React.FC<AppCardProps> = ({
 
 const styles = StyleSheet.create({
   base: {
-    borderRadius: theme.radius.lg,
+    borderRadius: theme.radius.card,
     overflow: 'hidden',
   },
   content: {
-    padding: theme.spacing.md,
+    padding: theme.spacing.cardPadding,
   },
 });
+
+const dashboardShadow: ViewStyle = {
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 1 },
+  shadowOpacity: 0.04,
+  shadowRadius: 4,
+  elevation: 0.5,
+};
 
 const variantConfig: Record<
   CardVariant,
@@ -108,28 +116,34 @@ const variantConfig: Record<
     base: {
       backgroundColor: theme.colors.surface,
       borderWidth: 1,
-      borderColor: theme.colors.border,
+      borderColor: '#E2E8F0',
     },
     content: {},
   },
   elevated: {
     base: {
       backgroundColor: theme.colors.surface,
-      ...theme.shadows.md,
+      borderWidth: 1,
+      borderColor: '#E2E8F0',
+      ...dashboardShadow,
     },
     content: {},
   },
   interactive: {
     base: {
       backgroundColor: theme.colors.surface,
-      ...theme.shadows.sm,
+      borderWidth: 1,
+      borderColor: '#E2E8F0',
+      ...dashboardShadow,
     },
     content: {},
   },
   stat: {
     base: {
       backgroundColor: theme.colors.surface,
-      ...theme.shadows.sm,
+      borderWidth: 1,
+      borderColor: '#E2E8F0',
+      ...dashboardShadow,
     },
     content: {},
   },
