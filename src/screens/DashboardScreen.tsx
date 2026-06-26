@@ -37,6 +37,14 @@ interface MetricItem {
   tint: string;
 }
 
+const cardShadow = {
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 1 },
+  shadowOpacity: 0.04,
+  shadowRadius: 4,
+  elevation: 1,
+};
+
 const TEACHING_ACTIONS: DashboardAction[] = [
   { label: "Attendance", icon: "checkbox-outline", route: "/(tabs)/attendance", color: "#2563EB", tint: "#EFF6FF" },
   { label: "Homework", icon: "document-text-outline", route: "/(tabs)/homework", color: "#D97706", tint: "#FFFBEB" },
@@ -112,9 +120,9 @@ function SectionHeader({ title, subtitle, action }: {
   action?: React.ReactNode;
 }) {
   return (
-    <View className="flex-row items-end justify-between mb-3">
+    <View className="flex-row items-end justify-between mb-2">
       <View className="flex-1 min-w-0">
-        <Text className="text-slate-900 text-lg font-semibold" numberOfLines={1}>
+        <Text className="text-slate-900 text-[18px] font-semibold" numberOfLines={1}>
           {title}
         </Text>
         {subtitle ? (
@@ -128,9 +136,9 @@ function SectionHeader({ title, subtitle, action }: {
   );
 }
 
-function SectionPanel({ children, tint = "#FFFFFF" }: { children: React.ReactNode; tint?: string }) {
+function SectionPanel({ children }: { children: React.ReactNode }) {
   return (
-    <View className="rounded-2xl border border-slate-100 p-3" style={{ backgroundColor: tint }}>
+    <View className="rounded-2xl bg-white border border-surface-border p-4" style={cardShadow}>
       {children}
     </View>
   );
@@ -138,64 +146,40 @@ function SectionPanel({ children, tint = "#FFFFFF" }: { children: React.ReactNod
 
 function MetricCard({ item }: { item: MetricItem }) {
   return (
-    <View
-      className="flex-1 min-h-[116px] rounded-2xl border border-slate-100 bg-white p-4 overflow-hidden"
-      style={{
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 5,
-        elevation: 1,
-      }}
-    >
-      <View className="absolute left-0 top-0 bottom-0 w-1" style={{ backgroundColor: item.color, opacity: 0.45 }} />
-      <View className="flex-row items-center justify-between">
+    <View className="flex-1 rounded-2xl bg-white border border-surface-border p-4 overflow-hidden" style={cardShadow}>
+      <View className="absolute left-0 top-0 bottom-0 w-[3px] rounded-r-sm" style={{ backgroundColor: item.color }} />
+      <View className="flex-row items-center justify-between mb-3">
         <View className="w-10 h-10 rounded-xl items-center justify-center" style={{ backgroundColor: item.tint }}>
           <Ionicons name={item.icon} size={18} color={item.color} />
         </View>
       </View>
-      <Text className="text-slate-900 text-[28px] font-bold mt-4" numberOfLines={1} style={{ lineHeight: 34 }}>
+      <Text className="text-slate-900 text-[28px] font-bold" numberOfLines={1}>
         {item.value}
       </Text>
-      <Text className="text-slate-500 text-[13px] font-medium mt-0.5" numberOfLines={1}>
+      <Text className="text-slate-500 text-[13px] font-medium mt-1" numberOfLines={1}>
         {item.label}
       </Text>
     </View>
   );
 }
 
-function ActionCard({ item, dominant = false }: { item: DashboardAction; dominant?: boolean }) {
+function ActionCard({ item }: { item: DashboardAction }) {
   return (
     <TouchableOpacity
-      className="min-h-[92px]"
-      style={{ width: "48.2%" }}
-      activeOpacity={0.72}
+      style={{ width: "48%" }}
+      activeOpacity={0.7}
       onPress={() => router.push(item.route)}
       accessibilityRole="button"
       accessibilityLabel={`Open ${item.label}`}
     >
       <View
-        className="flex-1 rounded-2xl border p-4 flex-row items-center"
-        style={{
-          backgroundColor: dominant ? "#FFFFFF" : "rgba(255,255,255,0.9)",
-          borderColor: dominant ? "#E2E8F0" : "#EEF2F7",
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: dominant ? 0.055 : 0.035,
-          shadowRadius: 5,
-          elevation: 1,
-        }}
+        className="flex-1 rounded-2xl bg-white border border-surface-border p-4 flex-row items-center"
+        style={cardShadow}
       >
-        <View
-          className={dominant ? "w-11 h-11 rounded-2xl items-center justify-center mr-3" : "w-10 h-10 rounded-xl items-center justify-center mr-3"}
-          style={{ backgroundColor: item.tint }}
-        >
-          <Ionicons name={item.icon} size={dominant ? 21 : 19} color={item.color} />
+        <View className="w-10 h-10 rounded-xl items-center justify-center mr-3" style={{ backgroundColor: item.tint }}>
+          <Ionicons name={item.icon} size={19} color={item.color} />
         </View>
-        <Text
-          className={dominant ? "text-slate-900 text-[13px] font-semibold flex-1" : "text-slate-700 text-[13px] font-medium flex-1"}
-          numberOfLines={2}
-        >
+        <Text className="text-slate-700 text-[13px] font-medium flex-1" numberOfLines={2}>
           {item.label}
         </Text>
       </View>
@@ -205,14 +189,14 @@ function ActionCard({ item, dominant = false }: { item: DashboardAction; dominan
 
 function HeroInfo({ label, value, icon }: { label: string; value: string; icon: IoniconName }) {
   return (
-    <View className="flex-1 rounded-2xl bg-white/85 border border-indigo-100 p-4">
-      <View className="flex-row items-center mb-2">
-        <Ionicons name={icon} size={13} color="#64748B" />
-        <Text className="text-slate-400 text-xs ml-1.5" numberOfLines={1}>
+    <View className="flex-1 rounded-2xl bg-white/90 border border-blue-100 p-3">
+      <View className="flex-row items-center mb-1.5">
+        <Ionicons name={icon} size={12} color="#64748B" />
+        <Text className="text-slate-400 text-[11px] font-medium ml-1.5" numberOfLines={1}>
           {label}
         </Text>
       </View>
-      <Text className="text-slate-800 text-[13px] font-medium" numberOfLines={1}>
+      <Text className="text-slate-800 text-[13px] font-semibold" numberOfLines={1}>
         {value}
       </Text>
     </View>
@@ -296,16 +280,16 @@ export function DashboardScreen() {
   return (
     <ScreenContainer scrollable={false} style={{ paddingHorizontal: 0, paddingBottom: 0 }} bottomInset={false}>
       <View className="flex-1 bg-surface-background">
-        <View className="bg-white px-4 pt-2 pb-2 border-b border-surface-border">
+        <View className="bg-white px-4 pt-1 pb-2 border-b border-surface-border">
           <View className="flex-row items-center justify-between">
             <View className="flex-1 min-w-0">
               <Text className="text-slate-500 text-xs font-medium">{getGreeting()}</Text>
-              <Text className="text-slate-900 text-lg font-semibold mt-0.5" numberOfLines={1}>
+              <Text className="text-slate-900 text-[22px] font-semibold mt-0.5" numberOfLines={1} style={{ lineHeight: 28 }}>
                 {teacherName}
               </Text>
             </View>
             <TouchableOpacity
-              className="w-9 h-9 bg-slate-100 rounded-full items-center justify-center relative"
+              className="w-9 h-9 bg-slate-100 rounded-full items-center justify-center relative ml-2"
               activeOpacity={0.7}
               onPress={() => router.push("/(tabs)/notifications")}
               accessibilityRole="button"
@@ -321,7 +305,7 @@ export function DashboardScreen() {
           </View>
 
           {classes.length > 0 && (
-            <View className="mt-3">
+            <View className="mt-2">
               <ClassSelector
                 classes={classes}
                 selectedClass={selectedClass}
@@ -366,15 +350,15 @@ export function DashboardScreen() {
             </View>
           ) : (
             <>
-              <View className="mt-4 rounded-3xl border border-indigo-200 bg-indigo-100 p-4 overflow-hidden">
-                <View className="absolute right-0 top-0 w-24 h-24 rounded-full bg-white opacity-45" />
-                <View className="absolute left-6 bottom-0 w-14 h-14 rounded-full bg-white opacity-30" />
+              <View className="mt-4 rounded-3xl p-5 overflow-hidden" style={{ backgroundColor: "#EEF5FF", borderColor: "#DBEAFE", borderWidth: 1 }}>
+                <View className="absolute -right-6 -top-6 w-28 h-28 rounded-full bg-white/40" />
+                <View className="absolute left-16 bottom-0 w-16 h-16 rounded-full bg-white/25" />
                 <View className="flex-row items-center">
-                  <View className="w-11 h-11 bg-white rounded-2xl items-center justify-center mr-3 border border-indigo-100">
-                    <Ionicons name="briefcase-outline" size={21} color="#4F46E5" />
+                  <View className="w-12 h-12 bg-white rounded-2xl items-center justify-center mr-3 border border-blue-100">
+                    <Ionicons name="briefcase-outline" size={22} color="#4F46E5" />
                   </View>
                   <View className="flex-1 min-w-0">
-                    <Text className="text-slate-500 text-xs font-semibold">{getGreeting()}</Text>
+                    <Text className="text-slate-500 text-xs font-medium">{getGreeting()}</Text>
                     <Text className="text-slate-900 text-[22px] font-semibold mt-0.5" numberOfLines={1} style={{ lineHeight: 28 }}>
                       {teacherName}
                     </Text>
@@ -383,13 +367,13 @@ export function DashboardScreen() {
                     </Text>
                   </View>
                   <TouchableOpacity
-                    className="w-9 h-9 bg-white rounded-xl items-center justify-center border border-indigo-100"
+                    className="w-9 h-9 bg-white rounded-xl items-center justify-center border border-blue-100"
                     activeOpacity={0.72}
                     onPress={() => router.push("/(tabs)/more")}
                     accessibilityRole="button"
                     accessibilityLabel="Open profile"
                   >
-                    <Ionicons name="person-outline" size={18} color="#4F46E5" />
+                    <Ionicons name="ellipsis-vertical" size={18} color="#4F46E5" />
                   </TouchableOpacity>
                 </View>
                 <View className="flex-row gap-3 mt-4">
@@ -408,7 +392,7 @@ export function DashboardScreen() {
 
               <View className="pt-6">
                 <SectionHeader title="Today's Overview" subtitle="Your teaching load at a glance" />
-                <SectionPanel tint="#F8FAFC">
+                <SectionPanel>
                   <View className="gap-3">
                     <View className="flex-row gap-3">
                       {metrics.slice(0, 2).map((metric) => (
@@ -426,10 +410,10 @@ export function DashboardScreen() {
 
               <View className="pt-6">
                 <SectionHeader title="Teaching" subtitle="Primary daily actions" />
-                <SectionPanel tint="#F8FAFC">
+                <SectionPanel>
                   <View className="flex-row flex-wrap gap-3">
                     {TEACHING_ACTIONS.map((module) => (
-                      <ActionCard key={module.label} item={module} dominant />
+                      <ActionCard key={module.label} item={module} />
                     ))}
                   </View>
                 </SectionPanel>
@@ -437,7 +421,7 @@ export function DashboardScreen() {
 
               <View className="pt-6">
                 <SectionHeader title="Academics" subtitle="Planning, exams and results" />
-                <SectionPanel tint="#F8FBFF">
+                <SectionPanel>
                   <View className="flex-row flex-wrap gap-3">
                     {ACADEMIC_ACTIONS.map((module) => (
                       <ActionCard key={module.label} item={module} />
@@ -448,7 +432,7 @@ export function DashboardScreen() {
 
               <View className="pt-6">
                 <SectionHeader title="Administration" subtitle="School operations and preferences" />
-                <SectionPanel tint="#FAFAF9">
+                <SectionPanel>
                   <View className="flex-row flex-wrap gap-3">
                     {ADMIN_ACTIONS.map((module) => (
                       <ActionCard key={module.label} item={module} />
@@ -469,10 +453,14 @@ export function DashboardScreen() {
                 />
                 <Card padding="none" className="overflow-hidden mb-2">
                   {notifs.length === 0 ? (
-                    <View className="p-4 items-center">
-                      <Ionicons name="notifications-off-outline" size={36} color="#CBD5E1" />
-                      <Text className="text-slate-700 text-sm font-semibold mt-2">No teacher updates</Text>
-                      <Text className="text-slate-400 text-xs mt-1 text-center">Attendance, homework and school notices will appear here.</Text>
+                    <View className="p-6 items-center">
+                      <View className="w-16 h-16 bg-slate-50 rounded-full items-center justify-center mb-3">
+                        <Ionicons name="notifications-off-outline" size={32} color="#CBD5E1" />
+                      </View>
+                      <Text className="text-slate-700 text-sm font-semibold">No teacher updates</Text>
+                      <Text className="text-slate-400 text-xs mt-1 text-center leading-5 max-w-[240px]">
+                        Attendance, homework and school notices will appear here.
+                      </Text>
                     </View>
                   ) : (
                     notifs.slice(0, 4).map((item, index) => {

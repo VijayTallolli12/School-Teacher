@@ -21,7 +21,7 @@ export const spacing = {
   xxxl: 32,
   huge: 48,
 
-  screenPadding: 20,
+  screenPadding: 16,
   cardPadding: 16,
   itemGap: 12,
   sectionGap: 24,

@@ -3,6 +3,14 @@ import { View, Text, ScrollView, TouchableOpacity, Modal, Pressable } from "reac
 import { Ionicons } from "@expo/vector-icons";
 import type { TeacherClass } from "@/types";
 
+const cardShadow = {
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 1 },
+  shadowOpacity: 0.04,
+  shadowRadius: 4,
+  elevation: 1,
+};
+
 interface ClassSelectorProps {
   classes: TeacherClass[];
   selectedClass: TeacherClass | null;
@@ -19,7 +27,7 @@ export function ClassSelector({ classes, selectedClass, onSelectClass }: ClassSe
 
   if (!isMulti) {
     return (
-      <View className="min-h-[56px] flex-row items-center bg-white border border-surface-border rounded-2xl px-4 py-3">
+      <View className="min-h-[52px] flex-row items-center bg-white border border-surface-border rounded-2xl px-4 py-2.5" style={cardShadow}>
         <View className="w-10 h-10 bg-primary-100 rounded-full items-center justify-center mr-3">
           <Text className="text-primary-600 font-bold text-sm">
             {selected?.name?.charAt(0) ?? "?"}
@@ -43,8 +51,9 @@ export function ClassSelector({ classes, selectedClass, onSelectClass }: ClassSe
   return (
     <>
       <TouchableOpacity
-        className="min-h-[56px] flex-row items-center bg-white border border-surface-border rounded-2xl px-4 py-3"
+        className="min-h-[52px] flex-row items-center bg-white border border-surface-border rounded-2xl px-4 py-2.5"
         activeOpacity={0.7}
+        style={cardShadow}
         onPress={() => setShowModal(true)}
       >
         <View className="w-10 h-10 bg-primary-100 rounded-full items-center justify-center mr-3">
@@ -80,8 +89,8 @@ export function ClassSelector({ classes, selectedClass, onSelectClass }: ClassSe
             onPress={() => {}}
           >
             <View className="px-5 pt-5 pb-3">
-              <Text className="text-slate-900 text-base font-bold">Switch Class</Text>
-              <Text className="text-slate-500 text-xs mt-0.5">Select a class to view its data</Text>
+              <Text className="text-slate-900 text-[18px] font-semibold">Switch Class</Text>
+              <Text className="text-slate-400 text-xs mt-1">Select a class to view its data</Text>
             </View>
 
             <ScrollView className="max-h-80">
