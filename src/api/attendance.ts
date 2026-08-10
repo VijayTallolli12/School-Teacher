@@ -22,7 +22,7 @@ export const attendanceApi = {
       message: string;
       data: { classes: ApiClass[]; subjects: { id: number; name: string; code: string }[] };
     }>('/api/v1/teacher/attendance/classes');
-    const apiClasses = response.data.data.classes;
+    const apiClasses = response.data.data?.classes ?? [];
     const mapped: TeacherClass[] = apiClasses.map((c) => ({
       id: String(c.id),
       name: c.class,
@@ -52,13 +52,13 @@ export const attendanceApi = {
         }>;
       };
     }>(`/api/v1/teacher/attendance/students/${classId}`);
-    const apiStudents = response.data.data.students;
+    const apiStudents = response.data.data?.students ?? [];
     const mapped: AttendanceStudent[] = apiStudents.map((s) => ({
       id: String(s.student_id),
       name: s.full_name,
       rollNumber: s.roll_no,
-      class: response.data.data.class_section.class,
-      section: response.data.data.class_section.section,
+      class: response.data.data?.class_section?.class ?? '',
+      section: response.data.data?.class_section?.section ?? '',
       attendanceStatus: s.attendance?.status as AttendanceStudent['attendanceStatus'] ?? null,
     }));
     return { data: mapped };

@@ -1,197 +1,194 @@
-import React, { useCallback } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { router, useLocalSearchParams } from 'expo-router';
-import { useNavigation } from '@react-navigation/native';
-import { AppButton, AppCard, ScreenContainer, AppHeader, EmptyState } from '../components';
-import { theme } from '../theme';
-import { useNavParamStore } from '@/store/navParams.store';
-import type { PeriodItem } from '@/types';
+import { useCallback } from "react";
+import { cardShadow } from "../theme/shadows";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
+import { ScreenContainer } from "@/components";
+import { Card } from "@/components/ui/Card";
+import { useNavParamStore } from "@/store/navParams.store";
+import type { PeriodItem } from "@/types";
 
-export const PeriodDetailScreen: React.FC = () => {
-  const navigation = useNavigation();
+
+function DetailRow({ label, value }: { label: string; value: string }) {
+  return (
+    <View className="flex-row items-center justify-between py-3 border-b border-slate-100">
+      <Text className="text-slate-500 text-[13px]">{label}</Text>
+      <Text className="text-slate-900 text-[13px] font-medium text-right flex-1 ml-4" numberOfLines={1}>
+        {value}
+      </Text>
+    </View>
+  );
+}
+
+function QuickActionButton({
+  icon,
+  label,
+  onPress,
+  tint,
+  iconColor,
+}: {
+  icon: keyof typeof Ionicons.glyphMap;
+  label: string;
+  onPress: () => void;
+  tint: string;
+  iconColor: string;
+}) {
+  return (
+    <TouchableOpacity
+      activeOpacity={0.7}
+      onPress={onPress}
+      className="flex-1 items-center rounded-2xl bg-white border border-surface-border px-4 py-4"
+      style={cardShadow}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+    >
+      <View
+        className="w-12 h-12 rounded-2xl items-center justify-center mb-2"
+        style={{ backgroundColor: tint }}
+      >
+        <Ionicons name={icon} size={24} color={iconColor} />
+      </View>
+      <Text className="text-slate-700 text-[13px] font-medium text-center leading-5" numberOfLines={2}>
+        {label}
+      </Text>
+    </TouchableOpacity>
+  );
+}
+
+export function PeriodDetailScreen() {
   const storedPeriod = useNavParamStore((s) => s.params.period);
   const period = storedPeriod as PeriodItem | undefined;
 
   const handleMarkAttendance = useCallback(() => {
-    router.push('/(tabs)/attendance');
+    router.push("/(tabs)/attendance");
   }, []);
 
   const handleAssignHomework = useCallback(() => {
     if (!period) return;
-    router.push({ pathname: '/(tabs)/homework/create', params: {
-      subject: period?.subject ?? '',
-      className: period?.className ?? '',
-      section: period?.section ?? '',
-    }});
+    router.push({
+      pathname: "/(tabs)/homework/create",
+      params: {
+        subject: period?.subject ?? "",
+        className: period?.className ?? "",
+        section: period?.section ?? "",
+      },
+    });
   }, [period]);
 
   if (!period) {
     return (
-      <ScreenContainer>
-        <AppHeader variant="secondary" title="Period Detail" showBackButton onBackPress={() => navigation.goBack()} />
-        <EmptyState
-          icon="alert-circle-outline"
-          title="Period not found"
-          message="The period details could not be loaded."
-        />
+      <ScreenContainer scrollable={false} style={{ paddingHorizontal: 0, paddingBottom: 0 }} bottomInset={false}>
+        <View className="flex-1 bg-surface-background">
+          <View className="bg-white px-4 pt-3 pb-3 border-b border-surface-border">
+            <View className="flex-row items-center justify-between">
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() => router.back()}
+                className="w-9 h-9 bg-slate-100 rounded-full items-center justify-center"
+                accessibilityRole="button"
+                accessibilityLabel="Go back"
+              >
+                <Ionicons name="close" size={20} color="#64748B" />
+              </TouchableOpacity>
+              <Text className="text-slate-900 text-[18px] font-semibold">Period Detail</Text>
+              <View className="w-9" />
+            </View>
+          </View>
+          <View className="items-center justify-center flex-1 px-4">
+            <View className="w-16 h-16 bg-slate-50 rounded-full items-center justify-center mb-4">
+              <Ionicons name="alert-circle-outline" size={32} color="#CBD5E1" />
+            </View>
+            <Text className="text-slate-700 text-[15px] font-semibold mb-1">Period not found</Text>
+            <Text className="text-slate-400 text-[13px] text-center leading-5 max-w-[260px]">
+              The period details could not be loaded.
+            </Text>
+          </View>
+        </View>
       </ScreenContainer>
     );
   }
 
-  const subject = period?.subject ?? 'Unnamed Period';
-  const periodNumber = period?.periodNumber ?? '?';
-  const className = period?.className ?? '';
-  const section = period?.section ?? '';
-  const teacher = period?.teacher ?? 'Not assigned';
-  const room = period?.room ?? 'Room Not Assigned';
-  const startTime = period?.startTime ?? '--:--';
-  const endTime = period?.endTime ?? '--:--';
+  const subject = period?.subject ?? "Unnamed Period";
+  const periodNumber = period?.periodNumber ?? "?";
+  const className = period?.className ?? "";
+  const section = period?.section ?? "";
+  const teacher = period?.teacher ?? "Not assigned";
+  const room = period?.room ?? "Room Not Assigned";
+  const startTime = period?.startTime ?? "--:--";
+  const endTime = period?.endTime ?? "--:--";
   const studentCount = period?.studentCount ?? 0;
+  const classLabel = [className, section].filter(Boolean).join(" - ");
+  const initial = subject.charAt(0) ?? "?";
+  const timeRange = `${startTime} - ${endTime}`;
 
   return (
-    <ScreenContainer scrollable>
-      <AppHeader variant="secondary" title="Period Detail" showBackButton onBackPress={() => navigation.goBack()} />
-
-      <View style={styles.content}>
-        <AppCard variant="elevated">
-          <View style={styles.subjectHeader}>
-            <View style={styles.subjectIcon}>
-              <Text style={styles.subjectIconText}>
-                {subject.charAt(0) ?? '?'}
-              </Text>
-            </View>
-            <View style={styles.subjectInfo}>
-              <Text style={styles.subjectName}>{subject}</Text>
-              <Text style={styles.periodLabel}>
-                Period {periodNumber}
-              </Text>
-            </View>
-          </View>
-        </AppCard>
-
-        <AppCard variant="default" style={styles.detailsCard}>
-          <DetailRow label="Class" value={className + (section ? ` - ${section}` : '')} />
-          <DetailRow label="Teacher" value={teacher} />
-          <DetailRow label="Room" value={room} />
-          <DetailRow label="Time" value={`${startTime} - ${endTime}`} />
-          <DetailRow label="Students" value={`${studentCount} enrolled`} />
-        </AppCard>
-
-        <View style={styles.actionsSection}>
-          <Text style={styles.sectionTitle}>Quick Actions</Text>
-          <View style={styles.actionsRow}>
-            <AppButton
-              title="Mark Attendance"
-              variant="secondary"
-              leftIcon={<Ionicons name="clipboard-outline" size={20} color={theme.colors.primary} />}
-              onPress={handleMarkAttendance}
-              style={styles.actionButton}
-            />
-            <AppButton
-              title="Assign Homework"
-              variant="secondary"
-              leftIcon={<Ionicons name="create-outline" size={20} color={theme.colors.secondary} />}
-              onPress={handleAssignHomework}
-              style={styles.actionButton}
-            />
+    <ScreenContainer scrollable={false} style={{ paddingHorizontal: 0, paddingBottom: 0 }} bottomInset={false}>
+      <View className="flex-1 bg-surface-background">
+        <View className="bg-white px-4 pt-3 pb-3 border-b border-surface-border">
+          <View className="flex-row items-center justify-between">
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={() => router.back()}
+              className="w-9 h-9 bg-slate-100 rounded-full items-center justify-center"
+              accessibilityRole="button"
+              accessibilityLabel="Go back"
+            >
+              <Ionicons name="close" size={20} color="#64748B" />
+            </TouchableOpacity>
+            <Text className="text-slate-900 text-[18px] font-semibold">Period Detail</Text>
+            <View className="w-9" />
           </View>
         </View>
+        <ScrollView
+          className="flex-1"
+          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
+          showsVerticalScrollIndicator={false}
+        >
+          <View className="pt-4">
+            <Card variant="elevated" padding="md" className="mb-4">
+              <View className="flex-row items-center">
+                <View className="w-14 h-14 bg-primary-600 rounded-2xl items-center justify-center mr-4">
+                  <Text className="text-white text-[22px] font-bold">{initial}</Text>
+                </View>
+                <View className="flex-1 min-w-0">
+                  <Text className="text-slate-900 text-[18px] font-semibold" numberOfLines={1}>
+                    {subject}
+                  </Text>
+                  <Text className="text-slate-500 text-[13px] mt-0.5">Period {periodNumber}</Text>
+                </View>
+              </View>
+            </Card>
+
+            <Card variant="elevated" padding="md" className="mb-4">
+              {classLabel ? <DetailRow label="Class" value={classLabel} /> : null}
+              <DetailRow label="Teacher" value={teacher} />
+              <DetailRow label="Room" value={room} />
+              <DetailRow label="Time" value={timeRange} />
+              <DetailRow label="Students" value={`${studentCount} enrolled`} />
+            </Card>
+
+            <Text className="text-slate-400 text-[11px] font-semibold uppercase tracking-wide mb-3 ml-1">
+              Quick Actions
+            </Text>
+            <View className="flex-row gap-3">
+              <QuickActionButton
+                icon="clipboard-outline"
+                label="Mark Attendance"
+                onPress={handleMarkAttendance}
+                tint="#EFF6FF"
+                iconColor="#2563EB"
+              />
+              <QuickActionButton
+                icon="create-outline"
+                label="Assign Homework"
+                onPress={handleAssignHomework}
+                tint="#FFFBEB"
+                iconColor="#D97706"
+              />
+            </View>
+          </View>
+        </ScrollView>
       </View>
     </ScreenContainer>
   );
-};
-
-interface DetailRowProps {
-  label: string;
-  value: string;
 }
-
-const DetailRow: React.FC<DetailRowProps> = ({ label, value }) => (
-  <View style={styles.detailRow}>
-    <Text style={styles.detailLabel}>{label}</Text>
-    <Text style={styles.detailValue}>{value}</Text>
-  </View>
-);
-
-const styles = StyleSheet.create({
-  content: {
-    padding: theme.spacing.md,
-  },
-  subjectHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  subjectIcon: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: theme.colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: theme.spacing.md,
-  },
-  subjectIconText: {
-    fontSize: theme.typography.fontSize.xxl,
-    fontWeight: theme.typography.fontWeight.bold,
-    color: theme.colors.background,
-  },
-  subjectInfo: {
-    flex: 1,
-  },
-  subjectName: {
-    ...theme.typography.hierarchy.heading,
-    color: theme.colors.text,
-    marginBottom: 2,
-  },
-  periodLabel: {
-    ...theme.typography.hierarchy.caption,
-    color: theme.colors.textSecondary,
-  },
-  detailsCard: {
-    marginBottom: theme.spacing.lg,
-  },
-  detailRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: theme.spacing.md - 2,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: theme.colors.border,
-  },
-  detailLabel: {
-    ...theme.typography.hierarchy.caption,
-    color: theme.colors.textSecondary,
-  },
-  detailValue: {
-    ...theme.typography.hierarchy.bodySmall,
-    fontWeight: theme.typography.weight.medium,
-    color: theme.colors.text,
-    textAlign: 'right',
-    flex: 1,
-    marginLeft: theme.spacing.md,
-  },
-  actionsSection: {
-    marginBottom: theme.spacing.lg,
-  },
-  sectionTitle: {
-    ...theme.typography.hierarchy.caption,
-    fontWeight: theme.typography.weight.bold,
-    color: theme.colors.textLight,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    marginBottom: theme.spacing.sm,
-    marginLeft: theme.spacing.xs,
-  },
-  actionsRow: {
-    flexDirection: 'row',
-    gap: theme.spacing.sm,
-  },
-  actionButton: {
-    flex: 1,
-  },
-});

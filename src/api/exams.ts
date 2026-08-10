@@ -3,15 +3,12 @@ import {
   ExamListResponse,
   ExamDetailResponse,
   ExamScheduleResponse,
-  ExamClassesResponse,
-  ExamSubjectsResponse,
   MarksResponse,
   SaveMarksResponse,
   PublishResultResponse,
   MarksPayload,
   ExamItem,
   ExamDetail,
-  TeacherClass,
 } from '../types';
 
 interface ApiExamItem {
@@ -51,31 +48,36 @@ interface ApiExamDetailData {
 
 function mapExamItem(item: ApiExamItem): ExamItem {
   return {
-    id: String(item.id),
-    name: item.exam_name,
-    subject: item.subject.name,
-    className: item.class_section.class,
-    section: item.class_section.section,
-    date: item.exam_date,
+    id: String(item?.id ?? ''),
+    name: item?.exam_name ?? 'Unnamed Exam',
+    subject: item?.subject?.name ?? 'Unknown Subject',
+    className: item?.class_section?.class ?? '',
+    section: item?.class_section?.section ?? '',
+    classSectionId: item?.class_section?.id != null ? String(item.class_section.id) : undefined,
+    subjectId: item?.subject?.id != null ? String(item.subject.id) : undefined,
+    date: item?.exam_date ?? '',
     duration: 0,
-    totalMarks: item.maximum_marks,
-    status: item.status as ExamItem['status'],
-    resultPublished: item.is_published,
+    totalMarks: item?.maximum_marks ?? 0,
+    status: (item?.status as ExamItem['status']) ?? 'upcoming',
+    resultPublished: !!item?.is_published,
     marksEntered: false,
   };
 }
 
 function mapExamDetail(data: ApiExamDetailData): ExamDetail {
-  const scores = data.students
+  const students = data?.students ?? [];
+  const scores = students
     .filter((s) => s.result)
     .map((s) => s.result!.marks_obtained);
   const passed = scores.filter((s) => s >= 40).length;
   const totalWithResult = scores.length;
+  const totalStudents = data?.total_students ?? 0;
+  const resultsSubmitted = data?.results_submitted ?? 0;
   return {
-    ...mapExamItem(data.exam),
+    ...mapExamItem(data?.exam ?? ({} as ApiExamItem)),
     schedule: [],
     resultSummary: {
-      totalStudents: data.total_students,
+      totalStudents,
       appeared: totalWithResult,
       passed,
       failed: totalWithResult - passed,
@@ -84,9 +86,9 @@ function mapExamDetail(data: ApiExamDetailData): ExamDetail {
       averageScore: scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0,
     },
     marksEntryStatus:
-      data.results_submitted === 0
+      resultsSubmitted === 0
         ? 'pending'
-        : data.results_submitted < data.total_students
+        : resultsSubmitted < totalStudents
           ? 'partial'
           : 'completed',
   };
@@ -99,7 +101,7 @@ export const examsApi = {
       message: string;
       data: ApiExamItem[];
     }>('/api/v1/teacher/exams');
-    return { data: response.data.data.map(mapExamItem) };
+    return { data: (response.data.data ?? []).map(mapExamItem) };
   },
 
   async getExamDetail(examId: string): Promise<ExamDetailResponse> {
@@ -118,40 +120,11 @@ export const examsApi = {
     return response.data;
   },
 
-  async getExamClasses(): Promise<ExamClassesResponse> {
-    const response = await apiClient.get<{
-      success: boolean;
-      message: string;
-      data: { classes: { id: number; class: string; section: string }[] };
-    }>('/api/v1/teacher/classes');
-    return {
-      data: (response.data.data.classes ?? []).map((c) => ({
-        id: String(c.id),
-        name: c.class,
-        section: c.section,
-      })),
-    };
-  },
-
-  async getExamSubjects(): Promise<ExamSubjectsResponse> {
-    const response = await apiClient.get<{
-      success: boolean;
-      message: string;
-      data: { subjects: { id: number; name: string; code: string }[] };
-    }>('/api/v1/teacher/classes');
-    return {
-      data: (response.data.data.subjects ?? []).map((s) => ({
-        id: String(s.id),
-        name: s.name,
-        code: s.code,
-      })),
-    };
-  },
-
   async getMarks(examId: string, classId: string, subjectId: string): Promise<MarksResponse> {
     const response = await apiClient.get<MarksResponse>(
       `/api/v1/teacher/exams/${examId}/marks`,
-      { params: { classId, subjectId } }
+      // Laravel convention: snake_case query params with numeric IDs.
+      { params: { class_id: classId, subject_id: subjectId } }
     );
     return response.data;
   },
@@ -160,6 +133,8 @@ export const examsApi = {
     const response = await apiClient.post<SaveMarksResponse>(
       `/api/v1/teacher/exams/${payload.examId}/marks`,
       {
+        class_id: payload.classId,
+        subject_id: payload.subjectId,
         results: payload.marks.map((m) => ({
           student_id: m.studentId,
           marks_obtained: m.marks,

@@ -1,101 +1,86 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { AppCard } from './AppCard';
-import { theme } from '../theme';
-import { HomeworkItem } from '../types';
-import { getHomeworkStatusLabel, getHomeworkStatusColor } from '../utils/homework';
-import { HomeworkStatusBadge } from './HomeworkStatusBadge';
+import { Text, TouchableOpacity, View } from "react-native";
+import { cardShadow } from "../theme/shadows";
+import { Ionicons } from "@expo/vector-icons";
+import type { HomeworkItem } from "@/types";
+import { getHomeworkStatusLabel, getHomeworkStatusColor, getHomeworkStatusTint } from "@/utils/homework";
+import { HomeworkStatusBadge } from "./HomeworkStatusBadge";
+
+
+function formatDate(dateStr: string): string {
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return "—";
+  return d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+}
 
 interface HomeworkCardProps {
   homework: HomeworkItem;
   onPress: () => void;
 }
 
-export const HomeworkCard: React.FC<HomeworkCardProps> = ({ homework, onPress }) => {
+export function HomeworkCard({ homework, onPress }: HomeworkCardProps) {
   const statusLabel = getHomeworkStatusLabel(homework);
   const statusColor = getHomeworkStatusColor(statusLabel);
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  };
+  const statusTint = getHomeworkStatusTint(statusLabel);
+  const dueDate = homework?.dueDate ?? "";
+  const createdAt = homework?.createdAt ?? "";
 
   return (
-    <AppCard variant="interactive" onPress={onPress} style={styles.card}>
-      <View style={styles.header}>
-        <Text style={styles.title} numberOfLines={1}>
-          {homework.title}
+    <TouchableOpacity
+      className="rounded-2xl bg-white border border-surface-border p-4"
+      style={cardShadow}
+      activeOpacity={0.7}
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`Open ${homework?.title ?? "homework"}`}
+    >
+      <View className="flex-row items-start justify-between mb-2">
+        <Text className="text-slate-900 text-sm font-bold flex-1 mr-2" numberOfLines={1}>
+          {homework?.title ?? "Untitled"}
         </Text>
-        <HomeworkStatusBadge label={statusLabel} color={statusColor} />
+        <HomeworkStatusBadge label={statusLabel} color={statusColor} tint={statusTint} />
       </View>
-      
-      <View style={styles.details}>
-        <View style={styles.detailItem}>
-          <Ionicons name="school-outline" size={14} color={theme.colors.textSecondary} style={styles.detailIcon} />
-          <Text style={styles.detailLabel}>Class:</Text>
-          <Text style={styles.detailValue}>{homework.class} - {homework.section}</Text>
-        </View>
-        <View style={styles.detailItem}>
-          <Ionicons name="book-outline" size={14} color={theme.colors.textSecondary} style={styles.detailIcon} />
-          <Text style={styles.detailLabel}>Subject:</Text>
-          <Text style={styles.detailValue}>{homework.subject}</Text>
-        </View>
-        <View style={styles.detailItem}>
-          <Ionicons name="alarm-outline" size={14} color={statusColor} style={styles.detailIcon} />
-          <Text style={styles.detailLabel}>Due:</Text>
-          <Text style={[styles.detailValue, { color: statusColor }]}> 
-            {formatDate(homework.dueDate)}
+
+      <View className="gap-1.5">
+        <View className="flex-row items-center">
+          <View className="w-4 items-center mr-2">
+            <Ionicons name="book-outline" size={13} color="#64748B" />
+          </View>
+          <Text className="text-slate-500 text-xs w-12">Subject:</Text>
+          <Text className="text-slate-700 text-xs font-medium flex-1" numberOfLines={1}>
+            {homework?.subject ?? "—"}
           </Text>
         </View>
-        <View style={styles.detailItem}>
-          <Ionicons name="calendar-outline" size={14} color={theme.colors.textSecondary} style={styles.detailIcon} />
-          <Text style={styles.detailLabel}>Created:</Text>
-          <Text style={styles.detailValue}>{formatDate(homework.createdAt)}</Text>
+
+        <View className="flex-row items-center">
+          <View className="w-4 items-center mr-2">
+            <Ionicons name="school-outline" size={13} color="#64748B" />
+          </View>
+          <Text className="text-slate-500 text-xs w-12">Class:</Text>
+          <Text className="text-slate-700 text-xs font-medium flex-1" numberOfLines={1}>
+            {homework?.class ?? ""}{homework?.section ? ` - ${homework.section}` : ""}
+          </Text>
+        </View>
+
+        <View className="flex-row items-center">
+          <View className="w-4 items-center mr-2">
+            <Ionicons name="calendar-outline" size={13} color="#64748B" />
+          </View>
+          <Text className="text-slate-500 text-xs w-12">Due:</Text>
+          <Text className="text-xs font-medium flex-1" style={{ color: statusColor }} numberOfLines={1}>
+            {formatDate(dueDate)}
+          </Text>
+        </View>
+
+        <View className="flex-row items-center">
+          <View className="w-4 items-center mr-2">
+            <Ionicons name="time-outline" size={13} color="#64748B" />
+          </View>
+          <Text className="text-slate-500 text-xs w-12">Created:</Text>
+          <Text className="text-slate-400 text-xs flex-1" numberOfLines={1}>
+            {formatDate(createdAt)}
+          </Text>
         </View>
       </View>
-    </AppCard>
+    </TouchableOpacity>
   );
-};
-
-const styles = StyleSheet.create({
-  card: {
-    marginBottom: theme.spacing.sm,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: theme.spacing.sm,
-  },
-  title: {
-    flex: 1,
-    ...theme.typography.hierarchy.body,
-    fontWeight: theme.typography.weight.bold,
-    color: theme.colors.text,
-    marginRight: theme.spacing.sm,
-  },
-  details: {
-    gap: theme.spacing.xs,
-  },
-  detailItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  detailIcon: {
-    marginRight: theme.spacing.xs,
-    width: 16,
-  },
-  detailLabel: {
-    ...theme.typography.hierarchy.caption,
-    color: theme.colors.textSecondary,
-    width: 65,
-    fontWeight: theme.typography.weight.medium,
-  },
-  detailValue: {
-    ...theme.typography.hierarchy.caption,
-    color: theme.colors.text,
-    fontWeight: theme.typography.weight.medium,
-    flex: 1,
-  },
-});
+}

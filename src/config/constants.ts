@@ -9,7 +9,7 @@
  */
 
 export const APP_CONSTANTS = {
-  APP_VERSION: '1.0.0',
+  APP_VERSION: '1.0.1',
 
   PRIVACY_POLICY_URL: 'https://school.example.com/privacy',
   TERMS_OF_SERVICE_URL: 'https://school.example.com/terms',

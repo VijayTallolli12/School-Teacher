@@ -1,3 +1,16 @@
+/**
+ * Standard card shadow used across screens and components.
+ * Kept here so the exact same token is reused everywhere instead of
+ * being copy-pasted into ~30 files.
+ */
+export const cardShadow = {
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 1 },
+  shadowOpacity: 0.04,
+  shadowRadius: 4,
+  elevation: 1,
+} as const;
+
 export const shadows = {
   xs: {
     shadowColor: '#000',

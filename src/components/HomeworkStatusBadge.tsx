@@ -1,30 +1,17 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { theme } from '../theme';
+import { View, Text } from "react-native";
 
 interface HomeworkStatusBadgeProps {
   label: string;
   color: string;
+  tint: string;
 }
 
-export const HomeworkStatusBadge: React.FC<HomeworkStatusBadgeProps> = ({ label, color }) => {
+export function HomeworkStatusBadge({ label, color, tint }: HomeworkStatusBadgeProps) {
   return (
-    <View style={[styles.badge, { backgroundColor: `${color}20`, borderColor: color }]}> 
-      <Text style={[styles.text, { color }]}>{label}</Text>
+    <View className="rounded-md px-2 py-0.5" style={{ backgroundColor: tint }}>
+      <Text className="text-[11px] font-bold" style={{ color }}>
+        {label}
+      </Text>
     </View>
   );
-};
-
-const styles = StyleSheet.create({
-  badge: {
-    paddingHorizontal: theme.spacing.sm,
-    paddingVertical: theme.spacing.xs,
-    borderRadius: theme.radius.md,
-    borderWidth: 1,
-    alignSelf: 'flex-start',
-  },
-  text: {
-    fontSize: theme.typography.fontSize.xs,
-    fontWeight: theme.typography.fontWeight.bold,
-  },
-});
+}

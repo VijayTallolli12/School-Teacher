@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
+import { cardShadow } from "../theme/shadows";
 import {
   ActivityIndicator,
   RefreshControl,
@@ -12,8 +13,9 @@ import { router, type Href } from "expo-router";
 import { ScreenContainer } from "@/components";
 import { Card } from "@/components/ui/Card";
 import { ClassSelector } from "@/components/ClassSelector";
+import { markNavFromDashboard } from "@/utils/navigation";
 import { useDashboard } from "@/hooks/useDashboard";
-import { useClasses } from "@/hooks/useAttendance";
+import { useClasses, useStudents } from "@/hooks/useAttendance";
 import { useTodayTimetable } from "@/hooks/useTimetable";
 import { useNotifications, useUnreadCount } from "@/hooks/useNotifications";
 import { useAuthStore } from "@/store/authStore";
@@ -37,13 +39,6 @@ interface MetricItem {
   tint: string;
 }
 
-const cardShadow = {
-  shadowColor: "#000",
-  shadowOffset: { width: 0, height: 1 },
-  shadowOpacity: 0.04,
-  shadowRadius: 4,
-  elevation: 1,
-};
 
 const TEACHING_ACTIONS: DashboardAction[] = [
   { label: "Attendance", icon: "checkbox-outline", route: "/(tabs)/attendance", color: "#2563EB", tint: "#EFF6FF" },
@@ -166,20 +161,26 @@ function MetricCard({ item }: { item: MetricItem }) {
 function ActionCard({ item }: { item: DashboardAction }) {
   return (
     <TouchableOpacity
-      style={{ width: "48%" }}
+      style={{ width: "47.9%" }}
       activeOpacity={0.7}
-      onPress={() => router.push(item.route)}
+      onPress={() => {
+        const routeStr = typeof item.route === "string" ? item.route : item.route.pathname;
+        if (routeStr.startsWith("/(tabs)/more/") || routeStr === "/(tabs)/more") {
+          markNavFromDashboard();
+        }
+        router.push(item.route);
+      }}
       accessibilityRole="button"
       accessibilityLabel={`Open ${item.label}`}
     >
       <View
-        className="flex-1 rounded-2xl bg-white border border-surface-border p-4 flex-row items-center"
+        className="items-center rounded-2xl bg-white border border-surface-border px-4 py-4"
         style={cardShadow}
       >
-        <View className="w-10 h-10 rounded-xl items-center justify-center mr-3" style={{ backgroundColor: item.tint }}>
-          <Ionicons name={item.icon} size={19} color={item.color} />
+        <View className="w-12 h-12 rounded-2xl items-center justify-center" style={{ backgroundColor: item.tint }}>
+          <Ionicons name={item.icon} size={24} color={item.color} />
         </View>
-        <Text className="text-slate-700 text-[13px] font-medium flex-1" numberOfLines={2}>
+        <Text className="text-slate-700 text-[13px] font-medium text-center mt-2 leading-5" numberOfLines={2}>
           {item.label}
         </Text>
       </View>
@@ -211,14 +212,14 @@ export function DashboardScreen() {
   const { data: unreadCount = 0 } = useUnreadCount();
   const { data: notifs = [] } = useNotifications();
   const { data: classes = [] } = useClasses();
+  const { data: students } = useStudents(selectedClass?.id ?? "");
   const { data: todayTimetable } = useTodayTimetable();
   const user = useAuthStore((s) => s.user);
 
   const teacherName = data?.teacherName ?? user?.name ?? "Teacher";
   const nextClass = todayTimetable?.currentPeriod ?? todayTimetable?.nextPeriod ?? null;
   const assignedClasses = classes.length;
-  const selectedStudentCount = (selectedClass as (TeacherClass & { studentCount?: number }) | null)?.studentCount;
-  const studentsValue = selectedStudentCount ?? "--";
+  const studentsValue = selectedClass ? (students?.length ?? "--") : "--";
 
   const metrics = useMemo<MetricItem[]>(
     () => [
@@ -369,7 +370,10 @@ export function DashboardScreen() {
                   <TouchableOpacity
                     className="w-9 h-9 bg-white rounded-xl items-center justify-center border border-blue-100"
                     activeOpacity={0.72}
-                    onPress={() => router.push("/(tabs)/more")}
+                    onPress={() => {
+                      markNavFromDashboard();
+                      router.push("/(tabs)/more");
+                    }}
                     accessibilityRole="button"
                     accessibilityLabel="Open profile"
                   >

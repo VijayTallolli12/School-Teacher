@@ -48,6 +48,7 @@ export interface Homework {
   section: string;
   dueDate: string;
   createdAt: string;
+  attachmentUrl?: string | null;
 }
 
 export interface HomeworkItem extends Homework {
@@ -188,6 +189,13 @@ export interface UpdateProfilePayload {
   designation?: string;
 }
 
+export interface CreateAlertPayload {
+  title: string;
+  message: string;
+  audience: string;
+  priority: "low" | "medium" | "high";
+}
+
 export interface RegisterDevicePayload {
   device_type: string;
   platform: 'android' | 'ios';
@@ -232,6 +240,10 @@ export interface ExamItem {
   subject: string;
   className: string;
   section: string;
+  /** Numeric class-section id from the backend — required for marks entry. */
+  classSectionId?: string;
+  /** Numeric subject id from the backend — required for marks entry. */
+  subjectId?: string;
   date: string;
   duration: number;
   totalMarks: number;
@@ -299,14 +311,6 @@ export interface ExamDetailResponse {
 
 export interface ExamScheduleResponse {
   data: ExamScheduleItem[];
-}
-
-export interface ExamClassesResponse {
-  data: Array<{ id: string; name: string; section: string }>;
-}
-
-export interface ExamSubjectsResponse {
-  data: Array<{ id: string; name: string; code: string }>;
 }
 
 export interface MarksResponse {
@@ -664,6 +668,38 @@ export interface LiveTransportStatus {
   delayedRoutes: number;
   routes: Route[];
   vehicles: VehicleLocation[];
+}
+
+// ── Documents ─────────────────────────────────────────────
+
+export interface DocumentItem {
+  id: string;
+  title: string;
+  fileName: string;
+  fileUrl: string;
+  fileType: string;
+  category: string;
+  size: number;
+  uploadedAt: string;
+}
+
+export interface DocumentsResponse {
+  data: DocumentItem[];
+}
+
+// ── Circulars ─────────────────────────────────────────────
+
+export interface CircularItem {
+  id: string;
+  title: string;
+  message: string;
+  date: string;
+  attachmentUrl?: string | null;
+  type: string;
+}
+
+export interface CircularsResponse {
+  data: CircularItem[];
 }
 
 export interface RoutesResponse {

@@ -14,6 +14,7 @@ import axios, {
   AxiosResponse,
 } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { router } from 'expo-router';
 import { ENV } from './env';
 
 export const apiClient: AxiosInstance = axios.create({
@@ -50,8 +51,15 @@ apiClient.interceptors.response.use(
       const status = error.response.status;
 
       if (status === 401) {
+        // Session expired / invalid — clear credentials and return the user
+        // to the login screen. Only redirect when a real session existed
+        // (a failed login attempt must not bounce the user around).
+        const hadToken = await AsyncStorage.getItem('access_token');
         await AsyncStorage.removeItem('access_token');
         await AsyncStorage.removeItem('teacher_profile');
+        if (hadToken) {
+          router.replace('/(auth)/login');
+        }
       }
     } else if (error.request) {
       console.error('Network error:', error.message);

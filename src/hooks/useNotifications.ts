@@ -6,7 +6,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { notificationsApi } from '../api/notifications';
-import { NotificationItem, NotificationMutationResponse } from '../types';
+import { CreateAlertPayload, NotificationItem, NotificationMutationResponse } from '../types';
 
 const mapNotificationType = (type: string, title: string): NotificationItem['type'] => {
   const source = `${type} ${title}`.toLowerCase();
@@ -29,7 +29,7 @@ export const useNotifications = (): UseQueryResult<NotificationItem[], Error> =>
     queryKey: notificationQueryKeys.all,
     queryFn: async () => {
       const response = await notificationsApi.getNotifications();
-      return response.data.notifications.map((notification) => ({
+      return (response.data?.notifications ?? []).map((notification) => ({
         id: String(notification.id),
         title: notification.title,
         message: notification.message,
@@ -50,7 +50,7 @@ export const useNotifications = (): UseQueryResult<NotificationItem[], Error> =>
 export const useUnreadCount = (): UseQueryResult<number, Error> =>
   useQuery({
     queryKey: notificationQueryKeys.unreadCount,
-    queryFn: async () => (await notificationsApi.getUnreadCount()).data.unread_count,
+    queryFn: async () => (await notificationsApi.getUnreadCount())?.data?.unread_count ?? 0,
     staleTime: 30 * 1000,
   });
 
@@ -78,6 +78,21 @@ export const useMarkAsRead = (): UseMutationResult<
         (count) => Math.max(0, (count ?? 1) - 1),
       );
       queryClient.invalidateQueries({ queryKey: notificationQueryKeys.unreadCount });
+    },
+  });
+};
+
+export const useCreateAlert = (): UseMutationResult<
+  { success: boolean; message: string },
+  Error,
+  CreateAlertPayload
+> => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: notificationsApi.createAlert,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: notificationQueryKeys.all });
     },
   });
 };

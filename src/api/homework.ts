@@ -20,15 +20,16 @@ interface ApiHomeworkItem {
 
 function mapHomeworkItem(item: ApiHomeworkItem): HomeworkItem {
   return {
-    id: String(item.id),
-    title: item.title,
-    description: item.description,
-    subject: item.subject.name,
-    class: item.class_section.class,
-    section: item.class_section.section,
-    dueDate: item.due_date,
-    createdAt: item.assigned_date,
-    status: item.status === 'active' ? 'pending' : item.status === 'overdue' ? 'overdue' : 'submitted',
+    id: String(item?.id ?? ''),
+    title: item?.title ?? '',
+    description: item?.description ?? '',
+    subject: item?.subject?.name ?? 'Unknown Subject',
+    class: item?.class_section?.class ?? '',
+    section: item?.class_section?.section ?? '',
+    dueDate: item?.due_date ?? '',
+    createdAt: item?.assigned_date ?? '',
+    attachmentUrl: item?.attachment_url ?? null,
+    status: item?.status === 'active' ? 'pending' : item?.status === 'overdue' ? 'overdue' : 'submitted',
   };
 }
 
@@ -39,7 +40,7 @@ export const homeworkApi = {
       message: string;
       data: ApiHomeworkItem[];
     }>('/api/v1/teacher/homework');
-    return { data: response.data.data.map(mapHomeworkItem) };
+    return { data: (response.data.data ?? []).map(mapHomeworkItem) };
   },
 
   async getHomeworkDetail(id: string): Promise<HomeworkResponse> {
@@ -48,7 +49,7 @@ export const homeworkApi = {
       message: string;
       data: ApiHomeworkItem;
     }>(`/api/v1/teacher/homework/${id}`);
-    return { data: mapHomeworkItem(response.data.data) };
+    return { data: mapHomeworkItem(response.data.data ?? ({} as ApiHomeworkItem)) };
   },
 
   async createHomework(payload: HomeworkPayload): Promise<HomeworkResponse> {

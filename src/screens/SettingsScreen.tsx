@@ -1,13 +1,47 @@
-import React, { useEffect } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import { AppHeader, ScreenContainer } from '../components';
-import { Card } from '../components/ui/Card';
-import { useSettingsStore } from '../store/settingsStore';
-import { theme } from '../theme';
+import { useEffect } from "react";
+import { cardShadow } from "../theme/shadows";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
+import { ScreenContainer } from "@/components";
+import { Card } from "@/components/ui/Card";
+import { useSettingsStore } from "../store/settingsStore";
 
-export const SettingsScreen: React.FC = () => {
+
+function ToggleRow({
+  label,
+  icon,
+  value,
+  onToggle,
+}: {
+  label: string;
+  icon: keyof typeof Ionicons.glyphMap;
+  value: boolean;
+  onToggle: (value: boolean) => void;
+}) {
+  return (
+    <View className="flex-row items-center justify-between px-4 py-3 border-b border-surface-border">
+      <View className="flex-row items-center flex-1">
+        <View className="w-9 h-9 rounded-xl items-center justify-center mr-3" style={{ backgroundColor: "#EFF6FF" }}>
+          <Ionicons name={icon} size={18} color="#2563EB" />
+        </View>
+        <Text className="text-slate-800 text-sm font-medium">{label}</Text>
+      </View>
+      <TouchableOpacity
+        className={`w-11 h-6 rounded-full px-0.5 justify-center ${value ? "bg-primary-600" : "bg-slate-300"}`}
+        onPress={() => onToggle(!value)}
+        activeOpacity={0.8}
+        accessibilityRole="switch"
+        accessibilityState={{ checked: value }}
+        accessibilityLabel={label}
+      >
+        <View className={`w-5 h-5 rounded-full bg-white ${value ? "self-end" : "self-start"}`} />
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+export function SettingsScreen() {
   const {
     theme: currentTheme,
     pushNotifications,
@@ -25,115 +59,59 @@ export const SettingsScreen: React.FC = () => {
   }, [loadPreferences]);
 
   return (
-    <ScreenContainer scrollable={false} backgroundColor={theme.colors.backgroundSecondary}>
-      <AppHeader title="Settings" showBackButton onBackPress={() => router.back()} />
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.sectionTitle}>Preferences</Text>
-        <Card padding="none" className="overflow-hidden mb-5">
-          <SettingsSwitch
-            label="Dark Theme"
-            icon="moon-outline"
-            value={currentTheme === 'dark'}
-            onToggle={(value) => setTheme(value ? 'dark' : 'light')}
-          />
-          <SettingsSwitch
-            label="Push Notifications"
-            icon="notifications-outline"
-            value={pushNotifications}
-            onToggle={setPushNotifications}
-          />
-          <SettingsSwitch
-            label="Email Notifications"
-            icon="mail-outline"
-            value={emailNotifications}
-            onToggle={setEmailNotifications}
-          />
-          <SettingsSwitch
-            label="SMS Notifications"
-            icon="chatbubble-ellipses-outline"
-            value={smsNotifications}
-            onToggle={setSmsNotifications}
-          />
-        </Card>
-      </ScrollView>
+    <ScreenContainer scrollable={false} style={{ paddingHorizontal: 0, paddingBottom: 0 }} bottomInset={false}>
+      <View className="flex-1 bg-surface-background">
+        <View className="bg-white px-4 pt-3 pb-3 border-b border-surface-border">
+          <View className="flex-row items-center">
+            <TouchableOpacity
+              className="w-8 h-8 rounded-full items-center justify-center mr-2"
+              activeOpacity={0.7}
+              onPress={() => router.back()}
+              accessibilityRole="button"
+              accessibilityLabel="Go back"
+            >
+              <Ionicons name="close" size={22} color="#334155" />
+            </TouchableOpacity>
+            <Text className="text-slate-900 text-[18px] font-semibold">Settings</Text>
+          </View>
+        </View>
+
+        <ScrollView
+          className="flex-1"
+          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
+          showsVerticalScrollIndicator={false}
+        >
+          <Text className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2 mt-4 px-0.5">
+            Preferences
+          </Text>
+          <Card padding="none" className="overflow-hidden" style={cardShadow}>
+            <ToggleRow
+              label="Dark Theme"
+              icon="moon-outline"
+              value={currentTheme === "dark"}
+              onToggle={(v) => setTheme(v ? "dark" : "light")}
+            />
+            <ToggleRow
+              label="Push Notifications"
+              icon="notifications-outline"
+              value={pushNotifications}
+              onToggle={setPushNotifications}
+            />
+            <ToggleRow
+              label="Email Notifications"
+              icon="mail-outline"
+              value={emailNotifications}
+              onToggle={setEmailNotifications}
+            />
+            <ToggleRow
+              label="SMS Notifications"
+              icon="chatbubble-ellipses-outline"
+              value={smsNotifications}
+              onToggle={setSmsNotifications}
+            />
+          </Card>
+        </ScrollView>
+      </View>
     </ScreenContainer>
   );
-};
-
-function SettingsSwitch({ label, icon, value, onToggle }: {
-  label: string;
-  icon: keyof typeof Ionicons.glyphMap;
-  value: boolean;
-  onToggle: (value: boolean) => void;
-}) {
-  return (
-    <View style={styles.item}>
-      <View style={styles.itemLeft}>
-        <View style={styles.iconBox}>
-          <Ionicons name={icon} size={18} color={theme.colors.primary} />
-        </View>
-        <Text style={styles.itemLabel}>{label}</Text>
-      </View>
-      <TouchableOpacity
-        style={[styles.switchTrack, value && styles.switchTrackActive]}
-        onPress={() => onToggle(!value)}
-        activeOpacity={0.8}
-        accessibilityRole="switch"
-        accessibilityState={{ checked: value }}
-        accessibilityLabel={label}
-      >
-        <View style={[styles.switchThumb, value && styles.switchThumbActive]} />
-      </TouchableOpacity>
-    </View>
-  );
 }
-
-const styles = StyleSheet.create({
-  scrollView: { flex: 1 },
-  scrollContent: { paddingBottom: theme.spacing.xxl },
-  sectionTitle: {
-    ...theme.typography.hierarchy.caption,
-    color: theme.colors.textTertiary,
-    fontWeight: theme.typography.weight.semibold,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: theme.spacing.sm,
-  },
-  item: {
-    minHeight: 56,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  itemLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
-  iconBox: {
-    width: 36,
-    height: 36,
-    borderRadius: theme.radius.icon,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: theme.colors.primaryLight,
-    marginRight: theme.spacing.md,
-  },
-  itemLabel: { ...theme.typography.hierarchy.bodySmall, color: theme.colors.text, fontWeight: theme.typography.weight.medium },
-  switchTrack: {
-    width: 44,
-    height: 24,
-    borderRadius: theme.radius.full,
-    backgroundColor: '#CBD5E1',
-    padding: 2,
-    justifyContent: 'center',
-  },
-  switchTrackActive: { backgroundColor: theme.colors.primary },
-  switchThumb: {
-    width: 20,
-    height: 20,
-    borderRadius: theme.radius.full,
-    backgroundColor: '#FFFFFF',
-  },
-  switchThumbActive: { alignSelf: 'flex-end' },
-});

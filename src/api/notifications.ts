@@ -1,5 +1,6 @@
 import apiClient from '../utils/axios';
 import {
+  CreateAlertPayload,
   NotificationMutationResponse,
   NotificationResponse,
   RegisterDevicePayload,
@@ -34,6 +35,14 @@ export const notificationsApi = {
   async getUnreadCount(): Promise<UnreadCountResponse> {
     const response = await apiClient.get<UnreadCountResponse>(
       `${SHARED_NOTIFICATIONS_PATH}/unread-count`,
+    );
+    return response.data;
+  },
+
+  async createAlert(payload: CreateAlertPayload): Promise<{ success: boolean; message: string }> {
+    const response = await apiClient.post<{ success: boolean; message: string }>(
+      `${NOTIFICATIONS_PATH}`,
+      payload,
     );
     return response.data;
   },

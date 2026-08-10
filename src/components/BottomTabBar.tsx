@@ -11,7 +11,7 @@ const TAB_ICONS: Record<
   attendance: { focused: "checkbox", default: "checkbox-outline" },
   homework: { focused: "document-text", default: "document-text-outline" },
   notifications: { focused: "notifications", default: "notifications-outline" },
-  more: { focused: "menu", default: "menu-outline" },
+  more: { focused: "person", default: "person-outline" },
 };
 
 export function BottomTabBar({ state, navigation, descriptors }: BottomTabBarProps) {
@@ -37,6 +37,10 @@ export function BottomTabBar({ state, navigation, descriptors }: BottomTabBarPro
             typeof options.tabBarLabel === "string"
               ? options.tabBarLabel
               : options.title ?? route.name;
+          const badge =
+            typeof options.tabBarBadge === "number" || typeof options.tabBarBadge === "string"
+              ? options.tabBarBadge
+              : undefined;
 
           const onPress = () => {
             const event = navigation.emit({
@@ -66,6 +70,26 @@ export function BottomTabBar({ state, navigation, descriptors }: BottomTabBarPro
                   size={isFocused ? 22 : 21}
                   color={isFocused ? "#4F46E5" : "#94A3B8"}
                 />
+                {badge != null && badge !== 0 && badge !== "" && (
+                  <View
+                    style={{
+                      position: "absolute",
+                      top: -3,
+                      right: -9,
+                      minWidth: 16,
+                      height: 16,
+                      paddingHorizontal: 4,
+                      borderRadius: 8,
+                      backgroundColor: "#DC2626",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Text style={{ color: "#FFFFFF", fontSize: 9, fontWeight: "700" }}>
+                      {badge}
+                    </Text>
+                  </View>
+                )}
               </View>
               <Text
                 style={{

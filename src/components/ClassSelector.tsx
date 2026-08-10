@@ -1,15 +1,9 @@
 import { useState } from "react";
+import { cardShadow } from "../theme/shadows";
 import { View, Text, ScrollView, TouchableOpacity, Modal, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import type { TeacherClass } from "@/types";
 
-const cardShadow = {
-  shadowColor: "#000",
-  shadowOffset: { width: 0, height: 1 },
-  shadowOpacity: 0.04,
-  shadowRadius: 4,
-  elevation: 1,
-};
 
 interface ClassSelectorProps {
   classes: TeacherClass[];

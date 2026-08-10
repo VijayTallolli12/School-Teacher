@@ -2,7 +2,7 @@
   "expo": {
     "name": "school-teacher",
     "slug": "school-teacher",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -31,10 +31,19 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "versionCode": 2,
+      "package": "com.vijaytallolli.schoolteacher"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "9fe08f9e-66c8-4859-9040-3e3110fee3ba"
+      }
+    },
+    "owner": "vijaytallollis-team"
   }
 }

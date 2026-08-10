@@ -1,10 +1,35 @@
-import { Stack } from "expo-router";
+import { useEffect } from "react";
+import { BackHandler, Platform } from "react-native";
+import { Stack, router, useNavigation } from "expo-router";
+import { consumeNavFromDashboard } from "@/utils/navigation";
 
 export default function MoreLayout() {
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    if (Platform.OS !== "android") return;
+
+    const onBackPress = () => {
+      const state = navigation.getState();
+      if (!state) return false;
+
+      const routes = state.routes;
+      if (routes.length === 2 && consumeNavFromDashboard()) {
+        router.push("/(tabs)");
+        return true;
+      }
+
+      return false;
+    };
+
+    const subscription = BackHandler.addEventListener("hardwareBackPress", onBackPress);
+    return () => subscription.remove();
+  }, [navigation]);
+
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
-      <Stack.Screen name="profile" />
+      <Stack.Screen name="edit-profile" />
       <Stack.Screen name="timetable" />
       <Stack.Screen name="period-detail" />
       <Stack.Screen name="exams" />

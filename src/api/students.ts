@@ -75,8 +75,8 @@ function mapStudentItem(item: ApiStudentItem): StudentItem {
 
 function mapStudentDetail(data: ApiStudentDetailData): StudentDetail {
   return {
-    id: String(data.id),
-    name: data.full_name ?? 'Unknown Student',
+    id: String(data?.id ?? ''),
+    name: data?.full_name ?? 'Unknown Student',
     admissionNo: data.admission_no ?? '',
     photo: data.photo_url ?? undefined,
     className: data.class_name ?? '',
@@ -147,7 +147,7 @@ export const studentsApi = {
       message: string;
       data: ApiStudentDetailData;
     }>(`/api/v1/teacher/students/${studentId}`);
-    return { data: mapStudentDetail(response.data.data) };
+    return { data: mapStudentDetail(response.data?.data ?? ({} as ApiStudentDetailData)) };
   },
 
   async getStudentAttendance(studentId: string): Promise<StudentAttendanceResponse> {

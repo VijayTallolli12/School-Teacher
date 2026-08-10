@@ -4,10 +4,12 @@
  * Uses Expo's EXPO_PUBLIC_* environment variables.
  * Values are injected at build time by the Expo bundler.
  *
- * Environment files:
- *   .env.development  → EXPO_PUBLIC_API_URL=http://localhost:8000/api
- *   .env.staging       → EXPO_PUBLIC_API_URL=https://staging-api.example.com/api
- *   .env.production    → EXPO_PUBLIC_API_URL=https://api.example.com/api
+ * Environment files (origin only — the axios client appends /api/v1/... paths):
+ *   .env.development  → EXPO_PUBLIC_API_URL=http://192.168.1.3:8000
+ *   .env.staging       → EXPO_PUBLIC_API_URL=<staging origin>
+ *   .env.production    → EXPO_PUBLIC_API_URL=https://school-erp-production-e3a5.up.railway.app
+ *
+ * EAS builds override these via the `env` block in eas.json per profile.
  */
 
 export interface EnvConfig {
@@ -26,10 +28,17 @@ function getEnvName(): EnvConfig['ENV_NAME'] {
 }
 
 function getApiUrl(): string {
-  return (
-    process.env.EXPO_PUBLIC_API_URL ||
-    'http://192.168.1.3:8000'
-  ).replace(/\/+$/, '');
+  const url = process.env.EXPO_PUBLIC_API_URL;
+  if (!url) {
+    // No silent fallback — a production build must never hit a dev LAN IP.
+    // Fail loudly so a missing env var is caught before release.
+    console.error(
+      '[env] EXPO_PUBLIC_API_URL is not set. API calls will fail. ' +
+        'Configure .env.development / .env.staging / .env.production.'
+    );
+    return '';
+  }
+  return url.replace(/\/+$/, '');
 }
 
 export const ENV: EnvConfig = {

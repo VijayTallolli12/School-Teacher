@@ -1,27 +1,66 @@
-import React, { useCallback } from 'react';
+import { useCallback } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
   ActivityIndicator,
-  Linking,
   Alert,
+  Linking,
+  RefreshControl,
   ScrollView,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { router, useLocalSearchParams } from 'expo-router';
-import { useNavigation } from '@react-navigation/native';
-import { ScreenContainer, AppHeader } from '../components';
-import { StudentProfileCard } from '../components/StudentProfileCard';
-import { ParentInfoCard } from '../components/ParentInfoCard';
-import { AttendanceSummaryCard } from '../components/AttendanceSummaryCard';
-import { AppCard } from '../components/AppCard';
-import { AppButton } from '../components/AppButton';
-import { useStudentDetail } from '../hooks/useStudents';
-import { theme } from '../theme';
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { router, useLocalSearchParams } from "expo-router";
+import { ScreenContainer } from "@/components";
+import { Card } from "@/components/ui/Card";
+import { useStudentDetail } from "../hooks/useStudents";
 
-export const StudentDetailScreen: React.FC = () => {
-  const navigation = useNavigation();
+function getInitials(name: string): string {
+  return (
+    name
+      ?.split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2) ?? "?"
+  );
+}
+
+function InfoRow({
+  icon,
+  label,
+  value,
+  onPress,
+}: {
+  icon: keyof typeof Ionicons.glyphMap;
+  label: string;
+  value: string;
+  onPress?: () => void;
+}) {
+  const content = (
+    <View className="flex-row items-center justify-between py-2.5 border-b border-slate-50">
+      <View className="flex-row items-center flex-1">
+        <Ionicons name={icon} size={14} color="#94A3B8" />
+        <Text className="text-slate-500 text-[13px] ml-2">{label}</Text>
+      </View>
+      <Text className="text-slate-800 text-[13px] font-medium text-right flex-1" numberOfLines={1}>
+        {value}
+      </Text>
+    </View>
+  );
+
+  if (onPress) {
+    return (
+      <TouchableOpacity onPress={onPress} activeOpacity={0.7} accessibilityRole="button" accessibilityLabel={label}>
+        {content}
+      </TouchableOpacity>
+    );
+  }
+
+  return content;
+}
+
+export function StudentDetailScreen() {
   const { studentId } = useLocalSearchParams<{ studentId: string }>();
 
   const {
@@ -29,325 +68,335 @@ export const StudentDetailScreen: React.FC = () => {
     isLoading,
     isError,
     refetch,
-  } = useStudentDetail(studentId);
+  } = useStudentDetail(studentId ?? "");
 
   const handleCall = useCallback((phone: string) => {
     Linking.openURL(`tel:${phone}`).catch(() =>
-      Alert.alert('Error', 'Could not initiate call')
+      Alert.alert("Error", "Could not initiate call")
     );
   }, []);
 
   const handleAttendance = useCallback(() => {
-    router.push('/(tabs)/attendance');
+    router.push("/(tabs)/attendance");
   }, []);
 
   const handleHomework = useCallback(() => {
-    router.push('/(tabs)/homework');
+    router.push("/(tabs)/homework");
   }, []);
 
-  if (isLoading) {
-    return (
-      <ScreenContainer>
-        <AppHeader
-          variant="secondary"
-          title="Student Detail"
-          showBackButton
-          onBackPress={() => navigation.goBack()}
-        />
-        <View style={styles.centeredContainer}>
-          <ActivityIndicator size="large" color={theme.colors.primary} />
-        </View>
-      </ScreenContainer>
-    );
-  }
-
-  if (isError || !student) {
-    return (
-      <ScreenContainer>
-        <AppHeader
-          variant="secondary"
-          title="Student Detail"
-          showBackButton
-          onBackPress={() => navigation.goBack()}
-        />
-        <View style={styles.centeredContainer}>
-          <Ionicons name="alert-circle-outline" size={48} color={theme.colors.textLight} />
-          <Text style={styles.errorText}>Could not load student details</Text>
-          <AppButton title="Retry" variant="primary" onPress={() => refetch()} />
-        </View>
-      </ScreenContainer>
-    );
-  }
-
   return (
-    <View style={styles.screen}>
-      <AppHeader
-        variant="secondary"
-        title="Student Detail"
-        showBackButton
-        onBackPress={() => navigation.goBack()}
-      />
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-      >
-        {/* Profile */}
-        <StudentProfileCard
-          name={student.name}
-          admissionNo={student.admissionNo}
-          className={student.className}
-          section={student.section}
-          rollNumber={student.rollNumber}
-          gender={student.gender}
-          dateOfBirth={student.dateOfBirth}
-          bloodGroup={student.bloodGroup}
-        />
-
-        {/* Quick Actions */}
-        <View style={styles.quickActions}>
-          <AppButton
-            title="Call Parent"
-            variant="secondary"
-            leftIcon={<Ionicons name="call-outline" size={18} color={theme.colors.primary} />}
-            onPress={() => handleCall(student.parentInfo.fatherPhone)}
-            style={styles.quickActionBtn}
-            accessibilityLabel="Call parent"
-          />
-          <AppButton
-            title="Attendance"
-            variant="secondary"
-            leftIcon={<Ionicons name="clipboard-outline" size={18} color={theme.colors.secondary} />}
-            onPress={handleAttendance}
-            style={styles.quickActionBtn}
-            accessibilityLabel="View attendance"
-          />
-          <AppButton
-            title="Homework"
-            variant="secondary"
-            leftIcon={<Ionicons name="create-outline" size={18} color={theme.colors.warning} />}
-            onPress={handleHomework}
-            style={styles.quickActionBtn}
-            accessibilityLabel="View homework"
-          />
-        </View>
-
-        {/* Attendance Summary */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>
-            <Ionicons name="bar-chart-outline" size={14} color={theme.colors.textLight} /> Attendance
-          </Text>
-          <AttendanceSummaryCard
-            totalDays={student.attendance.totalDays}
-            present={student.attendance.present}
-            absent={student.attendance.absent}
-            late={student.attendance.late}
-            percentage={student.attendance.percentage}
-          />
-        </View>
-
-        {/* Parent Info */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>
-            <Ionicons name="people-outline" size={14} color={theme.colors.textLight} /> Parent / Guardian
-          </Text>
-          <ParentInfoCard
-            fatherName={student.parentInfo.fatherName}
-            motherName={student.parentInfo.motherName}
-            fatherPhone={student.parentInfo.fatherPhone}
-            motherPhone={student.parentInfo.motherPhone}
-            fatherEmail={student.parentInfo.fatherEmail}
-            motherEmail={student.parentInfo.motherEmail}
-            address={student.parentInfo.address}
-          />
-        </View>
-
-        {/* Transport */}
-        {student.transport && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>
-              <Ionicons name="bus-outline" size={14} color={theme.colors.textLight} /> Transport
-            </Text>
-            <AppCard variant="default" contentStyle={styles.infoCardContent}>
-              <InfoRow icon="map-outline" label="Route" value={student.transport.route} />
-              <InfoRow icon="location-outline" label="Stop" value={student.transport.stop} />
-              <InfoRow icon="time-outline" label="Pickup" value={student.transport.pickupTime} />
-              <InfoRow icon="time-outline" label="Drop" value={student.transport.dropTime} />
-              {student.transport.driverName && (
-                <InfoRow icon="person-outline" label="Driver" value={student.transport.driverName} />
-              )}
-              {student.transport.driverPhone && (
-                <InfoRow icon="call-outline" label="Driver Phone" value={student.transport.driverPhone} />
-              )}
-            </AppCard>
+    <ScreenContainer scrollable={false} style={{ paddingHorizontal: 0, paddingBottom: 0 }} bottomInset={false}>
+      <View className="flex-1 bg-surface-background">
+        {/* Header */}
+        <View className="bg-white px-4 pt-3 pb-3 border-b border-surface-border">
+          <View className="flex-row items-center">
+            <TouchableOpacity
+              onPress={() => router.back()}
+              className="w-9 h-9 bg-slate-100 rounded-full items-center justify-center"
+              activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel="Go back"
+            >
+              <Ionicons name="close" size={20} color="#64748B" />
+            </TouchableOpacity>
+            <Text className="text-slate-900 text-[18px] font-semibold ml-3">Student Detail</Text>
           </View>
-        )}
+        </View>
 
-        {/* Fee Status */}
-        {student.feeStatus && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>
-              <Ionicons name="cash-outline" size={14} color={theme.colors.textLight} /> Fee Status
-            </Text>
-            <AppCard variant="default" contentStyle={styles.infoCardContent}>
-              <InfoRow icon="wallet-outline" label="Total Fee" value={`₹${student.feeStatus.totalFee.toLocaleString()}`} />
-              <InfoRow icon="checkmark-circle" label="Paid" value={`₹${student.feeStatus.paid.toLocaleString()}`} />
-              <InfoRow icon="alert-circle" label="Due" value={`₹${student.feeStatus.due.toLocaleString()}`} />
-              <InfoRow icon="calendar-outline" label="Due Date" value={student.feeStatus.dueDate} />
-              <InfoRow icon="information-circle-outline" label="Status" value={
-                student.feeStatus.status.charAt(0).toUpperCase() +
-                student.feeStatus.status.slice(1)
-              } />
-            </AppCard>
+        {isLoading ? (
+          <View className="flex-1 items-center justify-center">
+            <ActivityIndicator size="large" color="#4F46E5" />
+            <Text className="text-slate-400 text-sm mt-3">Loading student details...</Text>
           </View>
-        )}
-
-        {/* Recent Homework */}
-        {student.recentHomework.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>
-              <Ionicons name="create-outline" size={14} color={theme.colors.textLight} /> Recent Homework
+        ) : isError || !student ? (
+          <View className="flex-1 items-center justify-center px-8">
+            <View className="w-16 h-16 bg-red-50 rounded-full items-center justify-center mb-4">
+              <Ionicons name="cloud-offline-outline" size={32} color="#DC2626" />
+            </View>
+            <Text className="text-slate-800 text-lg font-bold text-center mb-2">Something went wrong</Text>
+            <Text className="text-slate-400 text-sm text-center leading-5 max-w-[260px] mb-6">
+              Could not load student details
             </Text>
-            {student.recentHomework.map((hw) => (
-              <AppCard key={hw.id} variant="default" contentStyle={styles.homeworkCardContent}>
-                <View style={styles.hwLeft}>
-                  <Text style={styles.hwSubject}>{hw.subject}</Text>
-                  <Text style={styles.hwTitle} numberOfLines={1}>
-                    {hw.title}
+            <TouchableOpacity
+              className="flex-row items-center bg-primary-600 px-6 py-3 rounded-xl"
+              activeOpacity={0.7}
+              onPress={() => refetch()}
+              accessibilityRole="button"
+              accessibilityLabel="Retry"
+            >
+              <Ionicons name="refresh-outline" size={18} color="#FFFFFF" />
+              <Text className="text-white font-semibold text-sm ml-2">Retry</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <ScrollView
+            className="flex-1"
+            contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl refreshing={false} onRefresh={refetch} tintColor="#4F46E5" colors={["#4F46E5"]} />
+            }
+          >
+            {/* Profile Card */}
+            <View className="mt-4">
+              <Card padding="lg">
+                <View className="items-center">
+                  <View className="w-20 h-20 rounded-full bg-primary-50 items-center justify-center mb-3">
+                    <Text className="text-primary-600 text-[28px] font-bold">
+                      {getInitials(student?.name ?? "")}
+                    </Text>
+                  </View>
+                  <Text className="text-slate-900 text-[20px] font-bold">
+                    {student?.name ?? "Unknown Student"}
+                  </Text>
+                  <Text className="text-slate-500 text-[13px] mt-1">
+                    {student?.admissionNo ?? "—"} · {student?.className ?? ""}
+                    {student?.section ? ` - ${student.section}` : ""}
                   </Text>
                 </View>
-                <View style={styles.hwRight}>
-                  <Text style={styles.hwDueDate}>{hw.dueDate}</Text>
-                  <Text style={styles.hwStatus}>{hw.status}</Text>
+
+                <View className="mt-4 pt-4 border-t border-slate-100">
+                  <InfoRow icon="list-outline" label="Roll Number" value={student?.rollNumber ?? "—"} />
+                  <InfoRow icon="person-outline" label="Gender" value={student?.gender ?? "—"} />
+                  <InfoRow icon="calendar-outline" label="Date of Birth" value={student?.dateOfBirth ?? "—"} />
+                  <InfoRow icon="color-palette-outline" label="Blood Group" value={student?.bloodGroup ?? "—"} />
                 </View>
-              </AppCard>
-            ))}
-          </View>
+              </Card>
+            </View>
+
+            {/* Quick Actions */}
+            <View className="flex-row gap-3 mt-6">
+              <TouchableOpacity
+                className="flex-1 flex-row items-center justify-center bg-primary-50 rounded-xl py-3"
+                activeOpacity={0.7}
+                onPress={() => handleCall(student?.parentInfo?.fatherPhone ?? "")}
+                accessibilityRole="button"
+                accessibilityLabel="Call parent"
+              >
+                <Ionicons name="call-outline" size={18} color="#4F46E5" />
+                <Text className="text-primary-600 text-[13px] font-semibold ml-2">Call Parent</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="flex-1 flex-row items-center justify-center bg-amber-50 rounded-xl py-3"
+                activeOpacity={0.7}
+                onPress={handleAttendance}
+                accessibilityRole="button"
+                accessibilityLabel="View attendance"
+              >
+                <Ionicons name="clipboard-outline" size={18} color="#D97706" />
+                <Text className="text-amber-600 text-[13px] font-semibold ml-2">Attendance</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="flex-1 flex-row items-center justify-center bg-rose-50 rounded-xl py-3"
+                activeOpacity={0.7}
+                onPress={handleHomework}
+                accessibilityRole="button"
+                accessibilityLabel="View homework"
+              >
+                <Ionicons name="create-outline" size={18} color="#E11D48" />
+                <Text className="text-rose-600 text-[13px] font-semibold ml-2">Homework</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Attendance Summary */}
+            <View className="mt-6">
+              <View className="flex-row items-center mb-2">
+                <Ionicons name="bar-chart-outline" size={14} color="#94A3B8" />
+                <Text className="text-slate-400 text-[12px] font-semibold uppercase ml-1.5 tracking-wider">
+                  Attendance
+                </Text>
+              </View>
+              <Card padding="md">
+                <View className="items-center mb-4">
+                  <Text className="text-slate-900 text-[36px] font-bold">
+                    {student?.attendance?.percentage ?? 0}%
+                  </Text>
+                  <Text className="text-slate-500 text-[13px] mt-1">Attendance Rate</Text>
+                </View>
+                <View className="h-2 bg-slate-100 rounded-full overflow-hidden mb-4">
+                  <View
+                    className="h-full rounded-full"
+                    style={{
+                      width: `${Math.min(student?.attendance?.percentage ?? 0, 100)}%`,
+                      backgroundColor:
+                        (student?.attendance?.percentage ?? 0) >= 75
+                          ? "#10B981"
+                          : (student?.attendance?.percentage ?? 0) >= 50
+                          ? "#F59E0B"
+                          : "#EF4444",
+                    }}
+                  />
+                </View>
+                <View className="flex-row gap-3">
+                  <View className="flex-1 items-center bg-emerald-50 rounded-xl py-2.5">
+                    <Text className="text-emerald-700 text-[18px] font-bold">
+                      {student?.attendance?.present ?? 0}
+                    </Text>
+                    <Text className="text-emerald-600 text-[11px] font-medium">Present</Text>
+                  </View>
+                  <View className="flex-1 items-center bg-red-50 rounded-xl py-2.5">
+                    <Text className="text-red-700 text-[18px] font-bold">
+                      {student?.attendance?.absent ?? 0}
+                    </Text>
+                    <Text className="text-red-600 text-[11px] font-medium">Absent</Text>
+                  </View>
+                  <View className="flex-1 items-center bg-amber-50 rounded-xl py-2.5">
+                    <Text className="text-amber-700 text-[18px] font-bold">
+                      {student?.attendance?.late ?? 0}
+                    </Text>
+                    <Text className="text-amber-600 text-[11px] font-medium">Late</Text>
+                  </View>
+                </View>
+              </Card>
+            </View>
+
+            {/* Parent Info */}
+            <View className="mt-6">
+              <View className="flex-row items-center mb-2">
+                <Ionicons name="people-outline" size={14} color="#94A3B8" />
+                <Text className="text-slate-400 text-[12px] font-semibold uppercase ml-1.5 tracking-wider">
+                  Parent / Guardian
+                </Text>
+              </View>
+              <Card padding="md">
+                <InfoRow icon="person-outline" label="Father" value={student?.parentInfo?.fatherName ?? "—"} />
+                <InfoRow icon="person-outline" label="Mother" value={student?.parentInfo?.motherName ?? "—"} />
+                <InfoRow
+                  icon="call-outline"
+                  label="Father Phone"
+                  value={student?.parentInfo?.fatherPhone ?? "—"}
+                  onPress={() => handleCall(student?.parentInfo?.fatherPhone ?? "")}
+                />
+                <InfoRow
+                  icon="call-outline"
+                  label="Mother Phone"
+                  value={student?.parentInfo?.motherPhone ?? "—"}
+                  onPress={() => handleCall(student?.parentInfo?.motherPhone ?? "")}
+                />
+                {student?.parentInfo?.fatherEmail ? (
+                  <InfoRow
+                    icon="mail-outline"
+                    label="Father Email"
+                    value={student.parentInfo.fatherEmail}
+                  />
+                ) : null}
+                {student?.parentInfo?.motherEmail ? (
+                  <InfoRow
+                    icon="mail-outline"
+                    label="Mother Email"
+                    value={student.parentInfo.motherEmail}
+                  />
+                ) : null}
+                <InfoRow
+                  icon="location-outline"
+                  label="Address"
+                  value={student?.parentInfo?.address ?? "—"}
+                />
+              </Card>
+            </View>
+
+            {/* Transport */}
+            {student?.transport ? (
+              <View className="mt-6">
+                <View className="flex-row items-center mb-2">
+                  <Ionicons name="bus-outline" size={14} color="#94A3B8" />
+                  <Text className="text-slate-400 text-[12px] font-semibold uppercase ml-1.5 tracking-wider">
+                    Transport
+                  </Text>
+                </View>
+                <Card padding="md">
+                  <InfoRow icon="map-outline" label="Route" value={student.transport.route ?? "—"} />
+                  <InfoRow icon="location-outline" label="Stop" value={student.transport.stop ?? "—"} />
+                  <InfoRow icon="time-outline" label="Pickup" value={student.transport.pickupTime ?? "—"} />
+                  <InfoRow icon="time-outline" label="Drop" value={student.transport.dropTime ?? "—"} />
+                  {student.transport.driverName ? (
+                    <InfoRow icon="person-outline" label="Driver" value={student.transport.driverName} />
+                  ) : null}
+                  {student.transport.driverPhone ? (
+                    <InfoRow
+                      icon="call-outline"
+                      label="Driver Phone"
+                      value={student.transport.driverPhone}
+                      onPress={() => handleCall(student?.transport?.driverPhone ?? "")}
+                    />
+                  ) : null}
+                </Card>
+              </View>
+            ) : null}
+
+            {/* Fee Status */}
+            {student?.feeStatus ? (
+              <View className="mt-6">
+                <View className="flex-row items-center mb-2">
+                  <Ionicons name="cash-outline" size={14} color="#94A3B8" />
+                  <Text className="text-slate-400 text-[12px] font-semibold uppercase ml-1.5 tracking-wider">
+                    Fee Status
+                  </Text>
+                </View>
+                <Card padding="md">
+                  <InfoRow
+                    icon="wallet-outline"
+                    label="Total Fee"
+                    value={`₹${(student.feeStatus.totalFee ?? 0).toLocaleString()}`}
+                  />
+                  <InfoRow
+                    icon="checkmark-circle"
+                    label="Paid"
+                    value={`₹${(student.feeStatus.paid ?? 0).toLocaleString()}`}
+                  />
+                  <InfoRow
+                    icon="alert-circle"
+                    label="Due"
+                    value={`₹${(student.feeStatus.due ?? 0).toLocaleString()}`}
+                  />
+                  <InfoRow icon="calendar-outline" label="Due Date" value={student.feeStatus.dueDate ?? "—"} />
+                  <InfoRow
+                    icon="information-circle-outline"
+                    label="Status"
+                    value={
+                      student.feeStatus.status
+                        ? student.feeStatus.status.charAt(0).toUpperCase() + student.feeStatus.status.slice(1)
+                        : "—"
+                    }
+                  />
+                </Card>
+              </View>
+            ) : null}
+
+            {/* Recent Homework */}
+            {student?.recentHomework && student.recentHomework.length > 0 ? (
+              <View className="mt-6">
+                <View className="flex-row items-center mb-2">
+                  <Ionicons name="create-outline" size={14} color="#94A3B8" />
+                  <Text className="text-slate-400 text-[12px] font-semibold uppercase ml-1.5 tracking-wider">
+                    Recent Homework
+                  </Text>
+                </View>
+                {student.recentHomework.map((hw, index) => (
+                  <Card key={hw?.id ?? `hw-${index}`} padding="md" className="mb-2">
+                    <View className="flex-row items-center justify-between">
+                      <View className="flex-1 mr-3">
+                        <Text className="text-primary-600 text-[12px] font-bold mb-0.5">
+                          {hw?.subject ?? "—"}
+                        </Text>
+                        <Text className="text-slate-800 text-[14px] font-semibold" numberOfLines={1}>
+                          {hw?.title ?? "Untitled"}
+                        </Text>
+                      </View>
+                      <View className="items-end">
+                        <Text className="text-slate-400 text-[11px]">{hw?.dueDate ?? "—"}</Text>
+                        <Text className="text-slate-500 text-[11px] font-medium mt-0.5">
+                          {hw?.status ?? "—"}
+                        </Text>
+                      </View>
+                    </View>
+                  </Card>
+                ))}
+              </View>
+            ) : null}
+          </ScrollView>
         )}
-      </ScrollView>
-    </View>
+      </View>
+    </ScreenContainer>
   );
-};
-
-interface InfoRowProps {
-  icon: keyof typeof Ionicons.glyphMap;
-  label: string;
-  value: string;
 }
-
-const InfoRow: React.FC<InfoRowProps> = ({ icon, label, value }) => (
-  <View style={styles.infoRow} accessibilityRole="text" accessibilityLabel={`${label}: ${value}`}>
-    <View style={styles.infoLeft}>
-      <Ionicons name={icon} size={14} color={theme.colors.textSecondary} />
-      <Text style={styles.infoLabel}>{label}</Text>
-    </View>
-    <Text style={styles.infoValue}>{value}</Text>
-  </View>
-);
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: theme.colors.backgroundSecondary,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingBottom: theme.spacing.xxl,
-  },
-  centeredContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: theme.spacing.xl,
-    gap: theme.spacing.md,
-  },
-  errorText: {
-    ...theme.typography.hierarchy.body,
-    color: theme.colors.textSecondary,
-    marginBottom: theme.spacing.md,
-  },
-  quickActions: {
-    flexDirection: 'row',
-    gap: theme.spacing.sm,
-    marginBottom: theme.spacing.lg,
-  },
-  quickActionBtn: {
-    flex: 1,
-  },
-  section: {
-    marginBottom: theme.spacing.lg,
-  },
-  sectionTitle: {
-    ...theme.typography.hierarchy.caption,
-    fontWeight: theme.typography.weight.bold,
-    color: theme.colors.textLight,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    marginBottom: theme.spacing.sm,
-    marginLeft: theme.spacing.xs,
-  },
-  infoCardContent: {
-    padding: 0,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm + 2,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: theme.colors.border,
-  },
-  infoLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  infoLabel: {
-    ...theme.typography.hierarchy.bodySmall,
-    color: theme.colors.textSecondary,
-  },
-  infoValue: {
-    ...theme.typography.hierarchy.bodySmall,
-    fontWeight: theme.typography.weight.medium,
-    color: theme.colors.text,
-    textAlign: 'right',
-    flex: 1,
-    marginLeft: theme.spacing.md,
-  },
-  homeworkCardContent: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: theme.spacing.md,
-    marginBottom: theme.spacing.xs,
-  },
-  hwLeft: {
-    flex: 1,
-  },
-  hwSubject: {
-    ...theme.typography.hierarchy.caption,
-    fontWeight: theme.typography.weight.bold,
-    color: theme.colors.primary,
-    marginBottom: 1,
-  },
-  hwTitle: {
-    ...theme.typography.hierarchy.bodySmall,
-    color: theme.colors.text,
-  },
-  hwRight: {
-    alignItems: 'flex-end',
-    marginLeft: theme.spacing.sm,
-  },
-  hwDueDate: {
-    ...theme.typography.hierarchy.caption,
-    color: theme.colors.textLight,
-    marginBottom: 2,
-  },
-  hwStatus: {
-    ...theme.typography.hierarchy.caption,
-    color: theme.colors.textSecondary,
-    fontWeight: theme.typography.weight.medium,
-  },
-});
