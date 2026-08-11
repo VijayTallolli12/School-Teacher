@@ -7,7 +7,7 @@
  * Environment files (origin only — the axios client appends /api/v1/... paths):
  *   .env.development  → EXPO_PUBLIC_API_URL=http://192.168.1.3:8000
  *   .env.staging       → EXPO_PUBLIC_API_URL=<staging origin>
- *   .env.production    → EXPO_PUBLIC_API_URL=https://school-erp-production-e3a5.up.railway.app
+ *   .env.production    → EXPO_PUBLIC_API_URL=https://paleturquoise-monkey-126256.hostingersite.com
  *
  * EAS builds override these via the `env` block in eas.json per profile.
  */

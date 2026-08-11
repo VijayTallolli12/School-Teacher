@@ -38,12 +38,12 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "owner": "vijaytallollis-team",
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "9fe08f9e-66c8-4859-9040-3e3110fee3ba"
+        "projectId": "c4614d1e-d512-4e2e-8040-e2657000c9c0"
       }
-    },
-    "owner": "vijaytallollis-team"
+    }
   }
 }

@@ -32,6 +32,7 @@ yarn-error.*
 
 # local env files
 .env*.local
+.env.production
 
 # typescript
 *.tsbuildinfo
@@ -39,3 +40,17 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# EAS build artifacts
+*.apk
+*.aab
+
+# build/test output
+dist-test/
+
+# browser automation temp profiles
+.tmp-chrome*
+.tmp-edge
+
+# Freebuff desktop client local state (not part of the project)
+.freebuff/
