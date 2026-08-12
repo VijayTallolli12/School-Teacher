@@ -106,7 +106,18 @@ export function ExamsScreen() {
       <View className="flex-1 bg-surface-background">
         <View className="bg-white px-4 pt-3 pb-3 border-b border-surface-border">
           <View className="flex-row items-center justify-between">
-            <Text className="text-slate-900 text-[18px] font-semibold">Exams</Text>
+            <View className="flex-row items-center flex-1 min-w-0">
+              <TouchableOpacity
+                className="w-9 h-9 bg-slate-100 rounded-full items-center justify-center mr-2"
+                activeOpacity={0.7}
+                onPress={() => router.back()}
+                accessibilityRole="button"
+                accessibilityLabel="Go back"
+              >
+                <Ionicons name="chevron-back" size={22} color="#334155" />
+              </TouchableOpacity>
+              <Text className="text-slate-900 text-[18px] font-semibold flex-1" numberOfLines={1}>Exams</Text>
+            </View>
             <TouchableOpacity
               className="w-9 h-9 bg-slate-100 rounded-full items-center justify-center"
               activeOpacity={0.7}
