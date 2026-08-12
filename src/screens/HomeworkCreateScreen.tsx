@@ -11,13 +11,30 @@ import type { HomeworkPayload } from "@/types";
 
 
 export function HomeworkCreateScreen() {
-  const { homeworkId } = useLocalSearchParams<{ homeworkId?: string }>();
+  const { homeworkId, subject, className, section } = useLocalSearchParams<{
+    homeworkId?: string;
+    subject?: string;
+    className?: string;
+    section?: string;
+  }>();
   const isEdit = Boolean(homeworkId);
 
   const { mutate: createHomework, isPending: isCreating } = useCreateHomework();
   const { mutate: updateHomework, isPending: isUpdating } = useUpdateHomework();
   const { data: classes, isLoading: classesLoading, error: classesError } = useClasses();
   const { data: existingHomework, isLoading: detailLoading, error: detailError } = useHomeworkDetail(homeworkId ?? "");
+
+  const prefillData: HomeworkPayload | undefined =
+    isEdit || !subject
+      ? undefined
+      : {
+          title: "",
+          description: "",
+          subject: subject ?? "",
+          class: className ?? "",
+          section: section ?? "",
+          dueDate: "",
+        };
 
   const handleBack = useCallback(() => router.back(), []);
 
@@ -120,7 +137,7 @@ export function HomeworkCreateScreen() {
           keyboardShouldPersistTaps="handled"
         >
           <HomeworkForm
-            initialData={isEdit ? existingHomework : undefined}
+            initialData={isEdit ? existingHomework : prefillData}
             classes={classes ?? []}
             onSubmit={handleSubmit}
             isSubmitting={isCreating || isUpdating}

@@ -28,17 +28,3 @@ export const useWeeklyTimetable = (): UseQueryResult<TimetableDay[], Error> => {
     staleTime: 10 * 60 * 1000,
   });
 };
-
-export const usePeriodDetail = (
-  periodId: string
-): UseQueryResult<PeriodItem, Error> => {
-  return useQuery({
-    queryKey: ['timetable', 'period', periodId],
-    queryFn: async () => {
-      const response = await timetableApi.getPeriodDetail(periodId);
-      return response.data;
-    },
-    enabled: !!periodId,
-    staleTime: 5 * 60 * 1000,
-  });
-};

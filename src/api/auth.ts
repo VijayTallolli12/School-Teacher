@@ -62,6 +62,19 @@ function mapApiData(user: ApiUser, teacher: ApiTeacher, schoolId: string): User 
   };
 }
 
+async function getStoredSchoolId(): Promise<string> {
+  try {
+    const profile = await import('../utils/storage').then(({ storage }) => storage.getProfile());
+    if (profile) {
+      const saved = JSON.parse(profile) as User;
+      if (saved?.schoolId) return saved.schoolId;
+    }
+  } catch {
+    // ignore
+  }
+  return '';
+}
+
 export const authApi = {
   async login(credentials: LoginRequest): Promise<LoginResponse> {
     const response = await apiClient.post<{
@@ -81,26 +94,32 @@ export const authApi = {
   },
 
   async getProfile(): Promise<ProfileResponse> {
-    const response = await apiClient.get<{
-      success: boolean;
-      message: string;
-      data: { user: ApiUser; teacher: ApiTeacher };
-    }>('/api/v1/teacher/profile');
+    const [response, storedSchoolId] = await Promise.all([
+      apiClient.get<{
+        success: boolean;
+        message: string;
+        data: { user: ApiUser; teacher: ApiTeacher };
+      }>('/api/v1/teacher/profile'),
+      getStoredSchoolId(),
+    ]);
     const d = response.data.data;
     return {
-      user: mapApiData(d.user, d.teacher, ''),
+      user: mapApiData(d.user, d.teacher, storedSchoolId),
     };
   },
 
   async updateProfile(payload: UpdateProfilePayload): Promise<ProfileResponse> {
-    const response = await apiClient.put<{
-      success: boolean;
-      message: string;
-      data: { user: ApiUser; teacher: ApiTeacher };
-    }>('/api/v1/teacher/profile', payload);
+    const [response, storedSchoolId] = await Promise.all([
+      apiClient.put<{
+        success: boolean;
+        message: string;
+        data: { user: ApiUser; teacher: ApiTeacher };
+      }>('/api/v1/teacher/profile', payload),
+      getStoredSchoolId(),
+    ]);
     const d = response.data.data;
     return {
-      user: mapApiData(d.user, d.teacher, ''),
+      user: mapApiData(d.user, d.teacher, storedSchoolId),
     };
   },
 

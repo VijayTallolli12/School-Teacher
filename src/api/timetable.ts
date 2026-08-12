@@ -2,7 +2,6 @@ import apiClient from '../utils/axios';
 import {
   TodayTimetableResponse,
   WeeklyTimetableResponse,
-  PeriodDetailResponse,
   PeriodItem,
   TimetableDay,
 } from '../types';
@@ -118,22 +117,5 @@ export const timetableApi = {
     }));
 
     return { data: days };
-  },
-
-  async getPeriodDetail(periodId: string): Promise<PeriodDetailResponse> {
-    const today = await this.getTodayTimetable();
-    const period = today.data.day.periods.find((p) => p.id === periodId) ?? {
-      id: periodId,
-      periodNumber: 0,
-      startTime: '--:--',
-      endTime: '--:--',
-      subject: 'Unnamed Period',
-      className: '',
-      section: '',
-      room: 'Room Not Assigned',
-      teacher: 'Not assigned',
-      studentCount: 0,
-    };
-    return { data: period };
   },
 };

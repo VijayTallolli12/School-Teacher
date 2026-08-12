@@ -302,16 +302,7 @@ export function TransportScreen() {
 
           {routes.length > 0 && (
             <>
-              <SectionHeader
-                title="Routes"
-                action={
-                  <TouchableOpacity activeOpacity={0.7}>
-                    <Text className="text-primary-600 text-xs font-semibold">
-                      See All
-                    </Text>
-                  </TouchableOpacity>
-                }
-              />
+              <SectionHeader title="Routes" />
               <Card padding="none" className="overflow-hidden">
                 {routes.map((route, index) => (
                   <TouchableOpacity
@@ -368,16 +359,7 @@ export function TransportScreen() {
 
           {vehicles.length > 0 && (
             <>
-              <SectionHeader
-                title="Vehicles"
-                action={
-                  <TouchableOpacity activeOpacity={0.7}>
-                    <Text className="text-primary-600 text-xs font-semibold">
-                      See All
-                    </Text>
-                  </TouchableOpacity>
-                }
-              />
+              <SectionHeader title="Vehicles" />
               <Card padding="none" className="overflow-hidden mb-4">
                 {vehicles.map((vehicle, index) => (
                   <TouchableOpacity
